@@ -1,0 +1,184 @@
+package {{packageName}};
+
+import javadb.queryutils.*;
+import java.util.*;
+
+import com.google.common.collect.MapMaker;
+
+import {{fullSourceClass}};
+
+public class {{sourceClass}}Table {
+    public static Set<{{sourceClass}}> table = new HashSet<>();
+        //Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());
+
+    // Maps for indexed fields
+    {{#fields}}
+    {{#hasIndex}}
+    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<>();
+        // new MapMaker().weakKeys().makeMap();
+
+    {{/hasIndex}}
+    {{/fields}}
+    public static void insert({{sourceClass}} val) {
+        {{#fields}}
+        {{#hasIndex}}
+        // Populate {{name}} index
+        Set<{{sourceClass}}> {{name}}Set = {{name}}Index.get(val.{{name}});
+        if ({{name}}Set == null) {
+            {{name}}Set = new HashSet<{{sourceClass}}>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());;
+        }
+        {{name}}Set.add(val);
+        {{name}}Index.put(val.{{name}}, {{name}}Set);
+        {{/hasIndex}}
+        {{/fields}}
+        // Populate standard table
+        table.add(val);
+    }
+
+    // Set methods - make sure you use these on indexed fields for consistency!
+    {{#fields}}
+    {{^isFinal}}
+    public static void set{{CCname}}({{sourceClass}} instance, {{_type}} val) {
+        {{#hasIndex}}
+        {{name}}Index.get(instance.{{name}}).remove(instance);
+        instance.{{name}} = val;
+        Set<{{sourceClass}}> {{name}}Set = {{name}}Index.get(instance.{{name}});
+        if ({{name}}Set == null) {
+            {{name}}Set = new HashSet<{{sourceClass}}>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());;
+            {{name}}Index.put(instance.{{name}}, {{name}}Set);
+        }
+        {{name}}Set.add(instance);
+        {{/hasIndex}}
+        {{^hasIndex}}
+        instance.{{name}} = val;
+        {{/hasIndex}}
+    }
+
+    {{/isFinal}}
+    {{/fields}}
+
+    // Get methods -- these are retrievals for attribute = value queries
+    {{#fields}}
+    public static Stream<{{sourceClass}}> query{{CCname}}({{_type}} val) {
+        {{#hasIndex}}
+        Set<{{sourceClass}}> result = {{name}}Index.get(val);
+        return result == null
+                ? new Retrieval<{{sourceClass}}>(Collections.EMPTY_LIST, 0)
+                : new Retrieval<{{sourceClass}}>(result, result.size()); 
+        {{/hasIndex}}
+        {{^hasIndex}}
+        return scan().filter(field{{CCname}}(),val);
+        {{/hasIndex}}
+    }
+
+    {{/fields}}
+    {{#queries}}
+    public static Stream<{{sourceClass}}>
+    query{{#qFields}}{{CCname}}{{/qFields}}({{prototype}}) {
+        Iterable<{{sourceClass}}> seed = table;
+        int size = table.size();
+        {{#hasIndex}}
+        Set<{{sourceClass}}> l;
+        Object usedIndex = null;
+
+        {{/hasIndex}}
+        {{#qFields}}
+        {{#hasIndex}}
+        // Check {{name}} index
+        l = {{name}}Index.get({{name}});
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = {{name}};
+        }
+        {{/hasIndex}}
+        {{/qFields}}
+
+        Stream<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(seed, size);
+
+        {{#qFields}}
+        // Filter {{name}}
+        {{#hasIndex}}
+        if ({{name}} != usedIndex)
+            result = result.filter(field{{CCname}}(),{{name}});
+        {{/hasIndex}}
+        {{^hasIndex}}
+        result = result.filter(field{{CCname}}(),{{name}});
+        {{/hasIndex}}
+
+        {{/qFields}}
+        return result;
+    }
+
+    {{/queries}}
+
+    {{#fields}}
+    public static FieldExtractable field{{CCname}}() {
+        return new FieldExtractable() {
+            @Override
+            public {{type}} extractField(Object instance) {
+                return (({{sourceClass}})instance).{{name}};
+            }
+
+            @Override
+            public Class<?> getContainerClass() {
+                return {{sourceClass}}.class;
+            }
+
+            @Override
+            public boolean isIndexed() {
+                {{#hasIndex}}
+                return true;
+                {{/hasIndex}}
+                {{^hasIndex}}
+                return false;
+                {{/hasIndex}}
+            }
+        };
+    }
+
+    {{/fields}}
+
+    public static FieldExtractable itself() {
+        return new FieldExtractable() {
+            @Override
+            public Object extractField(Object instance) {
+                return instance;
+            }
+
+            @Override
+            public Class<?> getContainerClass() {
+                return {{sourceClass}}.class;
+            }
+
+            @Override
+            public boolean isIndexed() {
+                return false;
+            }
+        };
+    }
+
+    public static JoinStream<{{sourceClass}}> joinOn(FieldExtractable jf) {
+        return scan().joinOn(jf);
+    }
+
+    {{#fields}}
+    public static JoinStream<{{sourceClass}}> joinOnField{{CCname}}() {
+        {{#hasIndex}}
+        return new IndexRetrieval<{{sourceClass}}>({{name}}Index).joinOn(field{{CCname}}()); 
+        {{/hasIndex}}
+        {{^hasIndex}}
+        return scan().joinOn(field{{CCname}}());
+        {{/hasIndex}}
+    }
+
+    {{/fields}}
+
+    public static JoinStream<{{sourceClass}}> joinOnItself() {
+        return scan().joinOn(itself());
+    }
+
+    public static Stream<{{sourceClass}}> scan() {
+        return new Retrieval<{{sourceClass}}>(table, table.size());
+    }
+}

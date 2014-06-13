@@ -1,0 +1,3 @@
+Tried using LinkedList for table. about 3x slower than using hashset
+
+Using Collections.newSetFromMap on a WeakHashMap yields failed unit tests.

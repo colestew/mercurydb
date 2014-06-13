@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="cs386d-final">
+    <property environment="env"/>
+    <property name="ECLIPSE_HOME" value="../../../../../Applications/eclipse"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
+    <path id="cs386d-final.classpath">
+        <pathelement location="."/>
+        <pathelement location="libraries/commons-io-2.4.jar"/>
+        <pathelement location="libraries/guava-16.0.1.jar"/>
+        <pathelement location="libraries/mustache-1.3.0.jar"/>
+        <pathelement location="libraries/javassist.jar"/>
+    </path>
+    <target name="init">
+        <copy includeemptydirs="false" todir=".">
+            <fileset dir=".">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete>
+            <fileset dir="." includes="**/*.class"/>
+        </delete>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="." includeantruntime="false" source="${source}" target="${target}">
+            <src path="."/>
+            <classpath refid="cs386d-final.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="Common">
+        <java classname="dbasePackage.Common" failonerror="true" fork="yes">
+            <classpath refid="cs386d-final.classpath"/>
+        </java>
+    </target>
+    <target name="Foo">
+        <java classname="javadb.test.Foo" failonerror="true" fork="yes">
+            <classpath refid="cs386d-final.classpath"/>
+        </java>
+    </target>
+    <target name="JavaDB">
+        <java classname="javadb.Main" failonerror="true" fork="yes">
+            <classpath refid="cs386d-final.classpath"/>
+        </java>
+    </target>
+    <target name="JavaDBInsertHooks">
+        <java classname="javadb.Main" failonerror="true" fork="yes">
+            <arg line="javadb outdb --insert-hooks"/>
+            <classpath refid="cs386d-final.classpath"/>
+        </java>
+    </target>
+</project>
