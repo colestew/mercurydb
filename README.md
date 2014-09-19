@@ -16,7 +16,7 @@ _MercuryDB_ is provided to developers as an application, `mdb`, which, given a _
 
 As part of the build process for an application using _MercuryDB_, `mdb` produces __mercury packages__ which have an altered namespace to prevent linking against the __source package__ when a developer intends to link against the __mercury package__ instead. The developer will have to update the relevant namespaces as described below in order to take advantage of the new functionality offered by _MercuryDB_.
 
-A __schema__ is produced by _MercuryDB_ after running `mdb` on a __package__ and producing a __mercury package__. In practice this __schema__ is a separate library which defines the API that can be used to interact with 
+A __schema__ is produced by _MercuryDB_ after running `mdb` on a __package__ and producing a __mercury package__. In practice this __schema__ is a separate library which defines the API that can be used to interact with objects in the __mercury package__.
 
 ### Namespaces
 
