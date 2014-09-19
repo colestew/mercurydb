@@ -36,11 +36,11 @@ In order to interact with the database functionality provided by the modificatio
 
 ## Setup
 
-<coming soon>
+[coming soon]
 
 ## Maven Integration
 
-<coming soon>
+[coming soon]
 
 ## Performance
 
@@ -50,7 +50,7 @@ Because the database remains fully resident in memory while the application is r
 
 ### Performance Analysis
 
-<coming soon>
+[coming soon]
 
 ## Compatibility
 
@@ -68,4 +68,4 @@ In a certain context, you can think of _MercuryDB_ as a kind of jQuery for Java 
 
 ### How do you make the changes to the packages?
 
-Given .class files, we use a utility library called `javassist` to update the class files and make certain kinds of changes. Not all modifications to the bytecode are possible, but one thing we really count on is inserting instructions at the beginning and end of methods and constructors.
+Given `.class` files, we use a utility library called `javassist` to update the class files and make certain kinds of changes. Not all modifications to the bytecode are possible, but one thing we really count on is inserting instructions at the beginning and end of methods and constructors.
