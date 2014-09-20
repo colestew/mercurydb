@@ -8,14 +8,14 @@ import com.google.common.collect.MapMaker;
 import {{fullSourceClass}};
 
 public class {{sourceClass}}Table {
-    public static Set<{{sourceClass}}> table = new HashSet<>();
-        //Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());
+    public static final List<{{sourceClass}}> table = new ArrayList<>();
+    
+    public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
 
     // Maps for indexed fields
     {{#fields}}
     {{#hasIndex}}
     private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<>();
-        // new MapMaker().weakKeys().makeMap();
 
     {{/hasIndex}}
     {{/fields}}
@@ -31,8 +31,40 @@ public class {{sourceClass}}Table {
         {{name}}Index.put(val.{{name}}, {{name}}Set);
         {{/hasIndex}}
         {{/fields}}
-        // Populate standard table
-        table.add(val);
+        // Populate standard table if T(val) == {{sourceClass}}
+        if ({{sourceClass}}.class.equals(val.getClass()))
+            table.add(val);
+        {{#hasSuper}}
+        // Populate super table indices
+        {{cSuper}}Table.insert(val);
+        {{/hasSuper}}
+    }
+    
+    public static void remove({{sourceClass}} val) {
+    	// Remove from table
+    	if ({{sourceClass}}.class.equals(val.getClass()))
+    	    table.remove(val);
+    	
+    	{{#fields}}
+    	{{#hasIndex}}
+    	// Remove from {{name}} index
+    	{{name}}Index.values().removeAll(Collections.singleton(val));
+ 
+    	{{/hasIndex}}
+    	{{/fields}}
+    	
+    	{{#hasSuper}}
+    	// Remove from {{cSuper}} indices (superclass)
+    	{{cSuper}}Table.remove(val);
+    	{{/hasSuper}}
+    	// Remove from subclass indices
+    	{{#subClasses}}
+    	if ({{toString}}Table.containedClass.isInstance(val)) {
+    	    {{toString}}Table.remove({{toString}}Table.containedClass.cast(val));
+    	    return;
+    	}
+    	{{/subClasses}}
+    	
     }
 
     // Set methods - make sure you use these on indexed fields for consistency!
