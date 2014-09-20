@@ -33,19 +33,26 @@ public class MercuryBootstrap {
 	 * Predicate for classes which can be properly
 	 * mapped to output tables.
 	 */
-	private static Predicate<Class<?>> supportedClassCheck = cls 
-			-> !cls.isMemberClass() && !cls.isLocalClass() && !cls.isAnonymousClass();
-	
+	private static Predicate<Class<?>> supportedClassCheck = cls -> !cls.isMemberClass() 
+			&& !cls.isLocalClass() 
+			&& !cls.isAnonymousClass();
+
+	/**
+	 * source directory for classes
+	 */
 	private final File _srcDir;
-	
+
+	/**
+	 * output directory for tables
+	 */
 	private final File _outDir;
-	
+
 	/**
 	 * Tells this class to insert hooks into the
 	 * source bytecode
 	 */
 	private final boolean _insertHooks;
-	
+
 	/**
 	 * Primary constructor for MercuryBootstrap.
 	 * 
@@ -57,49 +64,54 @@ public class MercuryBootstrap {
 	 */
 	public MercuryBootstrap(File srcClass, File outClass, boolean insertHooks) 
 			throws NotFoundException, CannotCompileException {
-		
+
 		this._srcDir = srcClass;
 		this._outDir = outClass;
 		this._insertHooks = insertHooks;
 	}
-	
+
+	/**
+	 * Performs the bootstrap operation. This is everything. The
+	 * cat's meow. Namely, it fetches all class files in the
+	 * source directory and converts them into class objects. Then
+	 */
 	public void performBootstrap() {
 		try {
 			ClassPool cp = ClassPool.getDefault();
-			
+
 			URL url = _srcDir.toURI().toURL();
 			URL[] urls = new URL[] { url };
 			ClassLoader cl = new URLClassLoader(urls);
-			
+
 			// Fetch appropriate class files
 			Collection<File> classFiles = FileUtils.listFiles(
 					_srcDir,
 					FileFilterUtils.suffixFileFilter(".class"),
 					TrueFileFilter.INSTANCE);
-			
+
 			// Convert class files to class objects
 			Collection<Class<?>> classes = classFiles.stream()
 					.map(f -> Utils.loadClass(cl, f)) // could have null results
 					.filter(c -> c != null && supportedClassCheck.test(c))
 					.collect(Collectors.toList());
-			
-			
+
+
 			Collection<File> tableFiles = new ArrayList<File>();
-			
+
 			Map<Class<?>, List<Class<?>>> subClassMap = getSubclasses(classes);
-			
+
 			/*
 			 *  Create Java tables (*Table.java files)
 			 */
 			for (Class<?> cls : classes) {
 				Collection<String> subTables = Collections.emptyList();
-				
+
 				if (subClassMap.containsKey(cls)) {
 					subTables = subClassMap.get(cls).stream()
 							.map(c -> toTable(c))
 							.collect(Collectors.<String>toList());
 				}
-				
+
 				File tableFile = new File(
 						Utils.toFile(cls).getPath().replace(
 								_srcDir.getPath(), 
@@ -109,8 +121,8 @@ public class MercuryBootstrap {
 				System.out.println("Extracting " + cls + " to " + tableFile);
 				String superTable = subClassMap.containsKey(cls.getSuperclass()) ? 
 						toTable(cls.getSuperclass()) : null;
-				ClassExtractor extractor = new ClassExtractor(cls, superTable, subTables);
-				extractor.extract(tableFile);
+						ClassExtractor extractor = new ClassExtractor(cls, superTable, subTables);
+						extractor.extract(tableFile);
 			}
 
 			/*
@@ -143,34 +155,42 @@ public class MercuryBootstrap {
 
 		System.out.println("Done.");
 	}
-	
+
 	private String toTable(Class<?> c) {
 		String subClass = Utils.toFile(c).getPath();
 		subClass = subClass.replace(_srcDir.getPath(), _outDir.getPath());
 		return Utils.toPackage(subClass);
 	}
-	
+
+	/**
+	 * Method which returns a map of each class in the given collection
+	 * to immediate subclasses of that classes that are also in the given collection.
+	 * 
+	 * @param classes  the collection of classes as restriction of i/o
+	 * @return map of each class to its immediate subclasses
+	 */
 	private Map<Class<?>, List<Class<?>>> getSubclasses(Collection<Class<?>> classes) {
-		
+
 		Map<Class<?>, List<Class<?>>> subclassMap = new HashMap<>();
 		for (Class<?> c : classes) {
 
 			// Determine if superclass has a mapped table class
-			if (classes.contains(c.getSuperclass()) && supportedClassCheck.test(c)) {
-				
+			Class<?> currC = c;
+			if (classes.contains(currC.getSuperclass())) {
+
 				// Now if this subclass is supported put it in the map
-				if (supportedClassCheck.test(c)) {
-					List<Class<?>> subClasses = subclassMap.get(c.getSuperclass());
-					if (subClasses == null) {
-						subClasses = new ArrayList<>();
-						if (supportedClassCheck.test(c))
-							subclassMap.put(c.getSuperclass(), subClasses);
-					}
-					subClasses.add(c);
+				List<Class<?>> subClasses = subclassMap.get(currC.getSuperclass());
+				if (subClasses == null) {
+					subClasses = new ArrayList<>();
+					subclassMap.put(currC.getSuperclass(), subClasses);
 				}
+				subClasses.add(c);
+				
+				currC = c.getSuperclass();
 			}
 		}
-		
+
 		return subclassMap;
 	}
 }
+

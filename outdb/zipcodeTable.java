@@ -5,16 +5,29 @@ import java.util.*;
 
 import com.google.common.collect.MapMaker;
 
-import javadb.tests.target.zipcode;
+import tests.target.zipcode;
 
 public class zipcodeTable {
-    public static Set<zipcode> table = new HashSet<>();
-        //Collections.newSetFromMap(new WeakHashMap<zipcode, Boolean>());
+    public static final List<zipcode> table = new ArrayList<>();
+    
+    public static final Class<zipcode> containedClass = zipcode.class;
 
     // Maps for indexed fields
     public static void insert(zipcode val) {
-        // Populate standard table
-        table.add(val);
+        // Populate standard table if T(val) == zipcode
+        if (zipcode.class.equals(val.getClass()))
+            table.add(val);
+        // Populate super table indices
+        outdb.CommonTable.insert(val);
+    }
+    
+    public static void remove(zipcode val) {
+    	// Remove from table
+    	if (zipcode.class.equals(val.getClass()))
+    	    table.remove(val);
+    	// Remove from outdb.Common indices (superclass)
+    	outdb.CommonTable.remove(val);
+    	// Remove from subclass indices
     }
 
     // Set methods - make sure you use these on indexed fields for consistency!
@@ -128,7 +141,14 @@ public class zipcodeTable {
         return scan().joinOn(itself());
     }
 
-    public static Stream<zipcode> scan() {
-        return new Retrieval<zipcode>(table, table.size());
+    public static Retrieval<zipcode> scan() {
+        /*
+         * Here we need to do a tree traversal such that
+         * every possible subclass table is joined with
+         * this classes table in the scan
+         */
+         
+        Retrieval<zipcode> result = new Retrieval<zipcode>(table, table.size());
+        return result;
     }
 }

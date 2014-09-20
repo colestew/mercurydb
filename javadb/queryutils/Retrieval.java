@@ -3,6 +3,8 @@ package javadb.queryutils;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.google.common.collect.Iterables;
+
 /**
  * Table classes will define these. Each 
  * instance has two possible implementations switched
@@ -15,13 +17,19 @@ import java.util.Map;
  * @author colestew
  */
 public class Retrieval<C> extends Stream<C> {
-	private final Iterable<C> streamSeed;
+	private Iterable<C> streamSeed;
 	private Iterator<C> stream;
 	
 	public Retrieval(Iterable<C> streamSeed, int cardinality) {
 		super(cardinality);
 		this.streamSeed = streamSeed;
 		stream = streamSeed.iterator();
+	}
+	
+	public Retrieval<C> join(Retrieval<? extends C> or) {
+		streamSeed = Iterables.concat(streamSeed, or.streamSeed);
+		super.cardinality += or.cardinality;
+		return this;
 	}
 
 	@Override

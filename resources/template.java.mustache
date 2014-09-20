@@ -44,15 +44,12 @@ public class {{sourceClass}}Table {
     	// Remove from table
     	if ({{sourceClass}}.class.equals(val.getClass()))
     	    table.remove(val);
-    	
     	{{#fields}}
     	{{#hasIndex}}
     	// Remove from {{name}} index
     	{{name}}Index.values().removeAll(Collections.singleton(val));
- 
     	{{/hasIndex}}
     	{{/fields}}
-    	
     	{{#hasSuper}}
     	// Remove from {{cSuper}} indices (superclass)
     	{{cSuper}}Table.remove(val);
@@ -64,7 +61,6 @@ public class {{sourceClass}}Table {
     	    return;
     	}
     	{{/subClasses}}
-    	
     }
 
     // Set methods - make sure you use these on indexed fields for consistency!
@@ -210,7 +206,17 @@ public class {{sourceClass}}Table {
         return scan().joinOn(itself());
     }
 
-    public static Stream<{{sourceClass}}> scan() {
-        return new Retrieval<{{sourceClass}}>(table, table.size());
+    public static Retrieval<{{sourceClass}}> scan() {
+        /*
+         * Here we need to do a tree traversal such that
+         * every possible subclass table is joined with
+         * this classes table in the scan
+         */
+         
+        Retrieval<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(table, table.size());
+        {{#subClasses}}
+        result = result.join({{toString}}Table.scan());
+        {{/subClasses}}
+        return result;
     }
 }
