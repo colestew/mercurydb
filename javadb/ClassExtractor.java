@@ -51,6 +51,9 @@ public class ClassExtractor {
     
     private void populateFieldsList() {
         for (Field f : c.getFields()) {
+        	// Ignore fields belonging to superclasses
+        	if (!f.getDeclaringClass().equals(c)) continue;
+        	
             String type = f.getType().getName();
             String fieldName = f.getName();
             boolean hasIndex = hasIndexAnnotation(f);

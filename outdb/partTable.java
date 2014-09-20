@@ -74,17 +74,33 @@ public class partTable {
     }
 
     public static Stream<part>
-    queryPnoPrice(Integer pno, Double price) {
+    queryOlevelQoh(Integer olevel, Integer qoh) {
         Iterable<part> seed = table;
         int size = table.size();
 
         Stream<part> result = new Retrieval<part>(seed, size);
 
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
+        // Filter olevel
+        result = result.filter(fieldOlevel(),olevel);
+
+        // Filter qoh
+        result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPriceQoh(Double price, Integer qoh) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
 
         // Filter price
         result = result.filter(fieldPrice(),price);
+
+        // Filter qoh
+        result = result.filter(fieldQoh(),qoh);
 
         return result;
     }
@@ -106,7 +122,7 @@ public class partTable {
     }
 
     public static Stream<part>
-    queryOlevelPno(Integer olevel, Integer pno) {
+    queryOlevelPriceQoh(Integer olevel, Double price, Integer qoh) {
         Iterable<part> seed = table;
         int size = table.size();
 
@@ -114,165 +130,6 @@ public class partTable {
 
         // Filter olevel
         result = result.filter(fieldOlevel(),olevel);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryOlevelPnoPrice(Integer olevel, Integer pno, Double price) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter olevel
-        result = result.filter(fieldOlevel(),olevel);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryPnamePrice(java.lang.String pname, Double price) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryPnamePno(java.lang.String pname, Integer pno) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryPnamePnoPrice(java.lang.String pname, Integer pno, Double price) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryOlevelPname(Integer olevel, java.lang.String pname) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter olevel
-        result = result.filter(fieldOlevel(),olevel);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryOlevelPnamePrice(Integer olevel, java.lang.String pname, Double price) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter olevel
-        result = result.filter(fieldOlevel(),olevel);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryOlevelPnamePno(Integer olevel, java.lang.String pname, Integer pno) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter olevel
-        result = result.filter(fieldOlevel(),olevel);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryOlevelPnamePnoPrice(Integer olevel, java.lang.String pname, Integer pno, Double price) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter olevel
-        result = result.filter(fieldOlevel(),olevel);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryPriceQoh(Double price, Integer qoh) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
 
         // Filter price
         result = result.filter(fieldPrice(),price);
@@ -300,55 +157,17 @@ public class partTable {
     }
 
     public static Stream<part>
-    queryPnoPriceQoh(Integer pno, Double price, Integer qoh) {
+    queryOlevelPno(Integer olevel, Integer pno) {
         Iterable<part> seed = table;
         int size = table.size();
 
         Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter olevel
+        result = result.filter(fieldOlevel(),olevel);
 
         // Filter pno
         result = result.filter(fieldPno(),pno);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        // Filter qoh
-        result = result.filter(fieldQoh(),qoh);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryOlevelQoh(Integer olevel, Integer qoh) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter olevel
-        result = result.filter(fieldOlevel(),olevel);
-
-        // Filter qoh
-        result = result.filter(fieldQoh(),qoh);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryOlevelPriceQoh(Integer olevel, Double price, Integer qoh) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter olevel
-        result = result.filter(fieldOlevel(),olevel);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        // Filter qoh
-        result = result.filter(fieldQoh(),qoh);
 
         return result;
     }
@@ -368,6 +187,60 @@ public class partTable {
 
         // Filter qoh
         result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPnoPrice(Integer pno, Double price) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPnoPriceQoh(Integer pno, Double price, Integer qoh) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
+
+        // Filter qoh
+        result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryOlevelPnoPrice(Integer olevel, Integer pno, Double price) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter olevel
+        result = result.filter(fieldOlevel(),olevel);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
 
         return result;
     }
@@ -411,61 +284,17 @@ public class partTable {
     }
 
     public static Stream<part>
-    queryPnamePriceQoh(java.lang.String pname, Double price, Integer qoh) {
+    queryOlevelPname(Integer olevel, java.lang.String pname) {
         Iterable<part> seed = table;
         int size = table.size();
 
         Stream<part> result = new Retrieval<part>(seed, size);
 
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        // Filter qoh
-        result = result.filter(fieldQoh(),qoh);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryPnamePnoQoh(java.lang.String pname, Integer pno, Integer qoh) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
+        // Filter olevel
+        result = result.filter(fieldOlevel(),olevel);
 
         // Filter pname
         result = result.filter(fieldPname(),pname);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        // Filter qoh
-        result = result.filter(fieldQoh(),qoh);
-
-        return result;
-    }
-
-    public static Stream<part>
-    queryPnamePnoPriceQoh(java.lang.String pname, Integer pno, Double price, Integer qoh) {
-        Iterable<part> seed = table;
-        int size = table.size();
-
-        Stream<part> result = new Retrieval<part>(seed, size);
-
-        // Filter pname
-        result = result.filter(fieldPname(),pname);
-
-        // Filter pno
-        result = result.filter(fieldPno(),pno);
-
-        // Filter price
-        result = result.filter(fieldPrice(),price);
-
-        // Filter qoh
-        result = result.filter(fieldQoh(),qoh);
 
         return result;
     }
@@ -485,6 +314,60 @@ public class partTable {
 
         // Filter qoh
         result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPnamePrice(java.lang.String pname, Double price) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPnamePriceQoh(java.lang.String pname, Double price, Integer qoh) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
+
+        // Filter qoh
+        result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryOlevelPnamePrice(Integer olevel, java.lang.String pname, Double price) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter olevel
+        result = result.filter(fieldOlevel(),olevel);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
 
         return result;
     }
@@ -512,6 +395,60 @@ public class partTable {
     }
 
     public static Stream<part>
+    queryPnamePno(java.lang.String pname, Integer pno) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPnamePnoQoh(java.lang.String pname, Integer pno, Integer qoh) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        // Filter qoh
+        result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryOlevelPnamePno(Integer olevel, java.lang.String pname, Integer pno) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter olevel
+        result = result.filter(fieldOlevel(),olevel);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        return result;
+    }
+
+    public static Stream<part>
     queryOlevelPnamePnoQoh(Integer olevel, java.lang.String pname, Integer pno, Integer qoh) {
         Iterable<part> seed = table;
         int size = table.size();
@@ -529,6 +466,69 @@ public class partTable {
 
         // Filter qoh
         result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPnamePnoPrice(java.lang.String pname, Integer pno, Double price) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryPnamePnoPriceQoh(java.lang.String pname, Integer pno, Double price, Integer qoh) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
+
+        // Filter qoh
+        result = result.filter(fieldQoh(),qoh);
+
+        return result;
+    }
+
+    public static Stream<part>
+    queryOlevelPnamePnoPrice(Integer olevel, java.lang.String pname, Integer pno, Double price) {
+        Iterable<part> seed = table;
+        int size = table.size();
+
+        Stream<part> result = new Retrieval<part>(seed, size);
+
+        // Filter olevel
+        result = result.filter(fieldOlevel(),olevel);
+
+        // Filter pname
+        result = result.filter(fieldPname(),pname);
+
+        // Filter pno
+        result = result.filter(fieldPno(),pno);
+
+        // Filter price
+        result = result.filter(fieldPrice(),price);
 
         return result;
     }

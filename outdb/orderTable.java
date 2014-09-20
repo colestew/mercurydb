@@ -57,7 +57,7 @@ public class orderTable {
         instance.cno = val;
     }
 
-    public static void setEno(order instance, tests.target.employee val) {
+    public static void setEno(order instance, tests.target.Employee val) {
         instance.eno = val;
     }
 
@@ -82,7 +82,7 @@ public class orderTable {
         return scan().filter(fieldCno(),val);
     }
 
-    public static Stream<order> queryEno(tests.target.employee val) {
+    public static Stream<order> queryEno(tests.target.Employee val) {
         return scan().filter(fieldEno(),val);
     }
 
@@ -95,17 +95,152 @@ public class orderTable {
     }
 
     public static Stream<order>
-    queryReceivedShipped(java.lang.String received, java.lang.String shipped) {
+    queryCnoEno(tests.target.nextlevel.customer cno, tests.target.Employee eno) {
         Iterable<order> seed = table;
         int size = table.size();
 
         Stream<order> result = new Retrieval<order>(seed, size);
 
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoReceived(tests.target.nextlevel.customer cno, java.lang.String received) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
         // Filter received
         result = result.filter(fieldReceived(),received);
 
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
+        return result;
+    }
+
+    public static Stream<order>
+    queryEnoReceived(tests.target.Employee eno, java.lang.String received) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoEnoReceived(tests.target.nextlevel.customer cno, tests.target.Employee eno, java.lang.String received) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoOno(tests.target.nextlevel.customer cno, Integer ono) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryEnoOno(tests.target.Employee eno, Integer ono) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoEnoOno(tests.target.nextlevel.customer cno, tests.target.Employee eno, Integer ono) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
 
         return result;
     }
@@ -138,6 +273,226 @@ public class orderTable {
     }
 
     public static Stream<order>
+    queryCnoOnoReceived(tests.target.nextlevel.customer cno, Integer ono, java.lang.String received) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryEnoOnoReceived(tests.target.Employee eno, Integer ono, java.lang.String received) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoEnoOnoReceived(tests.target.nextlevel.customer cno, tests.target.Employee eno, Integer ono, java.lang.String received) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoShipped(tests.target.nextlevel.customer cno, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryEnoShipped(tests.target.Employee eno, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoEnoShipped(tests.target.nextlevel.customer cno, tests.target.Employee eno, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryReceivedShipped(java.lang.String received, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoReceivedShipped(tests.target.nextlevel.customer cno, java.lang.String received, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryEnoReceivedShipped(tests.target.Employee eno, java.lang.String received, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoEnoReceivedShipped(tests.target.nextlevel.customer cno, tests.target.Employee eno, java.lang.String received, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter received
+        result = result.filter(fieldReceived(),received);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
     queryOnoShipped(Integer ono, java.lang.String shipped) {
         Iterable<order> seed = table;
         int size = table.size();
@@ -153,6 +508,99 @@ public class orderTable {
         }
 
         Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoOnoShipped(tests.target.nextlevel.customer cno, Integer ono, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryEnoOnoShipped(tests.target.Employee eno, Integer ono, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        // Filter shipped
+        result = result.filter(fieldShipped(),shipped);
+
+        return result;
+    }
+
+    public static Stream<order>
+    queryCnoEnoOnoShipped(tests.target.nextlevel.customer cno, tests.target.Employee eno, Integer ono, java.lang.String shipped) {
+        Iterable<order> seed = table;
+        int size = table.size();
+        Set<order> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<order> result = new Retrieval<order>(seed, size);
+
+        // Filter cno
+        result = result.filter(fieldCno(),cno);
+
+        // Filter eno
+        result = result.filter(fieldEno(),eno);
 
         // Filter ono
         if (ono != usedIndex)
@@ -195,144 +643,6 @@ public class orderTable {
     }
 
     public static Stream<order>
-    queryCnoReceived(tests.target.nextlevel.customer cno, java.lang.String received) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoShipped(tests.target.nextlevel.customer cno, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoReceivedShipped(tests.target.nextlevel.customer cno, java.lang.String received, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoOno(tests.target.nextlevel.customer cno, Integer ono) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoOnoReceived(tests.target.nextlevel.customer cno, Integer ono, java.lang.String received) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoOnoShipped(tests.target.nextlevel.customer cno, Integer ono, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
     queryCnoOnoReceivedShipped(tests.target.nextlevel.customer cno, Integer ono, java.lang.String received, java.lang.String shipped) {
         Iterable<order> seed = table;
         int size = table.size();
@@ -366,145 +676,7 @@ public class orderTable {
     }
 
     public static Stream<order>
-    queryEnoReceived(tests.target.employee eno, java.lang.String received) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryEnoShipped(tests.target.employee eno, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryEnoReceivedShipped(tests.target.employee eno, java.lang.String received, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryEnoOno(tests.target.employee eno, Integer ono) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryEnoOnoReceived(tests.target.employee eno, Integer ono, java.lang.String received) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryEnoOnoShipped(tests.target.employee eno, Integer ono, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryEnoOnoReceivedShipped(tests.target.employee eno, Integer ono, java.lang.String received, java.lang.String shipped) {
+    queryEnoOnoReceivedShipped(tests.target.Employee eno, Integer ono, java.lang.String received, java.lang.String shipped) {
         Iterable<order> seed = table;
         int size = table.size();
         Set<order> l;
@@ -537,179 +709,7 @@ public class orderTable {
     }
 
     public static Stream<order>
-    queryCnoEno(tests.target.nextlevel.customer cno, tests.target.employee eno) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoEnoReceived(tests.target.nextlevel.customer cno, tests.target.employee eno, java.lang.String received) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoEnoShipped(tests.target.nextlevel.customer cno, tests.target.employee eno, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoEnoReceivedShipped(tests.target.nextlevel.customer cno, tests.target.employee eno, java.lang.String received, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoEnoOno(tests.target.nextlevel.customer cno, tests.target.employee eno, Integer ono) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoEnoOnoReceived(tests.target.nextlevel.customer cno, tests.target.employee eno, Integer ono, java.lang.String received) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        // Filter received
-        result = result.filter(fieldReceived(),received);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoEnoOnoShipped(tests.target.nextlevel.customer cno, tests.target.employee eno, Integer ono, java.lang.String shipped) {
-        Iterable<order> seed = table;
-        int size = table.size();
-        Set<order> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<order> result = new Retrieval<order>(seed, size);
-
-        // Filter cno
-        result = result.filter(fieldCno(),cno);
-
-        // Filter eno
-        result = result.filter(fieldEno(),eno);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        // Filter shipped
-        result = result.filter(fieldShipped(),shipped);
-
-        return result;
-    }
-
-    public static Stream<order>
-    queryCnoEnoOnoReceivedShipped(tests.target.nextlevel.customer cno, tests.target.employee eno, Integer ono, java.lang.String received, java.lang.String shipped) {
+    queryCnoEnoOnoReceivedShipped(tests.target.nextlevel.customer cno, tests.target.Employee eno, Integer ono, java.lang.String received, java.lang.String shipped) {
         Iterable<order> seed = table;
         int size = table.size();
         Set<order> l;
@@ -786,7 +786,7 @@ public class orderTable {
     public static FieldExtractable fieldEno() {
         return new FieldExtractable() {
             @Override
-            public tests.target.employee extractField(Object instance) {
+            public tests.target.Employee extractField(Object instance) {
                 return ((order)instance).eno;
             }
 

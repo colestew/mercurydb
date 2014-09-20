@@ -8,15 +8,15 @@ package tests.target;
  *
  * @author dsb
  */
-public class employee extends Common {
+public class Employee extends Common {
     public int eno;
     public String ename;
     public zipcode zip;
     public String date;
     
-    private employee() {}
+    private Employee() {}
     
-    public employee(int e, String n, zipcode z, String d) {
+    public Employee(int e, String n, zipcode z, String d) {
         eno = e;
         ename = n;
         zip = z;

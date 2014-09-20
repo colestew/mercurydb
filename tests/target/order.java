@@ -17,7 +17,7 @@ public class order extends Common {
 	
     public customer cno;
 	
-    public employee eno;
+    public Employee eno;
 	
     public String received;
     public String shipped;
@@ -33,7 +33,7 @@ public class order extends Common {
     
     private order() {} 
     
-    public order(int o, customer c, employee e, String r, String s){
+    public order(int o, customer c, Employee e, String r, String s){
         ono = o;
         cno = c;
         eno = e; 

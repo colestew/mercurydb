@@ -5,25 +5,25 @@ import java.util.*;
 
 import com.google.common.collect.MapMaker;
 
-import tests.target.employee;
+import tests.target.Employee;
 
-public class employeeTable {
-    public static final List<employee> table = new ArrayList<>();
+public class EmployeeTable {
+    public static final List<Employee> table = new ArrayList<>();
     
-    public static final Class<employee> containedClass = employee.class;
+    public static final Class<Employee> containedClass = Employee.class;
 
     // Maps for indexed fields
-    public static void insert(employee val) {
-        // Populate standard table if T(val) == employee
-        if (employee.class.equals(val.getClass()))
+    public static void insert(Employee val) {
+        // Populate standard table if T(val) == Employee
+        if (Employee.class.equals(val.getClass()))
             table.add(val);
         // Populate super table indices
         outdb.CommonTable.insert(val);
     }
     
-    public static void remove(employee val) {
+    public static void remove(Employee val) {
     	// Remove from table
-    	if (employee.class.equals(val.getClass()))
+    	if (Employee.class.equals(val.getClass()))
     	    table.remove(val);
     	// Remove from outdb.Common indices (superclass)
     	outdb.CommonTable.remove(val);
@@ -31,62 +31,46 @@ public class employeeTable {
     }
 
     // Set methods - make sure you use these on indexed fields for consistency!
-    public static void setEno(employee instance, int val) {
+    public static void setEno(Employee instance, int val) {
         instance.eno = val;
     }
 
-    public static void setEname(employee instance, java.lang.String val) {
+    public static void setEname(Employee instance, java.lang.String val) {
         instance.ename = val;
     }
 
-    public static void setZip(employee instance, tests.target.zipcode val) {
+    public static void setZip(Employee instance, tests.target.zipcode val) {
         instance.zip = val;
     }
 
-    public static void setDate(employee instance, java.lang.String val) {
+    public static void setDate(Employee instance, java.lang.String val) {
         instance.date = val;
     }
 
 
     // Get methods -- these are retrievals for attribute = value queries
-    public static Stream<employee> queryEno(int val) {
+    public static Stream<Employee> queryEno(int val) {
         return scan().filter(fieldEno(),val);
     }
 
-    public static Stream<employee> queryEname(java.lang.String val) {
+    public static Stream<Employee> queryEname(java.lang.String val) {
         return scan().filter(fieldEname(),val);
     }
 
-    public static Stream<employee> queryZip(tests.target.zipcode val) {
+    public static Stream<Employee> queryZip(tests.target.zipcode val) {
         return scan().filter(fieldZip(),val);
     }
 
-    public static Stream<employee> queryDate(java.lang.String val) {
+    public static Stream<Employee> queryDate(java.lang.String val) {
         return scan().filter(fieldDate(),val);
     }
 
-    public static Stream<employee>
-    queryDateZip(java.lang.String date, tests.target.zipcode zip) {
-        Iterable<employee> seed = table;
-        int size = table.size();
-
-        Stream<employee> result = new Retrieval<employee>(seed, size);
-
-        // Filter date
-        result = result.filter(fieldDate(),date);
-
-        // Filter zip
-        result = result.filter(fieldZip(),zip);
-
-        return result;
-    }
-
-    public static Stream<employee>
+    public static Stream<Employee>
     queryEnoZip(Integer eno, tests.target.zipcode zip) {
-        Iterable<employee> seed = table;
+        Iterable<Employee> seed = table;
         int size = table.size();
 
-        Stream<employee> result = new Retrieval<employee>(seed, size);
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
 
         // Filter eno
         result = result.filter(fieldEno(),eno);
@@ -97,12 +81,12 @@ public class employeeTable {
         return result;
     }
 
-    public static Stream<employee>
+    public static Stream<Employee>
     queryDateEno(java.lang.String date, Integer eno) {
-        Iterable<employee> seed = table;
+        Iterable<Employee> seed = table;
         int size = table.size();
 
-        Stream<employee> result = new Retrieval<employee>(seed, size);
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
 
         // Filter date
         result = result.filter(fieldDate(),date);
@@ -113,12 +97,28 @@ public class employeeTable {
         return result;
     }
 
-    public static Stream<employee>
+    public static Stream<Employee>
+    queryDateZip(java.lang.String date, tests.target.zipcode zip) {
+        Iterable<Employee> seed = table;
+        int size = table.size();
+
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
+
+        // Filter date
+        result = result.filter(fieldDate(),date);
+
+        // Filter zip
+        result = result.filter(fieldZip(),zip);
+
+        return result;
+    }
+
+    public static Stream<Employee>
     queryDateEnoZip(java.lang.String date, Integer eno, tests.target.zipcode zip) {
-        Iterable<employee> seed = table;
+        Iterable<Employee> seed = table;
         int size = table.size();
 
-        Stream<employee> result = new Retrieval<employee>(seed, size);
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
 
         // Filter date
         result = result.filter(fieldDate(),date);
@@ -132,63 +132,12 @@ public class employeeTable {
         return result;
     }
 
-    public static Stream<employee>
-    queryEnameZip(java.lang.String ename, tests.target.zipcode zip) {
-        Iterable<employee> seed = table;
-        int size = table.size();
-
-        Stream<employee> result = new Retrieval<employee>(seed, size);
-
-        // Filter ename
-        result = result.filter(fieldEname(),ename);
-
-        // Filter zip
-        result = result.filter(fieldZip(),zip);
-
-        return result;
-    }
-
-    public static Stream<employee>
-    queryDateEname(java.lang.String date, java.lang.String ename) {
-        Iterable<employee> seed = table;
-        int size = table.size();
-
-        Stream<employee> result = new Retrieval<employee>(seed, size);
-
-        // Filter date
-        result = result.filter(fieldDate(),date);
-
-        // Filter ename
-        result = result.filter(fieldEname(),ename);
-
-        return result;
-    }
-
-    public static Stream<employee>
-    queryDateEnameZip(java.lang.String date, java.lang.String ename, tests.target.zipcode zip) {
-        Iterable<employee> seed = table;
-        int size = table.size();
-
-        Stream<employee> result = new Retrieval<employee>(seed, size);
-
-        // Filter date
-        result = result.filter(fieldDate(),date);
-
-        // Filter ename
-        result = result.filter(fieldEname(),ename);
-
-        // Filter zip
-        result = result.filter(fieldZip(),zip);
-
-        return result;
-    }
-
-    public static Stream<employee>
+    public static Stream<Employee>
     queryEnameEno(java.lang.String ename, Integer eno) {
-        Iterable<employee> seed = table;
+        Iterable<Employee> seed = table;
         int size = table.size();
 
-        Stream<employee> result = new Retrieval<employee>(seed, size);
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
 
         // Filter ename
         result = result.filter(fieldEname(),ename);
@@ -199,12 +148,28 @@ public class employeeTable {
         return result;
     }
 
-    public static Stream<employee>
-    queryEnameEnoZip(java.lang.String ename, Integer eno, tests.target.zipcode zip) {
-        Iterable<employee> seed = table;
+    public static Stream<Employee>
+    queryEnameZip(java.lang.String ename, tests.target.zipcode zip) {
+        Iterable<Employee> seed = table;
         int size = table.size();
 
-        Stream<employee> result = new Retrieval<employee>(seed, size);
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
+
+        // Filter ename
+        result = result.filter(fieldEname(),ename);
+
+        // Filter zip
+        result = result.filter(fieldZip(),zip);
+
+        return result;
+    }
+
+    public static Stream<Employee>
+    queryEnameEnoZip(java.lang.String ename, Integer eno, tests.target.zipcode zip) {
+        Iterable<Employee> seed = table;
+        int size = table.size();
+
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
 
         // Filter ename
         result = result.filter(fieldEname(),ename);
@@ -218,12 +183,28 @@ public class employeeTable {
         return result;
     }
 
-    public static Stream<employee>
-    queryDateEnameEno(java.lang.String date, java.lang.String ename, Integer eno) {
-        Iterable<employee> seed = table;
+    public static Stream<Employee>
+    queryDateEname(java.lang.String date, java.lang.String ename) {
+        Iterable<Employee> seed = table;
         int size = table.size();
 
-        Stream<employee> result = new Retrieval<employee>(seed, size);
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
+
+        // Filter date
+        result = result.filter(fieldDate(),date);
+
+        // Filter ename
+        result = result.filter(fieldEname(),ename);
+
+        return result;
+    }
+
+    public static Stream<Employee>
+    queryDateEnameEno(java.lang.String date, java.lang.String ename, Integer eno) {
+        Iterable<Employee> seed = table;
+        int size = table.size();
+
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
 
         // Filter date
         result = result.filter(fieldDate(),date);
@@ -237,12 +218,31 @@ public class employeeTable {
         return result;
     }
 
-    public static Stream<employee>
-    queryDateEnameEnoZip(java.lang.String date, java.lang.String ename, Integer eno, tests.target.zipcode zip) {
-        Iterable<employee> seed = table;
+    public static Stream<Employee>
+    queryDateEnameZip(java.lang.String date, java.lang.String ename, tests.target.zipcode zip) {
+        Iterable<Employee> seed = table;
         int size = table.size();
 
-        Stream<employee> result = new Retrieval<employee>(seed, size);
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
+
+        // Filter date
+        result = result.filter(fieldDate(),date);
+
+        // Filter ename
+        result = result.filter(fieldEname(),ename);
+
+        // Filter zip
+        result = result.filter(fieldZip(),zip);
+
+        return result;
+    }
+
+    public static Stream<Employee>
+    queryDateEnameEnoZip(java.lang.String date, java.lang.String ename, Integer eno, tests.target.zipcode zip) {
+        Iterable<Employee> seed = table;
+        int size = table.size();
+
+        Stream<Employee> result = new Retrieval<Employee>(seed, size);
 
         // Filter date
         result = result.filter(fieldDate(),date);
@@ -264,12 +264,12 @@ public class employeeTable {
         return new FieldExtractable() {
             @Override
             public Integer extractField(Object instance) {
-                return ((employee)instance).eno;
+                return ((Employee)instance).eno;
             }
 
             @Override
             public Class<?> getContainerClass() {
-                return employee.class;
+                return Employee.class;
             }
 
             @Override
@@ -283,12 +283,12 @@ public class employeeTable {
         return new FieldExtractable() {
             @Override
             public java.lang.String extractField(Object instance) {
-                return ((employee)instance).ename;
+                return ((Employee)instance).ename;
             }
 
             @Override
             public Class<?> getContainerClass() {
-                return employee.class;
+                return Employee.class;
             }
 
             @Override
@@ -302,12 +302,12 @@ public class employeeTable {
         return new FieldExtractable() {
             @Override
             public tests.target.zipcode extractField(Object instance) {
-                return ((employee)instance).zip;
+                return ((Employee)instance).zip;
             }
 
             @Override
             public Class<?> getContainerClass() {
-                return employee.class;
+                return Employee.class;
             }
 
             @Override
@@ -321,12 +321,12 @@ public class employeeTable {
         return new FieldExtractable() {
             @Override
             public java.lang.String extractField(Object instance) {
-                return ((employee)instance).date;
+                return ((Employee)instance).date;
             }
 
             @Override
             public Class<?> getContainerClass() {
-                return employee.class;
+                return Employee.class;
             }
 
             @Override
@@ -346,7 +346,7 @@ public class employeeTable {
 
             @Override
             public Class<?> getContainerClass() {
-                return employee.class;
+                return Employee.class;
             }
 
             @Override
@@ -356,39 +356,39 @@ public class employeeTable {
         };
     }
 
-    public static JoinStream<employee> joinOn(FieldExtractable jf) {
+    public static JoinStream<Employee> joinOn(FieldExtractable jf) {
         return scan().joinOn(jf);
     }
 
-    public static JoinStream<employee> joinOnFieldEno() {
+    public static JoinStream<Employee> joinOnFieldEno() {
         return scan().joinOn(fieldEno());
     }
 
-    public static JoinStream<employee> joinOnFieldEname() {
+    public static JoinStream<Employee> joinOnFieldEname() {
         return scan().joinOn(fieldEname());
     }
 
-    public static JoinStream<employee> joinOnFieldZip() {
+    public static JoinStream<Employee> joinOnFieldZip() {
         return scan().joinOn(fieldZip());
     }
 
-    public static JoinStream<employee> joinOnFieldDate() {
+    public static JoinStream<Employee> joinOnFieldDate() {
         return scan().joinOn(fieldDate());
     }
 
 
-    public static JoinStream<employee> joinOnItself() {
+    public static JoinStream<Employee> joinOnItself() {
         return scan().joinOn(itself());
     }
 
-    public static Retrieval<employee> scan() {
+    public static Retrieval<Employee> scan() {
         /*
          * Here we need to do a tree traversal such that
          * every possible subclass table is joined with
          * this classes table in the scan
          */
          
-        Retrieval<employee> result = new Retrieval<employee>(table, table.size());
+        Retrieval<Employee> result = new Retrieval<Employee>(table, table.size());
         return result;
     }
 }

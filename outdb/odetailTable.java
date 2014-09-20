@@ -79,33 +79,6 @@ public class odetailTable {
     }
 
     public static Stream<odetail>
-    queryOnoQty(Integer ono, Integer qty) {
-        Iterable<odetail> seed = table;
-        int size = table.size();
-        Set<odetail> l;
-        Object usedIndex = null;
-
-        // Check ono index
-        l = onoIndex.get(ono);
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = ono;
-        }
-
-        Stream<odetail> result = new Retrieval<odetail>(seed, size);
-
-        // Filter ono
-        if (ono != usedIndex)
-            result = result.filter(fieldOno(),ono);
-
-        // Filter qty
-        result = result.filter(fieldQty(),qty);
-
-        return result;
-    }
-
-    public static Stream<odetail>
     queryPnoQty(tests.target.part pno, Integer qty) {
         Iterable<odetail> seed = table;
         int size = table.size();
@@ -144,6 +117,33 @@ public class odetailTable {
 
         // Filter pno
         result = result.filter(fieldPno(),pno);
+
+        return result;
+    }
+
+    public static Stream<odetail>
+    queryOnoQty(Integer ono, Integer qty) {
+        Iterable<odetail> seed = table;
+        int size = table.size();
+        Set<odetail> l;
+        Object usedIndex = null;
+
+        // Check ono index
+        l = onoIndex.get(ono);
+        if (l != null && l.size() <= size) {
+            size = l.size();
+            seed = l;
+            usedIndex = ono;
+        }
+
+        Stream<odetail> result = new Retrieval<odetail>(seed, size);
+
+        // Filter ono
+        if (ono != usedIndex)
+            result = result.filter(fieldOno(),ono);
+
+        // Filter qty
+        result = result.filter(fieldQty(),qty);
 
         return result;
     }

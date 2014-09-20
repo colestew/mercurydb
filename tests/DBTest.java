@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import outdb.odetailTable;
 import outdb.orderTable;
-import tests.target.employee;
+import tests.target.Employee;
 import tests.target.odetail;
 import tests.target.order;
 import tests.target.part;
@@ -26,7 +26,7 @@ public class DBTest {
 	public static final int TEST_SIZE = 5000;
 	
 	static zipcode[] zips;
-	static employee[] emps;
+	static Employee[] emps;
 	static customer[] customers;
 	static part[] parts;
 	static order[] orders;
@@ -136,10 +136,10 @@ public class DBTest {
 				new zipcode(61111, "Fort Hays")
 		};
 
-		emps = new employee[] {
-				new employee(1000, "Jones", zips[0], "12-DEC-95"),
-				new employee(1001, "Smith", zips[1], "01-JAN-92"),
-				new employee(1002, "Brown", zips[2], "01-SEP-94"),
+		emps = new Employee[] {
+				new Employee(1000, "Jones", zips[0], "12-DEC-95"),
+				new Employee(1001, "Smith", zips[1], "01-JAN-92"),
+				new Employee(1002, "Brown", zips[2], "01-SEP-94"),
 		};
 
 		customers = new customer[] {

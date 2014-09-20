@@ -4,11 +4,17 @@
  */
 package tests.target;
 
+import javadb.Index;
+
 /**
  *
  * @author dsb
  */
 public class Common {
+	
+	@Index
+	public int commonId;
+	
     protected String print(String... item ) {
         String result = "(";
         String next = ", ";
