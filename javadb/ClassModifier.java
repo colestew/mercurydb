@@ -20,8 +20,8 @@ public class ClassModifier {
 	public void modify(File inPackage, File outDirectory) 
 			throws CannotCompileException, IOException, NotFoundException {
 		
-		String newPackage = Main.toPackage(outDirectory.getPath());
-		String oldPackage = Main.toPackage(inPackage.getPath());
+		String newPackage = Utils.toPackage(outDirectory.getPath());
+		String oldPackage = Utils.toPackage(inPackage.getPath());
 		String hook = c.getName().replace(oldPackage, newPackage) + "Table";
 		
 		for (CtConstructor con : c.getConstructors()) {

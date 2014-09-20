@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -22,20 +21,30 @@ import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
 
 public class ClassExtractor {
-    @Index
-    public final Class c;
+    public final Class<?> c;
     
-    // mustache formatter data
+    public final boolean hasSuper;
+    
+    public final String cSuper;
+    
+    public Collection<String> subClasses;
+    
     public List<FieldData> fields;
+    
     public String packageName;
     
-    // powerset for fancy queries
     public List<QueryData> queries;
 
-    public ClassExtractor(Class c) throws IOException {
+    public ClassExtractor(Class<?> c, String superTable, Collection<String> subClassTables) 
+    		throws IOException {
         this.c = c;
+        this.hasSuper = superTable != null;
+        this.cSuper = superTable;
+
         this.fields = new ArrayList<>();
         this.queries = new ArrayList<>();
+        
+        this.subClasses = subClassTables;
         populateFieldsList();
         populateQueriesList(queries, fields);
     }
