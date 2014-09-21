@@ -1,4 +1,4 @@
-/Main.class
-/ClassExtractor.class
-/T_javadb.class
-/Index.class
+*.class
+*.jar
+*~
+~*

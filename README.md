@@ -69,3 +69,7 @@ In a certain context, you can think of _MercuryDB_ as a kind of jQuery for Java 
 ### How do you make the changes to the packages?
 
 Given `.class` files, we use a utility library called `javassist` to update the class files and make certain kinds of changes. Not all modifications to the bytecode are possible, but one thing we really count on is inserting instructions at the beginning and end of methods and constructors.
+
+## Wiki
+
+See our [wiki on GitHub](https://github.com/colestew/mercurydb/wiki) to find out more about the technical workings of _MercuryDB_.
