@@ -1,6 +1,5 @@
 package org.mercurydb.queryutils;
 
-import java.util.Collection;
 
 /**
  * Simple class for JoinPredicates. This is used

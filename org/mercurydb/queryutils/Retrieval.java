@@ -1,7 +1,6 @@
 package org.mercurydb.queryutils;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import com.google.common.collect.Iterables;
 
