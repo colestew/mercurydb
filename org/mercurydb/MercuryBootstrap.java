@@ -108,7 +108,7 @@ public class MercuryBootstrap {
 
 				if (subClassMap.containsKey(cls)) {
 					subTables = subClassMap.get(cls).stream()
-							.map(c -> toTable(c))
+							.map(c -> toTablePrefix(c))
 							.collect(Collectors.<String>toList());
 				}
 
@@ -120,7 +120,7 @@ public class MercuryBootstrap {
 				tableFiles.add(tableFile);
 				System.out.println("Extracting " + cls + " to " + tableFile);
 				String superTable = subClassMap.containsKey(cls.getSuperclass()) ? 
-						toTable(cls.getSuperclass()) : null;
+						toTablePrefix(cls.getSuperclass()) : null;
 						ClassExtractor extractor = new ClassExtractor(cls, superTable, subTables);
 						extractor.extract(tableFile);
 			}
@@ -156,7 +156,17 @@ public class MercuryBootstrap {
 		System.out.println("Done.");
 	}
 
-	private String toTable(Class<?> c) {
+	/**
+	 * Converts a class to an output package name. To be more specific,
+	 * this method converts the class to a filename, replaces the source
+	 * directory with the out directory, and converts that path to a package
+	 * name. It is up to the template engine to append "Table" or whatever
+	 * it wants to use for the table class names.
+	 * 
+	 * @param c  class to convert
+	 * @return output package name
+	 */
+	private String toTablePrefix(Class<?> c) {
 		String subClass = Utils.toFile(c).getPath();
 		subClass = subClass.replace(_srcDir.getPath(), _outDir.getPath());
 		return Utils.toPackage(subClass);
