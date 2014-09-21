@@ -1,1 +1,0 @@
-java -classpath .;libraries/commons-io-2.4.jar javadb.Main javadb dbout
