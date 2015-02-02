@@ -1,0 +1,14 @@
+apply plugin: 'application'
+
+sourceCompatibility=1.8
+
+mainClassName = 'org.mercurydb.Main'
+
+// this is the standard task for building the normal jar in build/libs/...
+// this will run by default when you run 'gradle build' or 'gradle assemble'
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.mercurydb.Main'
+    }
+}
+

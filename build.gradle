@@ -1,0 +1,18 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+
+    repositories {
+        mavenCentral()
+    }
+
+
+    dependencies {
+        // standard compile
+        compile 'com.google.guava:guava:+'
+        // shorthand for compile group: 'com.google.guava', name: 'guava', version: '+'
+        compile 'commons-io:commons-io:+'
+        compile 'com.github.spullara.mustache.java:compiler:+'
+        compile 'org.javassist:javassist:+'
+    }
+}

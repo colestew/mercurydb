@@ -1,0 +1,22 @@
+dependencies {
+    compile project(':mercurydb')
+    compile 'junit:junit:+'
+}
+
+task bootstrapTables << {
+    def classDir = sourceSets.main.output.classesDir.toString() + '/weborders/source'
+    def dbDir = 'src/main/java/weborders/db'
+    println 'Building Tables for examples from ' + classDir
+    javaexec {
+        classpath = sourceSets.main.runtimeClasspath
+        main = 'org.mercurydb.Main'
+        args = [
+            classDir.toString(),
+            dbDir]
+    }
+    println 'Tables done.'
+}
+
+bootstrapTables.dependsOn classes
+compileTestJava.dependsOn bootstrapTables
+
