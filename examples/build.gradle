@@ -4,17 +4,24 @@ dependencies {
 }
 
 task bootstrapTables << {
-    def classDir = sourceSets.main.output.classesDir.toString() + '/weborders/source'
-    def dbDir = 'src/main/java/weborders/db'
-    println 'Building Tables for examples from ' + classDir
+    def srcDir = 'src/db/java'
+
+    // Build Tables
     javaexec {
         classpath = sourceSets.main.runtimeClasspath
         main = 'org.mercurydb.Main'
         args = [
-            classDir.toString(),
-            dbDir]
+            'weborders.source',
+            'weborders.db',
+            srcDir]
     }
-    println 'Tables done.'
+
+    // Compile Tables
+    compileJava {
+        source = ['src/main/java/weborders/db']
+    }
+    // Insert Hooks into test code
+
 }
 
 bootstrapTables.dependsOn classes
