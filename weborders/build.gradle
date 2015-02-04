@@ -1,0 +1,50 @@
+/*
+ * Default MercuryDB example build
+ */
+
+project.ext.set('mercurySrc', 'weborders.source')
+project.ext.set('mercuryOut', 'weborders.db')
+
+
+dependencies {
+    compile project(':mercurydb')
+    compile 'junit:junit:+'
+}
+
+task clearDB(type: Delete) {
+    delete 'src/main/java/' + mercuryOut.replace('.', '/') 
+}
+
+task generateTables(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.mercurydb.Main'
+    args = [
+        '-src', project.mercurySrc,
+        '-db', project.mercuryOut,
+        '-root', 'src/main/java']
+}
+
+task compileTables(type: JavaCompile) {
+    classpath = sourceSets.main.compileClasspath
+    source = sourceSets.main.java.srcDirs
+    destinationDir = sourceSets.main.output.classesDir 
+}
+
+task insertHooks(type: JavaExec) { 
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'org.mercurydb.Main'
+    args = [
+        '-src', project.mercurySrc,
+        '-db', project.mercuryOut,
+        '-root', 'src/main/java',
+        '-ih']
+}
+
+clean.dependsOn clearDB
+
+classes.dependsOn clearDB
+generateTables.dependsOn classes
+compileTables.dependsOn generateTables
+insertHooks.dependsOn compileTables
+compileTestJava.dependsOn insertHooks
+
