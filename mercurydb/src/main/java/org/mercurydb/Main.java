@@ -1,42 +1,60 @@
 package org.mercurydb;
 
-import java.io.File;
 import java.net.MalformedURLException;
-import java.util.Arrays;
 
 import javassist.CannotCompileException;
 import javassist.NotFoundException;
 
-import org.mercurydb.MercuryBootstrap;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 public class Main {
-	
+
 	public static void main(String[] args) 
 			throws NotFoundException, CannotCompileException, MalformedURLException {
-		
-		if (args.length < 3 || args.length > 4) {
-			printHelp();
+
+		Options options = new Options();
+		Option opt = new Option("src", "source-package", true, "The source package");
+		opt.setRequired(true);
+		options.addOption(opt);
+		opt = new Option("db", "db-package", true, "The output database package");
+		opt.setRequired(true);
+		options.addOption(opt);
+		opt = new Option("root", "java-root", true, "The root java directory");
+		opt.setRequired(true);
+		options.addOption(opt);
+		options.addOption("ih", "insert-hooks", false, "Insert db hooks into package");
+
+		CommandLineParser parser = new GnuParser();
+
+		CommandLine cmd = null;
+		try {
+			cmd = parser.parse(options, args);
+		} catch (ParseException e) {
+			printHelp(options);
 		}
+		
+		String srcPkg = cmd.getOptionValue("src");
+		String dbPkg = cmd.getOptionValue("db");
+		String srcDir = cmd.getOptionValue("root");
 
-		String srcPackage = args[0];
-		String dbPackage = args[1];
-		String srcDir = args[2];
-		boolean insertHooks = false;
-
-		if (args.length == 4) {
-			if (args[3].equals("--insert-hooks")) {
-				insertHooks = true;
+		if (srcPkg != null && dbPkg != null && srcDir != null) {
+			MercuryBootstrap bs = new MercuryBootstrap(srcPkg, dbPkg, srcDir) ;
+			if (cmd.hasOption("ih")) {
+				bs.insertBytecodeHooks();
 			} else {
-				printHelp();
+				bs.generateTables();
 			}
 		}
-		
-		MercuryBootstrap bs = new MercuryBootstrap(srcPackage, dbPackage, srcDir, insertHooks);
-		bs.performBootstrap();
 	}
 
-	public static void printHelp() {
-		System.out.println("usage javadb srcPackage dbPackage rootDir [--insert-hooks]");
+	public static void printHelp(Options options) {
+		new HelpFormatter().printHelp("org.mercurydb.Main", options);
 		System.exit(1);
 	}
 }

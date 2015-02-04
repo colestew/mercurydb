@@ -1,6 +1,9 @@
 *.class
 *.jar
+*Table.java
 *~
 ~*
 /bin
 /build
+.project
+.classpath

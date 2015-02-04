@@ -56,12 +56,6 @@ public class MercuryBootstrap {
 	private final String _srcJavaDir;
 
 	/**
-	 * Tells this class to insert hooks into the
-	 * source bytecode
-	 */
-	private final boolean _insertHooks;
-
-	/**
 	 * Primary constructor for MercuryBootstrap.
 	 * 
 	 * @param srcPackage    the input package for client code
@@ -71,21 +65,20 @@ public class MercuryBootstrap {
 	 * @throws NotFoundException
 	 * @throws CannotCompileException
 	 */
-	public MercuryBootstrap(String srcPackage, String outPackage, String rootDir, boolean insertHooks) 
+	public MercuryBootstrap(String srcPackage, String outPackage, String rootDir) 
 			throws NotFoundException, CannotCompileException {
 		this._srcPackage = srcPackage;
 		this._outPackage = outPackage;
 		this._srcJavaDir = rootDir;
-		this._insertHooks = insertHooks;
 	}
 
 	/**
-	 * Performs the bootstrap operation. This is everything. The
-	 * cat's meow. Namely, it fetches all class files in the
-	 * source directory and converts them into class objects. Then
+	 * Retrieves all classes that can be converted into table classes
+	 * by this tool.
+	 * 
+	 * @return supported classes
 	 */
-	public void performBootstrap() {
-
+	public Collection<Class<?>> getSupportedClasses() {
 		// Fetch appropriate class files
 		Collection<Class<?>> classes = Collections.emptyList();
 		try {
@@ -98,75 +91,94 @@ public class MercuryBootstrap {
 			System.exit(1);
 		}
 
+		// filter classes so we only have supported class files
 		classes = classes.stream()
 				.filter(c -> c != null && supportedClassCheck.test(c))
 				.collect(Collectors.toList());
 
-		if (classes.size() == 0) {
+		return classes;
+	}
+
+	/**
+	 * Performs the bootstrap operation. This is everything. The
+	 * cat's meow. Namely, it fetches all class files in the
+	 * source directory and converts them into class objects. Then
+	 */
+	public void generateTables() {
+
+		// Fetch appropriate class files
+		Collection<Class<?>> classes = getSupportedClasses();
+
+		// if no classes are supported exit
+		if (classes.isEmpty()) {
 			System.out.println("No supported .class files found in " + _srcPackage);
 			System.exit(1);
 		}
 
+		// startup a collection of table files we generate
 		Collection<String> tableFiles = new ArrayList<>();
+		// and create a map of input package classes to their subclasses
 		Map<Class<?>, List<Class<?>>> subClassMap = getSubclasses(classes);
 
-		/*
-		 *  Create Java tables (*Table.java files)
-		 */
+		// now iterate over each class and generate the tables
 		for (Class<?> cls : classes) {
-			Collection<String> subTables = Collections.emptyList();
 
+			// fetch the subclass table names
+			Collection<String> subTables = Collections.emptyList();
 			if (subClassMap.containsKey(cls)) {
 				subTables = subClassMap.get(cls).stream()
-						.map(c -> toTablePrefix(c))
+						.map(c -> toTableName(c))
 						.collect(Collectors.<String>toList());
 			}
 
+			// calculate required paths and packages for the new table
 			String genTablePrefix = _srcJavaDir + '/' + _outPackage.replace('.', '/') +
 					cls.getName().replace(_srcPackage, "").replace('.', '/');
 			String tablePath = genTablePrefix + "Table.java";
-			String tablePackage = _outPackage + cls.getPackage().getName()
-					.replace(_srcPackage, "");
+			String tablePackage = _outPackage + cls.getPackage().getName().replace(_srcPackage, "");
 			tableFiles.add(genTablePrefix + "Table.java");
+
 			System.out.println("Extracting " + cls + " to " + tablePath + " in " + tablePackage);
-			String superTable = subClassMap.containsKey(
-					cls.getSuperclass()) ? toTablePrefix(cls.getSuperclass()) : null;
-			ClassExtractor extractor;
-			try {
-				extractor = new ClassExtractor(cls, superTable, subTables);
-				extractor.extract(tablePath, tablePackage);
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
+
+			String superTable = subClassMap
+					.containsKey(cls.getSuperclass()) ? toTableName(cls.getSuperclass()) : null;
+
+					ClassExtractor extractor;
+					try {
+						extractor = new ClassExtractor(cls, superTable, subTables);
+						extractor.extract(tablePath, tablePackage);
+					} catch (IOException e) {
+						System.err.println(e.getMessage());
+					}
 		}
+	}
 
-		/*
-		 *  Compile the Java tables (*Table.class files)
-		 */
-		//			System.out.println("Compiling " + tableFiles.size() + " tables from " + _srcDir);
-		//			JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		//			StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
-		//			Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(tableFiles);
-		//			compiler.getTask(null, fileManager, null, null, null, compilationUnits).call();
-		//			fileManager.close();
-		//			System.out.println("Done compiling.");
-
+	/**
+	 * Inserts bytecode hooks in the classes found in the input package
+	 * @throws NotFoundException 
+	 * @throws IOException 
+	 * @throws CannotCompileException 
+	 */
+	public void insertBytecodeHooks() {
+		Collection<Class<?>> classes = getSupportedClasses();
+		ClassPool cp = ClassPool.getDefault();
 		/*
 		 *  Modify original bytecode with the insert hooks
 		 */
-		//		if (_insertHooks) {
-		//			for (Class<?> cls : classes) {
-		//				System.out.println("Adding insert hook to " + cls);
-		//				CtClass ctCls = cp.get(cls.getName());
-		//				ClassModifier modifier = new ClassModifier(ctCls);
-		//				modifier.modify(_srcPackage, _srcJavaDir);
-		//			}
-		//		}
-
-		//System.out.println("size of class extractor table: " + ClassExtractorTable.table.size());
-
-
-		System.out.println("Done.");
+		for (Class<?> cls : classes) {
+			System.out.println("Adding insert hook to " + cls);
+			try {
+				CtClass ctCls = cp.get(cls.getName());
+				ClassModifier modifier = new ClassModifier(ctCls, toTableName(cls)+"Table");
+				modifier.modify();
+			} catch (NotFoundException e) {
+				e.printStackTrace();
+			} catch (CannotCompileException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -179,8 +191,8 @@ public class MercuryBootstrap {
 	 * @param c  class to convert
 	 * @return output package name
 	 */
-	private String toTablePrefix(Class<?> c) {
-		String filePrefix = _srcPackage + c.getName().replace(_srcPackage, "");
+	private String toTableName(Class<?> c) {
+		String filePrefix = _outPackage + c.getName().replace(_srcPackage, "");
 		return filePrefix;
 	}
 
