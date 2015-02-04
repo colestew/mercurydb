@@ -3,7 +3,10 @@
 *Table.java
 *~
 ~*
-/bin
-/build
+bin
+build
 .project
 .classpath
+.gradle
+.settings
+.DS_Store
