@@ -12,17 +12,17 @@ When developing Java applications, developers typically make use of a number of 
 
 As you are developing your application and you realize that you need the functionality offered by _MercuryDB_, adding it into your project will require some modifications to your build process and source code, but we intend to keep these as minimal as possible. These modifications are described below.
 
-_MercuryDB_ is provided to developers as an application, `mdb`, which, given a __source package__, produces a __mercury package__ (a modified version of the __source package__), and a __mercury schema__, which provides the API for interacting with objects from that package as database objects.
+_MercuryDB_ is provided to developers as an application, `hgdb`, which, given a __source package__, produces a __mercury package__ (a modified version of the __source package__), and a __mercury schema__, which provides the API for interacting with objects from that package as database objects.
 
-As part of the build process for an application using _MercuryDB_, `mdb` produces __mercury packages__ which have an altered namespace to prevent linking against the __source package__ when a developer intends to link against the __mercury package__ instead. The developer will have to update the relevant namespaces as described below in order to take advantage of the new functionality offered by _MercuryDB_.
+As part of the build process for an application using _MercuryDB_, `hgdb` produces __mercury packages__ which have an altered namespace to prevent linking against the __source package__ when a developer intends to link against the __mercury package__ instead. The developer will have to update the relevant namespaces as described below in order to take advantage of the new functionality offered by _MercuryDB_.
 
-A __schema__ is produced by _MercuryDB_ after running `mdb` on a __package__ and producing a __mercury package__. In practice this __schema__ is a separate library which defines the API that can be used to interact with objects in the __mercury package__.
+A __schema__ is produced by _MercuryDB_ after running `hgdb` on a __package__ and producing a __mercury package__. In practice this __schema__ is a separate library which defines the API that can be used to interact with objects in the __mercury package__.
 
 ### Namespaces
 
 #### Mercury Packages
 
-A library __source package__ is typically given a namespace like `com.developer.library`. When `mdb` produces the __mercury package__ the namespace will be changed to:
+A library __source package__ is typically given a namespace like `com.developer.library`. When `hgdb` produces the __mercury package__ the namespace will be changed to:
 
 `mercury.package.<com.developer.library>`
 
