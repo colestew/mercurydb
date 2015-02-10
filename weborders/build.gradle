@@ -5,7 +5,6 @@
 project.ext.set('mercurySrc', 'weborders.source')
 project.ext.set('mercuryOut', 'weborders.db')
 
-
 dependencies {
     compile project(':mercurydb')
     compile 'junit:junit:+'
@@ -37,7 +36,11 @@ task insertHooks(type: JavaExec) {
         '-src', project.mercurySrc,
         '-db', project.mercuryOut,
         '-root', 'src/main/java',
-        '-ih']
+        '-ih', sourceSets.main.output]
+}
+
+task newJar(type: Jar) {
+    from sourceSets.main.output
 }
 
 clean.dependsOn clearDB
@@ -46,5 +49,5 @@ classes.dependsOn clearDB
 generateTables.dependsOn classes
 compileTables.dependsOn generateTables
 insertHooks.dependsOn compileTables
+assemble.dependsOn insertHooks
 compileTestJava.dependsOn insertHooks
-

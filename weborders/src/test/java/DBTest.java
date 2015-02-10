@@ -12,6 +12,7 @@ import org.mercurydb.queryutils.JoinStream;
 
 import weborders.db.OdetailTable;
 import weborders.db.OrderTable;
+import weborders.db.PartTable;
 import weborders.source.Employee;
 import weborders.source.Odetail;
 import weborders.source.Order;
@@ -185,7 +186,6 @@ public class DBTest {
 			++count;
 		}
 		correctCount = count;
-		System.out.println("Correct #records: " + correctCount);
 	}
 
 }

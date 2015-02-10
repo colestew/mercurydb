@@ -7,6 +7,7 @@ import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
 import javassist.CtMethod;
+import javassist.CtNewMethod;
 import javassist.NotFoundException;
 
 public class ClassModifier {
@@ -19,8 +20,9 @@ public class ClassModifier {
 	}
 
 	public void modify() throws CannotCompileException, IOException, NotFoundException {
+		String constructorHook = _tableClass + ".insert(this);";
 		for (CtConstructor con : _srcClass.getConstructors()) {
-			con.insertAfter(_tableClass + ".insert(this);");
+			con.insertAfter(constructorHook);
 		}
 		
 		for (CtField cf : _srcClass.getFields()) {
@@ -38,7 +40,9 @@ public class ClassModifier {
 				System.err.println("Warning: " + e.getMessage());
 			}
 		}
-
-		_srcClass.writeFile();
+		System.out.println("Wrote to " + _srcClass.getURL().getFile());
+		CtMethod method = CtNewMethod.make("public void fooey() {}", _srcClass);
+		_srcClass.addMethod(method);
+		_srcClass.writeFile("build/classes/main");
 	}
 }
