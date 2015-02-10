@@ -40,7 +40,6 @@ public class ClassModifier {
 				System.err.println("Warning: " + e.getMessage());
 			}
 		}
-		System.out.println("Wrote to " + _srcClass.getURL().getFile());
 		CtMethod method = CtNewMethod.make("public void fooey() {}", _srcClass);
 		_srcClass.addMethod(method);
 		_srcClass.writeFile("build/classes/main");

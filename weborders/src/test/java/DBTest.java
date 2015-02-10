@@ -107,8 +107,8 @@ public class DBTest {
 	
 	@Test
 	public void testReset() {
-		JoinStream a = OrderTable.scan().joinOn(OrderTable.fieldOno());
-		JoinStream b = OdetailTable.scan().joinOn(OdetailTable.fieldOno());
+		JoinStream<?> a = OrderTable.scan().joinOn(OrderTable.fieldOno());
+		JoinStream<?> b = OdetailTable.scan().joinOn(OdetailTable.fieldOno());
 		JoinResult c = JoinDriver.join(a, b);
 		
 		for (JoinRecord jr : c.elements());

@@ -10,6 +10,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -28,7 +29,9 @@ public class Main {
 		opt = new Option("root", "java-root", true, "The root java directory");
 		opt.setRequired(true);
 		options.addOption(opt);
-		options.addOption("ih", "insert-hooks", false, "Insert db hooks into package");
+		opt = new Option("ih", "insert-hooks", false, "Insert db hooks into package. Can specify output class directory.");
+		opt.setOptionalArg(true);
+		options.addOption(opt);
 
 		CommandLineParser parser = new GnuParser();
 
