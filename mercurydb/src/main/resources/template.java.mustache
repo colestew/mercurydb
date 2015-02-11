@@ -87,7 +87,7 @@ public class {{sourceClass}}Table {
 
     // Get methods -- these are retrievals for attribute = value queries
     {{#fields}}
-    public static Stream<{{sourceClass}}> query{{CCname}}({{_type}} val) {
+    public static HgStream<{{sourceClass}}> query{{CCname}}({{_type}} val) {
         {{#hasIndex}}
         Set<{{sourceClass}}> result = {{name}}Index.get(val);
         return result == null
@@ -101,7 +101,7 @@ public class {{sourceClass}}Table {
 
     {{/fields}}
     {{#queries}}
-    public static Stream<{{sourceClass}}>
+    public static HgStream<{{sourceClass}}>
     query{{#qFields}}{{CCname}}{{/qFields}}({{prototype}}) {
         Iterable<{{sourceClass}}> seed = table;
         int size = table.size();
@@ -122,7 +122,7 @@ public class {{sourceClass}}Table {
         {{/hasIndex}}
         {{/qFields}}
 
-        Stream<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(seed, size);
+        HgStream<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(seed, size);
 
         {{#qFields}}
         // Filter {{name}}

@@ -4,7 +4,7 @@
  */
 package weborders.source;
 
-import org.mercurydb.Index;
+import org.mercurydb.HgIndex;
 
 /**
  *
@@ -12,9 +12,9 @@ import org.mercurydb.Index;
  */
 public class Customer extends Common {
     public int cno;
-    @Index
+    @HgIndex
     public String cname;
-    @Index
+    @HgIndex
     public String street;
     public Zipcode zip;
     public String phone;

@@ -22,7 +22,7 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
 
-public class ClassExtractor {
+public class ClassToTableExtractor {
     public final Class<?> c;
     
     public final boolean hasSuper;
@@ -37,7 +37,7 @@ public class ClassExtractor {
     
     public List<QueryData> queries;
 
-    public ClassExtractor(Class<?> c, String superTable, Collection<String> subClassTables) 
+    public ClassToTableExtractor(Class<?> c, String superTable, Collection<String> subClassTables) 
     		throws IOException {
         this.c = c;
         this.hasSuper = superTable != null;
@@ -172,6 +172,6 @@ public class ClassExtractor {
     }
 
     private boolean hasIndexAnnotation(Field f) {
-        return f.getAnnotation(org.mercurydb.Index.class) != null;
+        return f.getAnnotation(org.mercurydb.HgIndex.class) != null;
     }
 }

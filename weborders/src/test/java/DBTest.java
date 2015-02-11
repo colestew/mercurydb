@@ -44,11 +44,10 @@ public class DBTest {
 	public void testHashJoin() {
 		// Hash Join
 		long count = 0;
-		for (JoinRecord jr : JoinDriver.joinHash(
+		JoinResult result = JoinDriver.joinHash(
 				OrderTable.scan().joinOn(OrderTable.fieldOno()), 
-				OdetailTable.scan().joinOn(OdetailTable.fieldOno())).elements()) {
-			++count;
-		}
+				OdetailTable.scan().joinOn(OdetailTable.fieldOno()));
+		count = result.cardinality();
 		
 		if (count != correctCount) fail();
 	}

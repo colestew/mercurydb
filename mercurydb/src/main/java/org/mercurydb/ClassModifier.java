@@ -26,7 +26,7 @@ public class ClassModifier {
 		}
 		
 		for (CtField cf : _srcClass.getFields()) {
-			if (!cf.hasAnnotation(org.mercurydb.Index.class)) continue;
+			if (!cf.hasAnnotation(org.mercurydb.HgIndex.class)) continue;
 			
 			String methodName = "set" + Utils.upperFirst(cf.getName());
 			try {

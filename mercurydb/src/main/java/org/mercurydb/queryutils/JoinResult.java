@@ -9,7 +9,7 @@ import java.util.Set;
  * @author colestewart
  *
  */
-abstract public class JoinResult extends Stream<JoinRecord> {
+abstract public class JoinResult extends HgStream<JoinRecord> {
 	private Set<Class<?>> containedTypes = new HashSet<>();
 	private final JoinStream<?> a, b;
 	

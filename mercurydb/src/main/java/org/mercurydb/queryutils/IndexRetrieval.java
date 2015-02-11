@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-public class IndexRetrieval<C> extends Stream<C> {
+public class IndexRetrieval<C> extends HgStream<C> {
 	private final Map<Object, Set<C>> index;
 	
 	@SuppressWarnings("unchecked")
@@ -22,12 +22,10 @@ public class IndexRetrieval<C> extends Stream<C> {
 	
 	public Iterable<Object> keys() {
 		return new Iterable<Object>() {
-
 			@Override
 			public Iterator<Object> iterator() {
 				return index.keySet().iterator();
-			}
-			
+			}		
 		};
 	}
 

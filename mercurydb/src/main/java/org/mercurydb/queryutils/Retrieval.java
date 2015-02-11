@@ -15,7 +15,7 @@ import com.google.common.collect.Iterables;
  * 
  * @author colestew
  */
-public class Retrieval<C> extends Stream<C> {
+public class Retrieval<C> extends HgStream<C> {
 	private Iterable<C> streamSeed;
 	private Iterator<C> stream;
 	

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.stream.BaseStream;
 
 /**
  * 
@@ -12,7 +13,7 @@ import java.util.Set;
  * @param <C>
  * @param <F>
  */
-abstract public class Stream<C> implements Iterator<C> {
+abstract public class HgStream<C> implements Iterator<C> {
 	protected int cardinality;
 	
 	@Override
@@ -26,7 +27,7 @@ abstract public class Stream<C> implements Iterator<C> {
 		return cardinality;
 	}
 	
-	public Stream(int cardinality) {
+	public HgStream(int cardinality) {
 		this.cardinality = cardinality;
 	}
 	
@@ -38,11 +39,11 @@ abstract public class Stream<C> implements Iterator<C> {
 		return new JoinStream<C>(this, f);
 	}
 
-	public Stream<C> filter(final FieldExtractable fe, Object... val) {
+	public HgStream<C> filter(final FieldExtractable fe, Object... val) {
 		final Set<Object> valSet = new HashSet<>(Arrays.asList(val));
-		return new Stream<C>(Stream.this.cardinality) {
+		return new HgStream<C>(HgStream.this.cardinality) {
 			private C next;
-			private Stream<C> stream = Stream.this;
+			private HgStream<C> stream = HgStream.this;
 
 			@Override
 			public boolean hasNext() {
@@ -77,8 +78,8 @@ abstract public class Stream<C> implements Iterator<C> {
 	public Iterable<C> elements() {
 		return new Iterable<C>() {
 			public Iterator<C> iterator() {
-				Stream.this.reset();
-				return Stream.this;
+				HgStream.this.reset();
+				return HgStream.this;
 			}
 		};
 	}

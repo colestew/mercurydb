@@ -4,17 +4,17 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JoinStream<C> extends Stream<C> {
-	private Stream<C> stream;
+public class JoinStream<C> extends HgStream<C> {
+	private HgStream<C> stream;
 	public final FieldExtractable joinKey;
 	
-	public JoinStream(Stream<C> stream, FieldExtractable joinKey) {
+	public JoinStream(HgStream<C> stream, FieldExtractable joinKey) {
 		super(stream.cardinality);
 		this.joinKey = joinKey;
 		this.stream = stream;
 	}
 	
-	public Stream<C> getWrappedStream() {
+	public HgStream<C> getWrappedStream() {
 		return stream;
 	}
 	

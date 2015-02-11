@@ -4,14 +4,14 @@
  */
 package weborders.source;
 
-import org.mercurydb.Index;
+import org.mercurydb.HgIndex;
 
 /**
  *
  * @author dsb
  */
 public class Order extends Common {
-	@Index
+	@HgIndex
     public int ono;
 	
     public Customer cno;

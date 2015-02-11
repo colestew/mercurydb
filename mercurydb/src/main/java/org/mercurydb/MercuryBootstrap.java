@@ -143,9 +143,9 @@ public class MercuryBootstrap {
 			String superTable = subClassMap
 					.containsKey(cls.getSuperclass()) ? toTableName(cls.getSuperclass()) : null;
 
-					ClassExtractor extractor;
+					ClassToTableExtractor extractor;
 					try {
-						extractor = new ClassExtractor(cls, superTable, subTables);
+						extractor = new ClassToTableExtractor(cls, superTable, subTables);
 						extractor.extract(tablePath, tablePackage);
 					} catch (IOException e) {
 						System.err.println(e.getMessage());

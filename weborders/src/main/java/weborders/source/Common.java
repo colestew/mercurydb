@@ -4,7 +4,7 @@
  */
 package weborders.source;
 
-import org.mercurydb.Index;
+import org.mercurydb.HgIndex;
 
 /**
  *
@@ -12,7 +12,7 @@ import org.mercurydb.Index;
  */
 public class Common {
 	
-	@Index
+	@HgIndex
 	public int commonId;
 	
     protected String print(String... item ) {
