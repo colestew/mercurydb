@@ -9,11 +9,11 @@ import java.util.Set;
  * @author colestewart
  *
  */
-abstract public class JoinResult extends HgStream<JoinRecord> {
+abstract public class HgPolyStream extends HgBaseStream<HgTuple> {
 	private Set<Class<?>> containedTypes = new HashSet<>();
-	private final JoinStream<?> a, b;
+	private final HgMonoStream<?> a, b;
 	
-	public JoinResult(JoinStream<?> a, JoinStream<?> b) {
+	public HgPolyStream(HgMonoStream<?> a, HgMonoStream<?> b) {
 		super(a.cardinality + b.cardinality);
 		this.a = a;
 		this.b = b;
@@ -23,12 +23,12 @@ abstract public class JoinResult extends HgStream<JoinRecord> {
 	
 	@Override 
 	public Object extractField(FieldExtractable fe, Object instance) {
-		JoinRecord jr = (JoinRecord)instance;
+		HgTuple jr = (HgTuple)instance;
 		return fe.extractField(jr.get(fe.getContainerClass()));
 	}
 	
 	public Set<Class<?>> containedTypes() {
-		return new HashSet<Class<?>>(containedTypes);
+		return containedTypes;
 	}
 	
 	@Override

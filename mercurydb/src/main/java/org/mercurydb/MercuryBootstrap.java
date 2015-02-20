@@ -140,21 +140,21 @@ public class MercuryBootstrap {
 
 			System.out.println("Extracting " + cls + " to " + tablePath + " in " + tablePackage);
 
-			String superTable = subClassMap
-					.containsKey(cls.getSuperclass()) ? toTableName(cls.getSuperclass()) : null;
+			String superTable = subClassMap.containsKey(cls.getSuperclass()) ? toTableName(cls.getSuperclass()) : null;
 
-					ClassToTableExtractor extractor;
-					try {
-						extractor = new ClassToTableExtractor(cls, superTable, subTables);
-						extractor.extract(tablePath, tablePackage);
-					} catch (IOException e) {
-						System.err.println(e.getMessage());
-					}
+			ClassToTableExtractor extractor;
+			try {
+				extractor = new ClassToTableExtractor(cls, superTable, subTables);
+				extractor.extract(tablePath, tablePackage);
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
 		}
 	}
 
 	/**
 	 * Inserts bytecode hooks in the classes found in the input package
+	 * 
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 * @throws CannotCompileException 

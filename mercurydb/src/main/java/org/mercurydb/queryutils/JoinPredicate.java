@@ -15,14 +15,14 @@ package org.mercurydb.queryutils;
  *
  */
 public class JoinPredicate implements Comparable<JoinPredicate> {
-	JoinStream<?> stream1, stream2;
+	HgMonoStream<?> stream1, stream2;
 	public final String relation;
 	
-	public JoinPredicate(JoinStream<?> s1, JoinStream<?> s2) {
+	public JoinPredicate(HgMonoStream<?> s1, HgMonoStream<?> s2) {
 		this("=", s1, s2);
 	}
 	
-	public JoinPredicate(String relation, JoinStream<?> s1, JoinStream<?> s2) {
+	public JoinPredicate(String relation, HgMonoStream<?> s1, HgMonoStream<?> s2) {
 		this.relation = relation;
 		this.stream1 = s1;
 		this.stream2 = s2;

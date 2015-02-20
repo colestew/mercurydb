@@ -11,25 +11,26 @@ import java.util.HashMap;
  * @author colestewart
  *
  */
-public class JoinRecord extends HashMap<Class<?>, Object> {
+public class HgTuple extends HashMap<Class<?>, Object> {
 	private static final long serialVersionUID = 3954994964527336275L;
 	
-	private JoinRecord() {
+	private HgTuple() {
 		super();
 	}
-	public JoinRecord(JoinStream<?> s1, final Object o1, JoinStream<?> s2, final Object o2) {
-		JoinRecord jr1 = wrapObject(s1, o1);
-		JoinRecord jr2 = wrapObject(s2, o2);
+	
+	public HgTuple(HgMonoStream<?> s1, final Object o1, HgMonoStream<?> s2, final Object o2) {
+		HgTuple jr1 = makeRecord(s1, o1);
+		HgTuple jr2 = makeRecord(s2, o2);
 		putAll(jr1);
 		putAll(jr2);
 	}
 	
-	public static JoinRecord wrapObject(JoinStream<?> s, Object o) {
-		JoinRecord jr;
-		if (o instanceof JoinRecord) {
-			jr = (JoinRecord)o;
+	public static HgTuple makeRecord(HgMonoStream<?> s, Object o) {
+		HgTuple jr;
+		if (o instanceof HgTuple) {
+			jr = (HgTuple)o;
 		} else {
-			jr = new JoinRecord();
+			jr = new HgTuple();
 			jr.put(s.joinKey.getContainerClass(), o);
 		}
 		

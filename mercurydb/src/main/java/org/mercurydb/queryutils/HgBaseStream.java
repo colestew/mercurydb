@@ -13,7 +13,7 @@ import java.util.stream.BaseStream;
  * @param <C>
  * @param <F>
  */
-abstract public class HgStream<C> implements Iterator<C> {
+abstract public class HgBaseStream<C> implements Iterator<C> {
 	protected int cardinality;
 	
 	@Override
@@ -27,7 +27,7 @@ abstract public class HgStream<C> implements Iterator<C> {
 		return cardinality;
 	}
 	
-	public HgStream(int cardinality) {
+	public HgBaseStream(int cardinality) {
 		this.cardinality = cardinality;
 	}
 	
@@ -35,15 +35,15 @@ abstract public class HgStream<C> implements Iterator<C> {
 		return fe.extractField(instance);
 	}
 
-	public JoinStream<C> joinOn(FieldExtractable f) {
-		return new JoinStream<C>(this, f);
+	public HgMonoStream<C> joinOn(FieldExtractable f) {
+		return new HgMonoStream<C>(this, f);
 	}
 
-	public HgStream<C> filter(final FieldExtractable fe, Object... val) {
+	public HgBaseStream<C> filter(final FieldExtractable fe, Object... val) {
 		final Set<Object> valSet = new HashSet<>(Arrays.asList(val));
-		return new HgStream<C>(HgStream.this.cardinality) {
+		return new HgBaseStream<C>(HgBaseStream.this.cardinality) {
 			private C next;
-			private HgStream<C> stream = HgStream.this;
+			private HgBaseStream<C> stream = HgBaseStream.this;
 
 			@Override
 			public boolean hasNext() {
@@ -78,8 +78,8 @@ abstract public class HgStream<C> implements Iterator<C> {
 	public Iterable<C> elements() {
 		return new Iterable<C>() {
 			public Iterator<C> iterator() {
-				HgStream.this.reset();
-				return HgStream.this;
+				HgBaseStream.this.reset();
+				return HgBaseStream.this;
 			}
 		};
 	}

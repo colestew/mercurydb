@@ -42,16 +42,16 @@ public class JoinDriver {
 	 * @return a JoinResult of a join on preds
 	 * @throws IllegalStateException if preds do not unify 
 	 */
-	public static JoinResult join(JoinPredicate... preds) {
+	public static HgPolyStream join(JoinPredicate... preds) {
 
 		if (preds.length == 1) {
 			return join(preds[0].relation, preds[0].stream1, preds[0].stream2);
 		}
 		else if (preds.length > 1) {
 			Arrays.sort(preds);
-
-			System.out.println("Joining " + preds[0].stream1.joinKey.getContainerClass() + " x " + preds[0].stream2.joinKey.getContainerClass());
-			JoinResult result = join(preds[0].stream1, preds[0].stream2);
+			System.out.println("Joining " + preds[0].stream1.joinKey.getContainerClass() + 
+					" x " + preds[0].stream2.joinKey.getContainerClass());
+			HgPolyStream result = join(preds[0].stream1, preds[0].stream2);
 
 			for (int i = 1; i < preds.length; ++i) {
 				JoinPredicate p = preds[i];
@@ -79,9 +79,9 @@ public class JoinDriver {
 	 * @param b
 	 * @return
 	 */
-	public static JoinResult join(
-			JoinStream<?> a,
-			JoinStream<?> b) {
+	public static HgPolyStream join(
+			HgMonoStream<?> a,
+			HgMonoStream<?> b) {
 		return join("=", a, b);
 	}
 
@@ -97,10 +97,10 @@ public class JoinDriver {
 	 * @param a JoinStream
 	 * @return a JoinResult of a join on preds
 	 */
-	public static JoinResult join(
+	public static HgPolyStream join(
 			String relation,
-			JoinStream<?> a,
-			JoinStream<?> b) {
+			HgMonoStream<?> a,
+			HgMonoStream<?> b) {
 
 		if (a.joinKey.getContainerClass().equals(b.joinKey.getContainerClass())) {
 			/*
@@ -147,25 +147,25 @@ public class JoinDriver {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private static JoinResult joinFilter(
-			JoinStream<?> a, 
-			JoinStream<?> b) {
+	private static HgPolyStream joinFilter(
+			HgMonoStream<?> a, 
+			HgMonoStream<?> b) {
 
-		final JoinStream<JoinRecord> ap;
-		final JoinStream<Object> bp;
+		final HgMonoStream<HgTuple> ap;
+		final HgMonoStream<Object> bp;
 
 		// Perform Filter operation on A
 		if (b.containedTypes().retainAll(a.containedTypes())) {
-			ap = (JoinStream<JoinRecord>)a; 
-			bp = (JoinStream<Object>)b;
+			ap = (HgMonoStream<HgTuple>)a; 
+			bp = (HgMonoStream<Object>)b;
 		} else {
-			ap = (JoinStream<JoinRecord>)b; 
-			bp = (JoinStream<Object>)a;
+			ap = (HgMonoStream<HgTuple>)b; 
+			bp = (HgMonoStream<Object>)a;
 		}
 
-		return new JoinResult(a, b) {
+		return new HgPolyStream(a, b) {
 			//Iterator<Object> aKeys = ap.keys().iterator();
-			JoinRecord currA;
+			HgTuple currA;
 
 			@Override
 			public boolean hasNext() {
@@ -180,7 +180,7 @@ public class JoinDriver {
 			}
 
 			@Override
-			public JoinRecord next() {
+			public HgTuple next() {
 				return currA;
 			}
 		};
@@ -195,14 +195,14 @@ public class JoinDriver {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private static JoinResult joinIndexIntersection(
-			final JoinStream<?> a, 
-			final JoinStream<?> b) {
-		System.out.println("Performing Index Intersection.");
+	private static HgPolyStream joinIndexIntersection(
+			final HgMonoStream<?> a, 
+			final HgMonoStream<?> b) {
+		
 		final IndexRetrieval<Object> ap = (IndexRetrieval<Object>)a.getWrappedStream();
 		final IndexRetrieval<Object> bp = (IndexRetrieval<Object>)b.getWrappedStream();
 
-		return new JoinResult(a, b) {
+		return new HgPolyStream(a, b) {
 			Iterator<Object> aKeys = ap.keys().iterator();
 			Iterator<Object> aInstances = Collections.emptyIterator();
 			Object currA;
@@ -234,8 +234,8 @@ public class JoinDriver {
 			}
 
 			@Override
-			public JoinRecord next() {
-				return new JoinRecord(a, currA, b, currB);
+			public HgTuple next() {
+				return new HgTuple(a, currA, b, currB);
 			}
 		};	
 	}
@@ -249,23 +249,23 @@ public class JoinDriver {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private static JoinResult joinIndexScan(
-			final JoinStream<?> a,
-			final JoinStream<?> b) {
+	private static HgPolyStream joinIndexScan(
+			final HgMonoStream<?> a,
+			final HgMonoStream<?> b) {
 
 		System.out.println("Performing Index Scan");
-		final JoinStream<Object> ap;
-		final JoinStream<Object> bp;
+		final HgMonoStream<Object> ap;
+		final HgMonoStream<Object> bp;
 
 		if (a.hasUsableIndex()) {
-			ap = (JoinStream<Object>)a;
-			bp = (JoinStream<Object>)b;
+			ap = (HgMonoStream<Object>)a;
+			bp = (HgMonoStream<Object>)b;
 		} else {
-			ap = (JoinStream<Object>)b;
-			bp = (JoinStream<Object>)a;
+			ap = (HgMonoStream<Object>)b;
+			bp = (HgMonoStream<Object>)a;
 		}
 
-		return new JoinResult(a, b) {
+		return new HgPolyStream(a, b) {
 			Object currB;
 			Iterator<Object> bInstances = bp;
 			Iterator<Object> aInstances = Collections.emptyIterator();
@@ -287,8 +287,8 @@ public class JoinDriver {
 			}
 
 			@Override
-			public JoinRecord next() {
-				return new JoinRecord(ap, aInstances.next(), bp, currB);
+			public HgTuple next() {
+				return new HgTuple(ap, aInstances.next(), bp, currB);
 			}
 		};
 	}
@@ -301,19 +301,19 @@ public class JoinDriver {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static JoinResult joinHash(
-			JoinStream<?> a,
-			JoinStream<?> b) {
+	public static HgPolyStream joinHash(
+			HgMonoStream<?> a,
+			HgMonoStream<?> b) {
 		System.out.println("Performing Hash Join.");
-		final JoinStream<Object> ap;
-		final JoinStream<Object> bp;
+		final HgMonoStream<Object> ap;
+		final HgMonoStream<Object> bp;
 
 		if (a.cardinality() < b.cardinality()) {
-			ap = (JoinStream<Object>)a;
-			bp = (JoinStream<Object>)b;
+			ap = (HgMonoStream<Object>)a;
+			bp = (HgMonoStream<Object>)b;
 		} else {
-			ap = (JoinStream<Object>)b;
-			bp = (JoinStream<Object>)a;
+			ap = (HgMonoStream<Object>)b;
+			bp = (HgMonoStream<Object>)a;
 		}
 
 		final Map<Object, Set<Object>> aMap = new HashMap<Object, Set<Object>>();
@@ -341,11 +341,11 @@ public class JoinDriver {
 	 * @param b
 	 * @return
 	 */
-	public static JoinResult joinNestedLoops(
-			final JoinStream<?> a,
-			final JoinStream<?> b) {
+	public static HgPolyStream joinNestedLoops(
+			final HgMonoStream<?> a,
+			final HgMonoStream<?> b) {
 
-		return new JoinResult(a, b) {
+		return new HgPolyStream(a, b) {
 			Object currA, currB;
 
 			@Override
@@ -367,8 +367,8 @@ public class JoinDriver {
 			}
 
 			@Override
-			public JoinRecord next() {
-				return new JoinRecord(a, currA, b, currB);
+			public HgTuple next() {
+				return new HgTuple(a, currA, b, currB);
 			}
 
 		};
