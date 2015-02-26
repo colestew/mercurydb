@@ -10,3 +10,4 @@ build
 .gradle
 .settings
 .DS_Store
+weborders/src/main/java/weborders/db/*

@@ -7,7 +7,9 @@ import com.google.common.collect.MapMaker;
 
 import {{fullSourceClass}};
 
-public class {{sourceClass}}Table {
+public class {{sourceClass}}{{tableSuffix}} {
+	public static final int JOIN_ID = {{joinId}};
+	
     public static final List<{{sourceClass}}> table = new ArrayList<>();
     
     public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
@@ -36,7 +38,7 @@ public class {{sourceClass}}Table {
             table.add(val);
         {{#hasSuper}}
         // Populate super table indices
-        {{cSuper}}Table.insert(val);
+        {{cSuper}}{{tableSuffix}}.insert(val);
         {{/hasSuper}}
     }
     
@@ -52,12 +54,12 @@ public class {{sourceClass}}Table {
     	{{/fields}}
     	{{#hasSuper}}
     	// Remove from {{cSuper}} indices (superclass)
-    	{{cSuper}}Table.remove(val);
+    	{{cSuper}}{{tableSuffix}}.remove(val);
     	{{/hasSuper}}
     	// Remove from subclass indices
     	{{#subClasses}}
-    	if ({{toString}}Table.containedClass.isInstance(val)) {
-    	    {{toString}}Table.remove({{toString}}Table.containedClass.cast(val));
+    	if ({{toString}}{{tableSuffix}}.containedClass.isInstance(val)) {
+    	    {{toString}}{{tableSuffix}}.remove({{toString}}{{tableSuffix}}.containedClass.cast(val));
     	    return;
     	}
     	{{/subClasses}}
@@ -95,7 +97,7 @@ public class {{sourceClass}}Table {
                 : new Retrieval<{{sourceClass}}>(result, result.size()); 
         {{/hasIndex}}
         {{^hasIndex}}
-        return scan().filter(field{{CCname}}(),val);
+        return scan().filter(on.{{name}},val);
         {{/hasIndex}}
     }
 
@@ -128,10 +130,10 @@ public class {{sourceClass}}Table {
         // Filter {{name}}
         {{#hasIndex}}
         if ({{name}} != usedIndex)
-            result = result.filter(field{{CCname}}(),{{name}});
+            result = result.filter(on.{{name}},{{name}});
         {{/hasIndex}}
         {{^hasIndex}}
-        result = result.filter(field{{CCname}}(),{{name}});
+        result = result.filter(on.{{name}},{{name}});
         {{/hasIndex}}
 
         {{/qFields}}
@@ -140,9 +142,9 @@ public class {{sourceClass}}Table {
 
     {{/queries}}
 
-    {{#fields}}
-    public static FieldExtractable field{{CCname}}() {
-        return new FieldExtractable() {
+    public static final class on {
+	    {{#fields}}
+	    public static final FieldExtractable<{{type}}> {{name}} = new FieldExtractable() {
             @Override
             public {{type}} extractField(Object instance) {
                 return (({{sourceClass}})instance).{{name}};
@@ -162,10 +164,15 @@ public class {{sourceClass}}Table {
                 return false;
                 {{/hasIndex}}
             }
+            
+            @Override
+            public int getContainerId() {
+            	return JOIN_ID;
+            }
         };
-    }
 
-    {{/fields}}
+    	{{/fields}}
+    }
 
     public static FieldExtractable itself() {
         return new FieldExtractable() {
@@ -183,26 +190,30 @@ public class {{sourceClass}}Table {
             public boolean isIndexed() {
                 return false;
             }
+            
+            @Override
+            public int getContainerId() {
+                return JOIN_ID;
+            }
         };
     }
 
-    public static JoinStream<{{sourceClass}}> joinOn(FieldExtractable jf) {
+    public static HgMonoStream<{{sourceClass}}> joinOn(FieldExtractable jf) {
         return scan().joinOn(jf);
     }
 
     {{#fields}}
-    public static JoinStream<{{sourceClass}}> joinOnField{{CCname}}() {
+    public static HgMonoStream<{{sourceClass}}> joinOn{{CCname}}() {
         {{#hasIndex}}
-        return new IndexRetrieval<{{sourceClass}}>({{name}}Index).joinOn(field{{CCname}}()); 
+        return new IndexRetrieval<{{sourceClass}}>({{name}}Index).joinOn(on.{{name}}); 
         {{/hasIndex}}
         {{^hasIndex}}
-        return scan().joinOn(field{{CCname}}());
+        return scan().joinOn(on.{{name}});
         {{/hasIndex}}
     }
-
     {{/fields}}
 
-    public static JoinStream<{{sourceClass}}> joinOnItself() {
+    public static HgMonoStream<{{sourceClass}}> joinOnItself() {
         return scan().joinOn(itself());
     }
 
@@ -215,7 +226,7 @@ public class {{sourceClass}}Table {
          
         Retrieval<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(table, table.size());
         {{#subClasses}}
-        result = result.join({{toString}}Table.scan());
+        result = result.join({{toString}}{{tableSuffix}}.scan());
         {{/subClasses}}
         return result;
     }

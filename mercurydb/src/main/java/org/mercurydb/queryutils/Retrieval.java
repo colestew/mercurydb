@@ -12,10 +12,8 @@ import com.google.common.collect.Iterables;
  * 
  * @param <C> The ClassType
  * @param <F> The FieldType
- * 
- * @author colestew
  */
-public class Retrieval<C> extends HgBaseStream<C> {
+public class Retrieval<C> extends HgStream<C> {
 	private Iterable<C> streamSeed;
 	private Iterator<C> stream;
 	

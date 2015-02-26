@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-public class IndexRetrieval<C> extends HgBaseStream<C> {
+public class IndexRetrieval<C> extends HgStream<C> {
 	private final Map<Object, Set<C>> index;
 	
 	@SuppressWarnings("unchecked")

@@ -54,6 +54,11 @@ public class MercuryBootstrap {
 	 * output directory for tables
 	 */
 	private final String _srcJavaDir;
+	
+	/**
+	 * Output table class suffix
+	 */
+	private String tableSuffix = "Tbl";
 
 	/**
 	 * Primary constructor for MercuryBootstrap.
@@ -70,6 +75,16 @@ public class MercuryBootstrap {
 		this._srcPackage = srcPackage;
 		this._outPackage = outPackage;
 		this._srcJavaDir = rootDir;
+	}
+	
+	/**
+	 * Sets the table suffix for generated tables. i.e. Customer
+	 * maps to CustomerTbl. Default suffix is "Tbl"
+	 * 
+	 * @param suffix  the new table suffix
+	 */
+	public void setTableSuffix(String suffix) {
+		this.tableSuffix = suffix;
 	}
 
 	/**
@@ -114,12 +129,17 @@ public class MercuryBootstrap {
 			System.out.println("No supported .class files found in " + _srcPackage);
 			System.exit(1);
 		}
+		
+		String basePath = _srcJavaDir + '/' + _outPackage.replace('.', '/');
 
 		// startup a collection of table files we generate
 		Collection<String> tableFiles = new ArrayList<>();
 		// and create a map of input package classes to their subclasses
 		Map<Class<?>, List<Class<?>>> subClassMap = getSubclasses(classes);
 
+		// join id for index into streams
+		int joinId = 0;
+		
 		// now iterate over each class and generate the tables
 		for (Class<?> cls : classes) {
 
@@ -127,25 +147,35 @@ public class MercuryBootstrap {
 			Collection<String> subTables = Collections.emptyList();
 			if (subClassMap.containsKey(cls)) {
 				subTables = subClassMap.get(cls).stream()
-						.map(c -> toTableName(c))
+						.map(c -> toOutPackage(c.getName()))
 						.collect(Collectors.<String>toList());
 			}
 
 			// calculate required paths and packages for the new table
-			String genTablePrefix = _srcJavaDir + '/' + _outPackage.replace('.', '/') +
-					cls.getName().replace(_srcPackage, "").replace('.', '/');
-			String tablePath = genTablePrefix + "Table.java";
+			String genTablePrefix = basePath + cls.getName().replace(_srcPackage, "").replace('.', '/');
+			String tablePath = genTablePrefix + tableSuffix + ".java";
 			String tablePackage = _outPackage + cls.getPackage().getName().replace(_srcPackage, "");
-			tableFiles.add(genTablePrefix + "Table.java");
+			tableFiles.add(genTablePrefix + tableSuffix + ".java");
 
 			System.out.println("Extracting " + cls + " to " + tablePath + " in " + tablePackage);
 
-			String superTable = subClassMap.containsKey(cls.getSuperclass()) ? toTableName(cls.getSuperclass()) : null;
+			String superTable = subClassMap.containsKey(
+					cls.getSuperclass()) ? toOutPackage(cls.getSuperclass().getName()) : null;
 
 			ClassToTableExtractor extractor;
 			try {
-				extractor = new ClassToTableExtractor(cls, superTable, subTables);
+				extractor = new ClassToTableExtractor(cls, superTable, subTables, tableSuffix, joinId++);
 				extractor.extract(tablePath, tablePackage);
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+		
+		if (!classes.isEmpty()) {
+			// Generate Tables.java
+			try {
+				TableEnumGenerator teGen = new TableEnumGenerator(classes);
+				teGen.extract(basePath + "/Tables.java", _outPackage);
 			} catch (IOException e) {
 				System.err.println(e.getMessage());
 			}
@@ -169,7 +199,7 @@ public class MercuryBootstrap {
 			System.out.println("Adding insert hook to " + cls);
 			try {
 				CtClass ctCls = cp.get(cls.getName());
-				ClassModifier modifier = new ClassModifier(ctCls, toTableName(cls)+"Table");
+				BytecodeHooker modifier = new BytecodeHooker(ctCls, toOutPackage(cls.getName()) + tableSuffix);
 				modifier.modify();
 			} catch (NotFoundException e) {
 				e.printStackTrace();
@@ -181,6 +211,7 @@ public class MercuryBootstrap {
 		}
 	}
 
+	
 	/**
 	 * Converts a class to an output package name. To be more specific,
 	 * this method converts the class to a filename, replaces the source
@@ -188,13 +219,14 @@ public class MercuryBootstrap {
 	 * name. It is up to the template engine to append "Table" or whatever
 	 * it wants to use for the table class names.
 	 * 
-	 * @param c  class to convert
+	 * @param c input String
 	 * @return output package name
 	 */
-	private String toTableName(Class<?> c) {
-		String filePrefix = _outPackage + c.getName().replace(_srcPackage, "");
+	private String toOutPackage(String c) {
+		String filePrefix = _outPackage + c.replace(_srcPackage, "");
 		return filePrefix;
 	}
+	
 
 	/**
 	 * Method which returns a map of each class in the given collection

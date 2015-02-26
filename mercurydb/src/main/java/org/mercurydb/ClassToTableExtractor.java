@@ -37,12 +37,19 @@ public class ClassToTableExtractor {
     
     public List<QueryData> queries;
 
-    public ClassToTableExtractor(Class<?> c, String superTable, Collection<String> subClassTables) 
+    public String tableSuffix;
+    
+    public int joinId;
+    
+    public ClassToTableExtractor(
+    		Class<?> c, String superTable, Collection<String> subClassTables, String tableSuffix, int joinId) 
     		throws IOException {
         this.c = c;
         this.hasSuper = superTable != null;
         this.cSuper = superTable;
-
+        this.tableSuffix = tableSuffix;
+        this.joinId = joinId;
+        
         this.fields = new ArrayList<>();
         this.queries = new ArrayList<>();
         
@@ -50,6 +57,8 @@ public class ClassToTableExtractor {
         populateFieldsList();
         populateQueriesList(queries, fields);
     }
+    
+    
     
     private void populateFieldsList() {
         for (Field f : c.getFields()) {
@@ -98,6 +107,7 @@ public class ClassToTableExtractor {
     		return false;
     	}
     }
+
     
     @SuppressWarnings("unused")
     private static class FieldData implements Comparable<FieldData> {

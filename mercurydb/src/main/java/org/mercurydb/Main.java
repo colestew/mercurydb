@@ -32,6 +32,8 @@ public class Main {
 		opt = new Option("ih", "insert-hooks", false, "Insert db hooks into package. Can specify output class directory.");
 		opt.setOptionalArg(true);
 		options.addOption(opt);
+		opt = new Option("sx", "suffix", true, "Specify output file suffix. Default is *Tbl");
+		opt.setRequired(false);
 
 		CommandLineParser parser = new GnuParser();
 
@@ -45,9 +47,13 @@ public class Main {
 		String srcPkg = cmd.getOptionValue("src");
 		String dbPkg = cmd.getOptionValue("db");
 		String srcDir = cmd.getOptionValue("root");
-
+		String suffix = cmd.getOptionValue("sfx");
+		
 		if (srcPkg != null && dbPkg != null && srcDir != null) {
 			MercuryBootstrap bs = new MercuryBootstrap(srcPkg, dbPkg, srcDir) ;
+			if (suffix != null) {
+				bs.setTableSuffix(suffix);
+			}
 			if (cmd.hasOption("ih")) {
 				bs.insertBytecodeHooks();
 			} else {

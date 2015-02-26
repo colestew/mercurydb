@@ -6,14 +6,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.BaseStream;
 
-/**
- * 
- * @author colestewart
- *
- * @param <C>
- * @param <F>
- */
-abstract public class HgBaseStream<C> implements Iterator<C> {
+abstract public class HgStream<T> implements Iterator<T> {
 	protected int cardinality;
 	
 	@Override
@@ -21,13 +14,13 @@ abstract public class HgBaseStream<C> implements Iterator<C> {
 		throw new UnsupportedOperationException();
 	}
 	
-	public void reset() {};
+	public void reset() {}
 	
 	public int cardinality() {
 		return cardinality;
 	}
 	
-	public HgBaseStream(int cardinality) {
+	public HgStream(int cardinality) {
 		this.cardinality = cardinality;
 	}
 	
@@ -35,15 +28,15 @@ abstract public class HgBaseStream<C> implements Iterator<C> {
 		return fe.extractField(instance);
 	}
 
-	public HgMonoStream<C> joinOn(FieldExtractable f) {
-		return new HgMonoStream<C>(this, f);
+	public HgMonoStream<T> joinOn(FieldExtractable f) {
+		return new HgMonoStream<T>(this, f);
 	}
 
-	public HgBaseStream<C> filter(final FieldExtractable fe, Object... val) {
+	public HgStream<T> filter(final FieldExtractable fe, Object... val) {
 		final Set<Object> valSet = new HashSet<>(Arrays.asList(val));
-		return new HgBaseStream<C>(HgBaseStream.this.cardinality) {
-			private C next;
-			private HgBaseStream<C> stream = HgBaseStream.this;
+		return new HgStream<T>(this.cardinality) {
+			private T next;
+			private HgStream<T> stream = HgStream.this;
 
 			@Override
 			public boolean hasNext() {
@@ -59,7 +52,7 @@ abstract public class HgBaseStream<C> implements Iterator<C> {
 			}
 
 			@Override
-			public C next() {
+			public T next() {
 				return next;
 			}
 			
@@ -75,11 +68,11 @@ abstract public class HgBaseStream<C> implements Iterator<C> {
 		};
 	}
 
-	public Iterable<C> elements() {
-		return new Iterable<C>() {
-			public Iterator<C> iterator() {
-				HgBaseStream.this.reset();
-				return HgBaseStream.this;
+	public Iterable<T> elements() {
+		return new Iterable<T>() {
+			public Iterator<T> iterator() {
+				HgStream.this.reset();
+				return HgStream.this;
 			}
 		};
 	}

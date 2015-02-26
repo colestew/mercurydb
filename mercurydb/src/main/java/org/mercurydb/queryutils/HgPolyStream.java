@@ -5,11 +5,8 @@ import java.util.Set;
 
 /**
  * JoinDriver join methods always return these.
- * 
- * @author colestewart
- *
  */
-abstract public class HgPolyStream extends HgBaseStream<HgTuple> {
+abstract public class HgPolyStream extends HgStream<HgTuple> {
 	private Set<Class<?>> containedTypes = new HashSet<>();
 	private final HgMonoStream<?> a, b;
 	

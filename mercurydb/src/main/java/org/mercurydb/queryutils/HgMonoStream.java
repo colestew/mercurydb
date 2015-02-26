@@ -1,20 +1,20 @@
 package org.mercurydb.queryutils;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
-public class HgMonoStream<C> extends HgBaseStream<C> {
-	private HgBaseStream<C> stream;
+import com.google.common.collect.Sets;
+
+public class HgMonoStream<C> extends HgStream<C> {
+	private HgStream<C> stream;
 	public final FieldExtractable joinKey;
 	
-	public HgMonoStream(HgBaseStream<C> stream, FieldExtractable joinKey) {
+	public HgMonoStream(HgStream<C> stream, FieldExtractable joinKey) {
 		super(stream.cardinality);
 		this.joinKey = joinKey;
 		this.stream = stream;
 	}
 	
-	public HgBaseStream<C> getWrappedStream() {
+	public HgStream<C> getWrappedStream() {
 		return stream;
 	}
 	
@@ -37,7 +37,7 @@ public class HgMonoStream<C> extends HgBaseStream<C> {
 	}
 	
 	public Set<Class<?>> containedTypes() {
-		return Collections.singleton(joinKey.getContainerClass());
+		return Sets.newHashSet(joinKey.getContainerClass());
 	}
 
 	@Override

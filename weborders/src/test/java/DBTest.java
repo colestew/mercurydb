@@ -6,13 +6,14 @@ import java.util.Random;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mercurydb.queryutils.JoinDriver;
-import org.mercurydb.queryutils.JoinRecord;
-import org.mercurydb.queryutils.JoinResult;
-import org.mercurydb.queryutils.JoinStream;
+import org.mercurydb.queryutils.HgTuple;
+import org.mercurydb.queryutils.HgPolyStream;
+import org.mercurydb.queryutils.HgMonoStream;
 
-import weborders.db.OdetailTable;
-import weborders.db.OrderTable;
-import weborders.db.PartTable;
+import weborders.db.OdetailTbl;
+import weborders.db.OrderTbl;
+import weborders.db.PartTbl;
+import weborders.db.ZipcodeTbl;
 import weborders.source.Employee;
 import weborders.source.Odetail;
 import weborders.source.Order;
@@ -30,23 +31,31 @@ public class DBTest {
 	static Order[] orders;
 	static Odetail[] odetails;
 	
-	static JoinResult correctResult;
+	static HgPolyStream correctResult;
 	static long correctCount;
 	
 	@Test
 	public void testFilter1() {
-		OrderTable
-		.scan()
-		.filter(OrderTable.fieldOno(), 1020);
+		OrderTbl
+		.scan() // don't use index
+		.filter(OrderTbl.on.ono, 1020);
+		
+		// == 
+		
+		OrderTbl.queryOno(1020);
+		
+		// TODO this syntax (make it efficient too by selecting index)
+		// OrderTbl.query(OrderTbl.on.ono, 1020);
 	}
 	
 	@Test
 	public void testHashJoin() {
 		// Hash Join
 		long count = 0;
-		JoinResult result = JoinDriver.joinHash(
-				OrderTable.scan().joinOn(OrderTable.fieldOno()), 
-				OdetailTable.scan().joinOn(OdetailTable.fieldOno()));
+		HgPolyStream result = JoinDriver.joinHash(
+				OrderTbl.joinOnOno(), 
+				OdetailTbl.scan().joinOn(OdetailTbl.on.ono));
+		
 		count = result.cardinality();
 		
 		if (count != correctCount) fail();
@@ -55,9 +64,9 @@ public class DBTest {
 	@Test
 	public void testNestedLoops() {
 		long count = 0;
-		for (JoinRecord jr : JoinDriver.joinNestedLoops(
-				OrderTable.scan().joinOn(OrderTable.fieldOno()), 
-				OdetailTable.scan().joinOn(OdetailTable.fieldOno())).elements()) {
+		for (HgTuple jr : JoinDriver.joinNestedLoops(
+				OrderTbl.scan().joinOn(OrderTbl.on.ono), 
+				OdetailTbl.scan().joinOn(OdetailTbl.on.ono)).elements()) {
 			++count;
 		}
 		if (count != correctCount) fail();
@@ -67,9 +76,9 @@ public class DBTest {
 	public void testIndexScan() {
 		// Index Scan
 		long count = 0;
-		for (JoinRecord jr : JoinDriver.join(
-				OrderTable.scan().joinOn(OrderTable.fieldOno()), 
-				OdetailTable.joinOnFieldOno()).elements()) {
+		for (HgTuple jr : JoinDriver.join(
+				OrderTbl.scan().joinOn(OrderTbl.on.ono), 
+				OdetailTbl.joinOnOno()).elements()) {
 			++count;
 		}
 		
@@ -81,9 +90,9 @@ public class DBTest {
 		
 		// Index Scan
 		long count = 0;
-		for (JoinRecord jr : JoinDriver.join(
-				OrderTable.joinOnFieldOno(), 
-				OdetailTable.scan().joinOn(OdetailTable.fieldOno())).elements()) {
+		for (HgTuple jr : JoinDriver.join(
+				OrderTbl.joinOnOno(), 
+				OdetailTbl.scan().joinOn(OdetailTbl.on.ono)).elements()) {
 			++count;
 		}
 		
@@ -95,9 +104,9 @@ public class DBTest {
 		
 		// Index Intersection
 		long count = 0;
-		for (JoinRecord jr : JoinDriver.join(
-				OrderTable.joinOnFieldOno(), 
-				OdetailTable.joinOnFieldOno()).elements()) {
+		for (HgTuple jr : JoinDriver.join(
+				OrderTbl.joinOnOno(), 
+				OdetailTbl.joinOnOno()).elements()) {
 			++count;
 		}
 		
@@ -106,17 +115,20 @@ public class DBTest {
 	
 	@Test
 	public void testReset() {
-		JoinStream<?> a = OrderTable.scan().joinOn(OrderTable.fieldOno());
-		JoinStream<?> b = OdetailTable.scan().joinOn(OdetailTable.fieldOno());
-		JoinResult c = JoinDriver.join(a, b);
+		HgMonoStream<?> a = OrderTbl.scan().joinOn(OrderTbl.on.ono);
+		HgMonoStream<?> b = OdetailTbl.scan().joinOn(OdetailTbl.on.ono);
+		HgPolyStream c = JoinDriver.join(a, b);
 		
-		for (JoinRecord jr : c.elements());
+		// TODO make this syntax happen
+		// HgPolyStream d = JoinDriver.join(OrderTbl.on.ono, OdetailTbl.on.ono);
+		
+		for (HgTuple jr : c.elements());
 		c.reset();
-		for (JoinRecord jr : c.elements());
+		for (HgTuple jr : c.elements());
 		c.reset();
 		
 		long count = 0;
-		for (JoinRecord jr : c.elements()) {
+		for (HgTuple jr : c.elements()) {
 			++count;
 		}
 		if (count != correctCount) fail();
@@ -177,13 +189,14 @@ public class DBTest {
 		}
 		
 		correctResult = JoinDriver.joinHash(
-				OrderTable.scan().joinOn(OrderTable.fieldOno()), 
-				OdetailTable.scan().joinOn(OdetailTable.fieldOno()));
+				OrderTbl.scan().joinOn(OrderTbl.on.ono), 
+				OdetailTbl.scan().joinOn(OdetailTbl.on.ono));
 		
 		long count = 0;
-		for (JoinRecord jr : correctResult.elements()) {
+		for (HgTuple jr : correctResult.elements()) {
 			++count;
 		}
+		System.out.println("DB Size: " + ZipcodeTbl.table.size());
 		correctCount = count;
 	}
 

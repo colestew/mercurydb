@@ -7,9 +7,6 @@ import java.util.HashMap;
  * for HashMap<Class<?>, Object> currently. This
  * should make client code a bit cleaner, as well as
  * our JoinDriver class which also uses this.
- * 
- * @author colestewart
- *
  */
 public class HgTuple extends HashMap<Class<?>, Object> {
 	private static final long serialVersionUID = 3954994964527336275L;

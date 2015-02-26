@@ -10,9 +10,6 @@ package org.mercurydb.queryutils;
  *     new Predicate(TableA.joinX(), TableB.joinY()),
  *     new Predicate(TableB.joinC(), TableC.joinD()),
  *     new Predicate(TableA.joinY(), TableD.joinF()));
- *     
- * @author colestewart
- *
  */
 public class JoinPredicate implements Comparable<JoinPredicate> {
 	HgMonoStream<?> stream1, stream2;

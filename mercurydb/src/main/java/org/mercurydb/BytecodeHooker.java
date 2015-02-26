@@ -10,11 +10,14 @@ import javassist.CtMethod;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
 
-public class ClassModifier {
+/**
+ * I really like the name of this. Can we keep her?
+ */
+public class BytecodeHooker {
 	private CtClass _srcClass;
 	private String _tableClass; 
 	
-	public ClassModifier(CtClass srcClass, String tableClass) {
+	public BytecodeHooker(CtClass srcClass, String tableClass) {
 		_srcClass = srcClass;
 		_tableClass = tableClass;
 	}
