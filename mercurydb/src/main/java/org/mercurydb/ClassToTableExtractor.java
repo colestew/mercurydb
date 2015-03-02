@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.mercurydb.queryutils.FieldExtractable;
+
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -41,6 +43,8 @@ public class ClassToTableExtractor {
     
     public int joinId;
     
+    public List<TemplateCounter> templateCounters;
+    
     public ClassToTableExtractor(
     		Class<?> c, String superTable, Collection<String> subClassTables, String tableSuffix, int joinId) 
     		throws IOException {
@@ -56,9 +60,11 @@ public class ClassToTableExtractor {
         this.subClasses = subClassTables;
         populateFieldsList();
         populateQueriesList(queries, fields);
+        templateCounters = new ArrayList<>(fields.size());
+        for (int i = 1; i <= fields.size(); ++i) {
+        	templateCounters.add(new TemplateCounter(i));
+        }
     }
-    
-    
     
     private void populateFieldsList() {
         for (Field f : c.getFields()) {
@@ -153,6 +159,38 @@ public class ClassToTableExtractor {
 		public int compareTo(FieldData o) {
 			return name.compareTo(o.name);
 		}
+    }
+    
+    @SuppressWarnings("unused")
+    private class TemplateCounter {
+    	public List<Integer> counter;
+    	
+    	public TemplateCounter(int size) {
+    		counter = new ArrayList<Integer>(size);
+    		for (int i = 1; i <= size; ++i) {
+    			counter.add(i);
+    		}
+    	}
+    	
+    	public String template() {
+    		StringBuilder sb = new StringBuilder();
+    		sb.append("<");
+    		for (Integer i : counter) {
+    			sb.append("F"+i+",");
+    		}
+    		sb.setCharAt(sb.length()-1, '>');
+    		return sb.toString();
+    	}
+    	
+    	public String prototype() {
+    		StringBuilder sb = new StringBuilder();
+    		for (Integer i : counter) {
+    			sb.append(FieldExtractable.class.getSimpleName());
+    			sb.append("<"+sourceClass()+", F"+i+"> fe"+i+", F"+i+" val"+i+",");
+    		}
+    		sb.setLength(sb.length()-1);
+    		return sb.toString();
+    	}
     }
     
     public String fullSourceClass() {

@@ -5,21 +5,22 @@ import java.util.Random;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mercurydb.queryutils.JoinDriver;
-import org.mercurydb.queryutils.HgTuple;
-import org.mercurydb.queryutils.HgPolyStream;
 import org.mercurydb.queryutils.HgMonoStream;
+import org.mercurydb.queryutils.HgPolyStream;
+import org.mercurydb.queryutils.HgQuery;
+import org.mercurydb.queryutils.HgTuple;
+import org.mercurydb.queryutils.JoinDriver;
 
+import weborders.db.CustomerTbl;
 import weborders.db.OdetailTbl;
 import weborders.db.OrderTbl;
-import weborders.db.PartTbl;
 import weborders.db.ZipcodeTbl;
+import weborders.source.Customer;
 import weborders.source.Employee;
 import weborders.source.Odetail;
 import weborders.source.Order;
 import weborders.source.Part;
 import weborders.source.Zipcode;
-import weborders.source.Customer;
 
 public class DBTest {
 	public static final int TEST_SIZE = 5000;
@@ -46,6 +47,12 @@ public class DBTest {
 		
 		// TODO this syntax (make it efficient too by selecting index)
 		// OrderTbl.query(OrderTbl.on.ono, 1020);
+		
+		// static class solution with FieldExtractableValue
+		HgQuery.query(OrderTbl.equal.ono(5), OrderTbl.equal.cno(null));
+		
+		// original table solution
+		OrderTbl.query(OrderTbl.on.ono, 5, OrderTbl.on.cno, null);
 	}
 	
 	@Test

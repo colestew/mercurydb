@@ -4,17 +4,17 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-public class HgMonoStream<C> extends HgStream<C> {
-	private HgStream<C> stream;
+public class HgMonoStream<T> extends HgStream<T> {
+	private HgStream<T> stream;
 	public final FieldExtractable joinKey;
 	
-	public HgMonoStream(HgStream<C> stream, FieldExtractable joinKey) {
+	public HgMonoStream(HgStream<T> stream, FieldExtractable joinKey) {
 		super(stream.cardinality);
 		this.joinKey = joinKey;
 		this.stream = stream;
 	}
 	
-	public HgStream<C> getWrappedStream() {
+	public HgStream<T> getWrappedStream() {
 		return stream;
 	}
 	
@@ -32,7 +32,7 @@ public class HgMonoStream<C> extends HgStream<C> {
 	}
 
 	@Override
-	public C next() {
+	public T next() {
 		return stream.next();
 	}
 	

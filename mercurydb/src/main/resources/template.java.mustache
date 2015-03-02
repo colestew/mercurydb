@@ -102,6 +102,25 @@ public class {{sourceClass}}{{tableSuffix}} {
     }
 
     {{/fields}}
+    
+    // start here
+    {{#templateCounters}}
+    public static {{& template}} HgStream<{{sourceClass}}> 
+    query({{& prototype}}) {
+        Iterable<{{sourceClass}}> seed = table;
+        int size = table.size();
+        Set<{{sourceClass}}> l;
+        Object usedIndex = null;
+        {{#counter}}
+        if (fe{{toString}}.isIndexed()) {
+            l = fe{{toString}}.getIndex().get(val{{toString}});
+        }
+        {{/counter}}
+        
+        return null;
+    }
+    {{/templateCounters}}
+    
     {{#queries}}
     public static HgStream<{{sourceClass}}>
     query{{#qFields}}{{CCname}}{{/qFields}}({{prototype}}) {
@@ -142,16 +161,16 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     {{/queries}}
 
-    public static final class on {
+    public static final class field {
 	    {{#fields}}
-	    public static final FieldExtractable<{{type}}> {{name}} = new FieldExtractable() {
+	    public static final FieldExtractable<{{sourceClass}}, {{type}}> {{name}} = new FieldExtractable<{{sourceClass}}, {{type}}>() {
             @Override
-            public {{type}} extractField(Object instance) {
+            public {{type}} extractField({{sourceClass}} instance) {
                 return (({{sourceClass}})instance).{{name}};
             }
 
             @Override
-            public Class<?> getContainerClass() {
+            public Class<{{sourceClass}}> getContainerClass() {
                 return {{sourceClass}}.class;
             }
 
@@ -166,6 +185,16 @@ public class {{sourceClass}}{{tableSuffix}} {
             }
             
             @Override
+            public Map<{{type}}, Set<{{sourceClass}}>> getIndex() {
+            	{{#hasIndex}}
+            	return {{name}}Index;
+            	{{/hasIndex}}
+            	{{^hasIndex}}
+            	return null;
+            	{{/hasIndex}}
+            }
+            
+            @Override
             public int getContainerId() {
             	return JOIN_ID;
             }
@@ -173,29 +202,14 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     	{{/fields}}
     }
-
-    public static FieldExtractable itself() {
-        return new FieldExtractable() {
-            @Override
-            public Object extractField(Object instance) {
-                return instance;
-            }
-
-            @Override
-            public Class<?> getContainerClass() {
-                return {{sourceClass}}.class;
-            }
-
-            @Override
-            public boolean isIndexed() {
-                return false;
-            }
-            
-            @Override
-            public int getContainerId() {
-                return JOIN_ID;
-            }
-        };
+    
+    public static final class eq {
+    	{{#fields}}
+    	public static final FieldExtractableValue<{{sourceClass}}, {{type}}>
+    	{{name}}({{type}} val) {
+    	    return new FieldExtractableValue(on.{{name}}, val);
+    	}
+    	{{/fields}}
     }
 
     public static HgMonoStream<{{sourceClass}}> joinOn(FieldExtractable jf) {
@@ -213,10 +227,11 @@ public class {{sourceClass}}{{tableSuffix}} {
     }
     {{/fields}}
 
+/*
     public static HgMonoStream<{{sourceClass}}> joinOnItself() {
         return scan().joinOn(itself());
     }
-
+*/
     public static Retrieval<{{sourceClass}}> scan() {
         /*
          * Here we need to do a tree traversal such that
