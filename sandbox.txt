@@ -1,0 +1,44 @@
+// TODO this syntax (make it efficient too by selecting index)
+// OrderTbl.query(OrderTbl.on.ono, 1020);
+
+// static class solution with FieldExtractableValue
+HgQuery.query(OrderTbl.eq.ono(5), OrderTbl.eq.cno(null));
+
+HgQuery.query(OrderTbl.lt.ono(5));
+
+HgQuery.query(OrderTbl.predicate.ono(value -> value < 5));
+
+HgQuery.query(OrderTbl.predicate.ono(new HgPredicate<Integer>() {
+                        public boolean predicate(Integer value) {
+                                return value < 5;
+                        }
+                }));
+
+
+
+// original table solution
+OrderTbl.query(OrderTbl.on.ono, 5, OrderTbl.on.cno, null);
+
+OrderTbl.query(OrderTbl.equal.ono(5), OrderTbl.equal.cno(null));
+
+// All FieldExtractable instances for each field in "X"
+XTable.field.*
+
+// All FieldExtractableJoinInput instances
+XTable.on.*
+
+// All implicit predicates 
+XTable.eq.*
+XTable.ne.*
+XTable.lt.*
+XTable.le.*
+XTable.gt.*
+XTable.ge.*
+
+// All explicit predicates specified by user using HgPredicate
+XTable.predicate.*
+
+public interface HgPredicate<T> {
+    public boolean predicate(T val);
+}
+
