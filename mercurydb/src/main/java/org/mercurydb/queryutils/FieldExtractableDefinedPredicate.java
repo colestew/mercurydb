@@ -3,15 +3,12 @@ package org.mercurydb.queryutils;
 import java.util.Map;
 import java.util.Set;
 
-public class FieldExtractablePredicate<T,F> implements FieldExtractable<T,F> {
-	
+public class FieldExtractableDefinedPredicate<T,F> 
+implements FieldExtractable<T,F> {
 	private final FieldExtractable<T,F> _fwd;
 	
-	public final HgPredicate<F> predicate;
-	
-	public FieldExtractablePredicate(FieldExtractable<T,F> fe, HgPredicate<F> pred) {
+	public FieldExtractableDefinedPredicate(FieldExtractable<T,F> fe) {
 		this._fwd = fe;
-		this.predicate = pred;
 	}
 	
 	@Override
@@ -37,9 +34,5 @@ public class FieldExtractablePredicate<T,F> implements FieldExtractable<T,F> {
 	@Override
 	public int getContainerId() {
 		return _fwd.getContainerId();
-	}
-	
-	public boolean test(F value) {
-		return predicate.test(value);
 	}
 }

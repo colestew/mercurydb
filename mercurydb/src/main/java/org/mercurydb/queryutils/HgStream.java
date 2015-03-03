@@ -9,14 +9,9 @@ import java.util.stream.BaseStream;
 abstract public class HgStream<T> implements Iterator<T> {
 	protected int cardinality;
 	
-	@Override
-	public void remove() {
-		throw new UnsupportedOperationException();
-	}
+	abstract public void reset();
 	
-	public void reset() {}
-	
-	public int cardinality() {
+	public int getCardinality() {
 		return cardinality;
 	}
 	
@@ -24,15 +19,13 @@ abstract public class HgStream<T> implements Iterator<T> {
 		this.cardinality = cardinality;
 	}
 	
-	public Object extractField(FieldExtractable fe, Object instance) {
-		return fe.extractField(instance);
+	public<F> HgJoinInput joinOn(FieldExtractable<?,F> fe) {
+		return HgJoinInput.createJoinInput(fe, this);
 	}
 
-	public HgMonoStream<T> joinOn(FieldExtractable f) {
-		return new HgMonoStream<T>(this, f);
-	}
-
-	public HgStream<T> filter(final FieldExtractable fe, Object... val) {
+	// TODO understand heap pollution via template varargs
+	@SuppressWarnings("unchecked")
+	public <F> HgStream<T> filter(final FieldExtractable<T,F> fe, F... val) {
 		final Set<Object> valSet = new HashSet<>(Arrays.asList(val));
 		return new HgStream<T>(this.cardinality) {
 			private T next;
@@ -42,7 +35,7 @@ abstract public class HgStream<T> implements Iterator<T> {
 			public boolean hasNext() {
 				while (stream.hasNext()) {
 					next = stream.next();
-					if (!valSet.contains(stream.extractField(fe, next))) {
+					if (!valSet.contains(fe.extractField(next))) {
 						--cardinality;
 					} else {
 						return true;
@@ -57,7 +50,7 @@ abstract public class HgStream<T> implements Iterator<T> {
 			}
 			
 			@Override
-			public int cardinality() {
+			public int getCardinality() {
 				return cardinality;
 			}
 			

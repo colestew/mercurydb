@@ -18,7 +18,7 @@ public interface FieldExtractable<T, F> {
 	 * from ATable, this should return A.class
 	 * @return a Class
 	 */
-	public Class<T> getContainerClass();
+	public Class<?> getContainerClass();
 	
 	/**
 	 * Extracts a join key value from an instance of the
