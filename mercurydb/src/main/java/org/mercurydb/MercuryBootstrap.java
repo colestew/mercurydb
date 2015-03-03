@@ -38,7 +38,7 @@ public class MercuryBootstrap {
     /**
      * Output table class suffix
      */
-    private String tableSuffix = "Tbl";
+    private String tableSuffix = "Table";
 
     /**
      * Primary constructor for MercuryBootstrap.
@@ -58,7 +58,7 @@ public class MercuryBootstrap {
 
     /**
      * Sets the table suffix for generated tables. i.e. Customer
-     * maps to CustomerTbl. Default suffix is "Tbl"
+     * maps to CustomerTable. Default suffix is "Table"
      *
      * @param suffix the new table suffix
      */
