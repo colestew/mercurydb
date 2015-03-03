@@ -35,3 +35,5 @@ target/
 .idea/tasks.xml
 .idea/gradle.xml
 .idea/libraries/*.xml
+.idea/vcs.xml
+.idea/misc.xml
