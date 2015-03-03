@@ -1,9 +1,6 @@
 package org.mercurydb;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,17 +15,6 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
-
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-
-import com.google.common.base.Preconditions;
 
 public class MercuryBootstrap {
 
@@ -66,7 +52,6 @@ public class MercuryBootstrap {
 	 * @param srcPackage    the input package for client code
 	 * @param outPackage    the output root package for generated code
 	 * @param rootDir       the root directory for java files
-	 * @param insertHooks   if true, inserts db ops into source bytecode
 	 * @throws NotFoundException
 	 * @throws CannotCompileException
 	 */
@@ -98,11 +83,8 @@ public class MercuryBootstrap {
 		Collection<Class<?>> classes = Collections.emptyList();
 		try {
 			classes = Arrays.asList(Utils.getClasses(_srcPackage));
-		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
-			System.exit(1);
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
 			System.exit(1);
 		}
 
@@ -184,10 +166,6 @@ public class MercuryBootstrap {
 
 	/**
 	 * Inserts bytecode hooks in the classes found in the input package
-	 * 
-	 * @throws NotFoundException 
-	 * @throws IOException 
-	 * @throws CannotCompileException 
 	 */
 	public void insertBytecodeHooks() {
 		Collection<Class<?>> classes = getSupportedClasses();
@@ -199,7 +177,7 @@ public class MercuryBootstrap {
 			System.out.println("Adding insert hook to " + cls);
 			try {
 				CtClass ctCls = cp.get(cls.getName());
-				BytecodeHooker modifier = new BytecodeHooker(ctCls, toOutPackage(cls.getName()) + tableSuffix);
+				BytecodeModifier modifier = new BytecodeModifier(ctCls, toOutPackage(cls.getName()) + tableSuffix);
 				modifier.modify();
 			} catch (NotFoundException e) {
 				e.printStackTrace();

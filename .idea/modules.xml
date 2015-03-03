@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/mercurydb.iml" filepath="$PROJECT_DIR$/mercurydb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mercurydb/mercurydb-mercurydb.iml" filepath="$PROJECT_DIR$/mercurydb/mercurydb-mercurydb.iml" />
+      <module fileurl="file://$PROJECT_DIR$/weborders/weborders.iml" filepath="$PROJECT_DIR$/weborders/weborders.iml" />
+    </modules>
+  </component>
+</project>
