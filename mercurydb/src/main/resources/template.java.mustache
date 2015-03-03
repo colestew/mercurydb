@@ -9,9 +9,9 @@ import {{fullSourceClass}};
 
 public class {{sourceClass}}{{tableSuffix}} {
 	public static final int JOIN_ID = {{joinId}};
-	
+
     public static final List<{{sourceClass}}> table = new ArrayList<>();
-    
+
     public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
 
     // Maps for indexed fields
@@ -41,7 +41,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{cSuper}}{{tableSuffix}}.insert(val);
         {{/hasSuper}}
     }
-    
+
     public static void remove({{sourceClass}} val) {
     	// Remove from table
     	if ({{sourceClass}}.class.equals(val.getClass()))
@@ -94,7 +94,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         Set<{{sourceClass}}> result = {{name}}Index.get(val);
         return result == null
                 ? new Retrieval<{{sourceClass}}>(Collections.EMPTY_LIST, 0)
-                : new Retrieval<{{sourceClass}}>(result, result.size()); 
+                : new Retrieval<{{sourceClass}}>(result, result.size());
         {{/hasIndex}}
         {{^hasIndex}}
         return scan().filter(on.{{name}},val);
@@ -102,25 +102,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     }
 
     {{/fields}}
-    
-    // start here
-    {{#templateCounters}}
-    public static {{& template}} HgStream<{{sourceClass}}> 
-    query({{& prototype}}) {
-        Iterable<{{sourceClass}}> seed = table;
-        int size = table.size();
-        Set<{{sourceClass}}> l;
-        Object usedIndex = null;
-        {{#counter}}
-        if (fe{{toString}}.isIndexed()) {
-            l = fe{{toString}}.getIndex().get(val{{toString}});
-        }
-        {{/counter}}
-        
-        return null;
-    }
-    {{/templateCounters}}
-    
+
     {{#queries}}
     public static HgStream<{{sourceClass}}>
     query{{#qFields}}{{CCname}}{{/qFields}}({{prototype}}) {
@@ -183,7 +165,7 @@ public class {{sourceClass}}{{tableSuffix}} {
                 return false;
                 {{/hasIndex}}
             }
-            
+
             @Override
             public Map<{{type}}, Set<{{sourceClass}}>> getIndex() {
             	{{#hasIndex}}
@@ -193,7 +175,7 @@ public class {{sourceClass}}{{tableSuffix}} {
             	return null;
             	{{/hasIndex}}
             }
-            
+
             @Override
             public int getContainerId() {
             	return JOIN_ID;
@@ -202,7 +184,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     	{{/fields}}
     }
-    
+
     public static final class eq {
     	{{#fields}}
     	public static final FieldExtractableValue<{{sourceClass}}, {{type}}>
@@ -219,7 +201,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{#fields}}
     public static HgMonoStream<{{sourceClass}}> joinOn{{CCname}}() {
         {{#hasIndex}}
-        return new IndexRetrieval<{{sourceClass}}>({{name}}Index).joinOn(on.{{name}}); 
+        return new IndexRetrieval<{{sourceClass}}>({{name}}Index).joinOn(on.{{name}});
         {{/hasIndex}}
         {{^hasIndex}}
         return scan().joinOn(on.{{name}});
@@ -238,7 +220,7 @@ public class {{sourceClass}}{{tableSuffix}} {
          * every possible subclass table is joined with
          * this classes table in the scan
          */
-         
+
         Retrieval<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(table, table.size());
         {{#subClasses}}
         result = result.join({{toString}}{{tableSuffix}}.scan());
