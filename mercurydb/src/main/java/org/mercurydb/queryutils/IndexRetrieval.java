@@ -1,41 +1,45 @@
 package org.mercurydb.queryutils;
 
+import com.google.common.collect.Sets;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
+/**
+ * // TODO documentation
+ * @param <T> // TODO documentation
+ */
+public class IndexRetrieval<T> extends HgStream<T> {
+    private final Map<Object, Set<T>> index;
 
-public class IndexRetrieval<C> extends HgStream<C> {
-	private final Map<Object, Set<C>> index;
-	
-	@SuppressWarnings("unchecked")
-	public IndexRetrieval(Map<?, Set<C>> index) {
-		super(Sets.newHashSet(index.values()).size());
-		
-		this.index = (Map<Object, Set<C>>)index;
-	}
-	
-	public Iterable<C> get(Object o) {
-		return index.get(o);
-	}
-	
-	public Iterable<Object> keys() {
-		return new Iterable<Object>() {
-			@Override
-			public Iterator<Object> iterator() {
-				return index.keySet().iterator();
-			}		
-		};
-	}
+    @SuppressWarnings("unchecked")
+    public IndexRetrieval(Map<?, Set<T>> index) {
+        super(Sets.newHashSet(index.values()).size());
 
-	@Override
-	public boolean hasNext() {
-		throw new UnsupportedOperationException();
-	}
+        this.index = (Map<Object, Set<T>>) index;
+    }
 
-	@Override
-	public C next() {
-		throw new UnsupportedOperationException();
-	}
+    public Iterable<T> get(Object o) {
+        return index.get(o);
+    }
+
+    public Iterable<Object> keys() {
+        return new Iterable<Object>() {
+            @Override
+            public Iterator<Object> iterator() {
+                return index.keySet().iterator();
+            }
+        };
+    }
+
+    @Override
+    public boolean hasNext() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public T next() {
+        throw new UnsupportedOperationException();
+    }
 }

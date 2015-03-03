@@ -1,14 +1,8 @@
 package org.mercurydb;
 
-import java.io.IOException;
+import javassist.*;
 
-import javassist.CannotCompileException;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
+import java.io.IOException;
 
 public class BytecodeModifier {
     private CtClass _srcClass;
