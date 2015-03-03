@@ -80,9 +80,9 @@ public class ClassToTableExtractor {
         }
 
         String prototype() {
-            String result = "";
+            StringBuilder result = new StringBuilder();
             for (FieldData fd : qFields) {
-                result += fd.type() + " " + fd.name + ", ";
+                result.append(fd.type() + " " + fd.name + ", ");
             }
             return result.substring(0, result.length() - 2);
         }
