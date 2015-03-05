@@ -36,6 +36,7 @@ public class Main {
             printHelp(options);
         }
 
+        // TODO warning: cmd.getOptionValue("src") may produce NullPointerException (how? and why is this a warning)
         String srcPkg = cmd.getOptionValue("src");
         String dbPkg = cmd.getOptionValue("db");
         String srcDir = cmd.getOptionValue("root");

@@ -18,7 +18,7 @@ public class MercuryBootstrap {
     private static Predicate<Class<?>> supportedClassCheck = cls -> !cls.isMemberClass()
             && !cls.isLocalClass()
             && !cls.isAnonymousClass();
-    // TODO remove use of lambdas so we're compatible with 1.7
+    // TODO remove use of lambdas above so we're compatible with 1.7
 
     /**
      * source directory for classes
@@ -109,7 +109,7 @@ public class MercuryBootstrap {
         String basePath = _srcJavaDir + '/' + _outPackage.replace('.', '/');
 
         // startup a collection of table files we generate
-        Collection<String> tableFiles = new ArrayList<>();
+        Collection<String> tableFiles = new ArrayList<>(); // TODO warning: never queried - is this a mistake?
         // and create a map of input package classes to their subclasses
         Map<Class<?>, List<Class<?>>> subClassMap = getSubclasses(classes);
 

@@ -95,8 +95,8 @@ public class HgQuery {
      * will select the correct join method based on the index status
      * of its arguments.
      *
-     * @param a HgJoinInput // TODO documentation
-     * @param b HgJoinInput // TODO documentation
+     * @param a        HgJoinInput // TODO documentation
+     * @param b        HgJoinInput // TODO documentation
      * @param relation HgRelation // TODO documentation
      * @return The HgPolyJoinInput resulting from performing on a join on the inputs with the given relation.
      */
@@ -111,7 +111,7 @@ public class HgQuery {
             throw new UnsupportedOperationException("Self joins not currently supported :(");
         } else if (!a.getContainedTypes().retainAll(b.getContainedTypes())
                 || !b.getContainedTypes().retainAll(a.getContainedTypes())) {
-			/*
+            /*
 			 * Filter operation
 			 */
             return joinFilter(a, b);
@@ -149,17 +149,16 @@ public class HgQuery {
     private static HgPolyJoinInput joinFilter(
             HgJoinInput a,
             HgJoinInput b) {
-
         final HgJoinInput ap;
         final HgJoinInput bp;
 
         // Perform Filter operation on A
         if (b.getContainedTypes().retainAll(a.getContainedTypes())) {
-            ap = (HgJoinInput) a;
-            bp = (HgJoinInput) b;
+            ap = a;
+            bp = b;
         } else {
-            ap = (HgJoinInput) b;
-            bp = (HgJoinInput) a;
+            ap = b;
+            bp = a;
         }
 
         return new HgPolyJoinInput(a, b) {
@@ -172,9 +171,16 @@ public class HgQuery {
                     currA = ap.next();
                     Object jkv1o = ap.extractField(currA);
                     Object jkv2o = bp.extractField(currA);
-                    if (jkv1o.equals(jkv2o)) return true;
-                    else return hasNext();
+
+                    // TODO why does having these be equal mean hasNext() is true?
+                    // TODO also if this logic is sound, reduce it into a single expression as IntelliJ recommends
+                    if (jkv1o.equals(jkv2o)) {
+                        return true;
+                    } else {
+                        return hasNext();
+                    }
                 }
+
                 return false;
             }
 
@@ -198,12 +204,8 @@ public class HgQuery {
     private static HgPolyJoinInput joinIndexIntersection(
             final HgJoinInput a,
             final HgJoinInput b) {
-
-        final HgJoinInput ap = a;
-        final HgJoinInput bp = b;
-
         return new HgPolyJoinInput(a, b) {
-            Iterator<Object> aKeys = ap.getIndex().keySet().iterator();
+            Iterator<Object> aKeys = a.getIndex().keySet().iterator();
             Iterator<Object> aInstances = Collections.emptyIterator();
             Object currA;
             Iterator<Object> bInstances = Collections.emptyIterator();
@@ -224,9 +226,9 @@ public class HgQuery {
                 }
                 while (aKeys.hasNext()) {
                     Object currKey = aKeys.next();
-                    bSeed = bp.getIndex().get(currKey);
+                    bSeed = b.getIndex().get(currKey);
                     if (bSeed != null) {
-                        aInstances = ap.getIndex().get(currKey).iterator();
+                        aInstances = a.getIndex().get(currKey).iterator();
                         return hasNext();
                     }
                 }
@@ -253,8 +255,8 @@ public class HgQuery {
     private static HgPolyJoinInput joinIndexScan(
             final HgJoinInput a,
             final HgJoinInput b) {
-
         System.out.println("Performing Index Scan");
+
         final HgJoinInput ap;
         final HgJoinInput bp;
 
@@ -296,7 +298,7 @@ public class HgQuery {
 
     /**
      * Simple hash join algorithm. Inhales the results
-     * into a
+     * into a // TODO finish documentation
      *
      * @param a // TODO documentation
      * @param b // TODO documentation
@@ -347,7 +349,6 @@ public class HgQuery {
     public static HgPolyJoinInput joinNestedLoops(
             final HgJoinInput a,
             final HgJoinInput b) {
-
         return new HgPolyJoinInput(a, b) {
             Object currA, currB;
 
@@ -373,7 +374,6 @@ public class HgQuery {
             public HgTuple next() {
                 return new HgTuple(a, currA, b, currB);
             }
-
         };
     }
 }

@@ -80,6 +80,7 @@ public abstract class HgJoinInput
         };
     }
 
+    @SuppressWarnings("unchecked")
     public static <F> HgJoinInput createJoinInput(
             FieldExtractable<?, F> fe,
             HgStream<?> stream) {
