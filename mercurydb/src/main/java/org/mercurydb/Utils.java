@@ -10,10 +10,7 @@ import java.util.List;
 public final class Utils {
     public static String upperFirst(String str) {
         char upperFirst = Character.toUpperCase(str.charAt(0));
-        String ret = str.length() > 1
-                ? upperFirst + str.substring(1)
-                : "" + upperFirst;
-        return ret;
+        return upperFirst + (str.length() > 1 ? str.substring(1) : "");
     }
 
     public static File toFile(Class<?> cls) {
@@ -22,8 +19,7 @@ public final class Utils {
 
     public static Class<?> toClass(ClassLoader cl, File classFile) throws ClassNotFoundException {
         String packageName = Utils.toPackage(classFile.getPath());
-        Class<? extends Object> cls = cl.loadClass(packageName);
-        return cls;
+        return cl.loadClass(packageName);
     }
 
     public static String toPackage(File f) {
