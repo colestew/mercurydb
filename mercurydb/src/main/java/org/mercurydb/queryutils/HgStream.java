@@ -30,7 +30,7 @@ abstract public class HgStream<T> implements Iterator<T> {
     // TODO understand heap pollution via template varargs
     @SuppressWarnings("unchecked")
     public <F> HgStream<T> filter(final FieldExtractable<T, F> fe, F... val) {
-        final Set<Object> valSet = new HashSet<>(Arrays.asList(val));
+        final Set<Object> valSet = new HashSet<Object>(Arrays.asList(val));
         return new HgStream<T>(this.cardinality) {
             private T next;
             private HgStream<T> stream = HgStream.this;
