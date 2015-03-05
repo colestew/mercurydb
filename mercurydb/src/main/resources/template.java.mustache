@@ -8,7 +8,7 @@ import com.google.common.collect.MapMaker;
 import {{fullSourceClass}};
 
 public class {{sourceClass}}{{tableSuffix}} {
-        public static final int JOIN_ID = {{joinId}};
+    public static final int JOIN_ID = {{joinId}};
 
     public static final List<{{sourceClass}}> table = new ArrayList<>();
 
@@ -185,7 +185,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
-    public static final class on {
+    public static class on {
         {{#fields}}
         public static HgJoinInput
         {{name}}({{type}} val) {
@@ -194,14 +194,19 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
-    public static final class eq {
+    public static class eq {
         {{#fields}}
         public static FieldExtractableValue<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableValue(field.{{name}}, val);
+            return new FieldExtractableValue<{{sourceClass}}, {{type}}>(field.{{name}}, val);
         }
         {{/fields}}
     }
+
+    // alias equal = eq
+    public static class equal extends eq {}
+
+    // TODO ne/neq/notEqual, lt/lessThan, le/leq/lessThanOrEqual, gt/greaterThan, ge/geq/greaterThanOrEqual
 
     public static Retrieval<{{sourceClass}}> scan() {
         /*
