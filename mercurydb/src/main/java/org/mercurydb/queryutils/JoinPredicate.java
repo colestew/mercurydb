@@ -3,7 +3,7 @@ package org.mercurydb.queryutils;
 /**
  * Simple class for JoinPredicates. This is used
  * for Joins like in the following statement:
- * <p>
+ * <p/>
  * * For >1 predicates -- A.X=B.Y and B.C=C.D and A.Y=D.F
  * JoinDriver.join(
  * new Predicate(TableA.joinX(), TableB.joinY()),
@@ -11,26 +11,28 @@ package org.mercurydb.queryutils;
  * new Predicate(TableA.joinY(), TableD.joinF()));
  */
 public class JoinPredicate implements Comparable<JoinPredicate> {
-	HgJoinInput stream1, stream2;
-	public final HgRelation predicate;
+    HgJoinInput stream1, stream2;
+    public final HgRelation predicate;
 
     /**
      * Construct a JoinPredicate from two HgMonoStreams.
+     *
      * @param s1 The first stream to join on.
      * @param s2 The second stream to join on.
      */
-     	public JoinPredicate(HgJoinInput s1, HgJoinInput s2) {
-		this(HgRelation.EQ, s1, s2);
+    public JoinPredicate(HgJoinInput s1, HgJoinInput s2) {
+        this(HgRelation.EQ, s1, s2);
     }
 
     /**
      * Construct a JoinPredicate from two HgMonoStreams with a memo about what the predicate represents.
+     *
      * @param relation A short memo about the relation represented by this JoinPredicate.
-     * @param s1 The first stream to join on.
-     * @param s2 The second stream to join on.
+     * @param s1       The first stream to join on.
+     * @param s2       The second stream to join on.
      */
-     	public JoinPredicate(HgRelation predicate, HgJoinInput s1, HgJoinInput s2) {
-		this.predicate = predicate;
+    public JoinPredicate(HgRelation predicate, HgJoinInput s1, HgJoinInput s2) {
+        this.predicate = predicate;
         this.stream1 = s1;
         this.stream2 = s2;
     }
@@ -42,8 +44,8 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      */
     private int numIndices() {
         int res = 0;
-		if (stream1.isIndexed()) ++res;
-		if (stream2.isIndexed()) ++res;
+        if (stream1.isIndexed()) ++res;
+        if (stream2.isIndexed()) ++res;
         return res;
     }
 
@@ -54,7 +56,7 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * @return The cardinality.
      */
     private int cardinality() {
-		return stream1.getCardinality() + stream2.getCardinality();
+        return stream1.getCardinality() + stream2.getCardinality();
     }
 
     /**
@@ -62,7 +64,7 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * This method compares JoinPredicates with the
      * following ordering priority:
      * </p>
-     *
+     * <p/>
      * <ol>
      * <li>Number of indices (greater first, i.e. descending)</li>
      * <li>Cardinality of its streams (smaller first, i.e. ascending [natural])</li>

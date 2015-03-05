@@ -1,8 +1,5 @@
 package org.mercurydb;
 
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -12,16 +9,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-
-import com.google.common.base.Preconditions;
 
 
 public class MercuryBootstrap {
@@ -171,8 +158,7 @@ public class MercuryBootstrap {
             }
         }
     }
-	
-	
+
 
     /**
      * Inserts bytecode hooks in the classes found in the input package

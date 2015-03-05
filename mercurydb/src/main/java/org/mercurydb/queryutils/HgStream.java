@@ -7,28 +7,29 @@ import java.util.Set;
 
 /**
  * // TODO documentation
+ *
  * @param <T> // TODO documentation
  */
 abstract public class HgStream<T> implements Iterator<T> {
     protected int cardinality;
 
-	abstract public void reset();
-	
-	public int getCardinality() {
-		return cardinality;
-	}
-	
-	public HgStream(int cardinality) {
-		this.cardinality = cardinality;
-	}
-	
-	public<F> HgJoinInput joinOn(FieldExtractable<?,F> fe) {
-		return HgJoinInput.createJoinInput(fe, this);
-	}
+    abstract public void reset();
 
-	// TODO understand heap pollution via template varargs
-	@SuppressWarnings("unchecked")
-	public <F> HgStream<T> filter(final FieldExtractable<T,F> fe, F... val) {
+    public int getCardinality() {
+        return cardinality;
+    }
+
+    public HgStream(int cardinality) {
+        this.cardinality = cardinality;
+    }
+
+    public <F> HgJoinInput joinOn(FieldExtractable<?, F> fe) {
+        return HgJoinInput.createJoinInput(fe, this);
+    }
+
+    // TODO understand heap pollution via template varargs
+    @SuppressWarnings("unchecked")
+    public <F> HgStream<T> filter(final FieldExtractable<T, F> fe, F... val) {
         final Set<Object> valSet = new HashSet<>(Arrays.asList(val));
         return new HgStream<T>(this.cardinality) {
             private T next;
@@ -38,7 +39,7 @@ abstract public class HgStream<T> implements Iterator<T> {
             public boolean hasNext() {
                 while (stream.hasNext()) {
                     next = stream.next();
-					if (!valSet.contains(fe.extractField(next))) {
+                    if (!valSet.contains(fe.extractField(next))) {
                         --cardinality;
                     } else {
                         return true;
@@ -53,7 +54,7 @@ abstract public class HgStream<T> implements Iterator<T> {
             }
 
             @Override
-			public int getCardinality() {
+            public int getCardinality() {
                 return cardinality;
             }
 

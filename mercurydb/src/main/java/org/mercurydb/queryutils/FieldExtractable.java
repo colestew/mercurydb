@@ -19,12 +19,12 @@ public interface FieldExtractable<T, F> {
      * that the parameter to extractJoinKey should
      * always be of this type. Ex. For a JoinStream
      * from ATable, this should return A.class
-     * <p>
+     * <p/>
      * // TODO extractJoinKey from which type?
      *
      * @return a Class
      */
-     public Class<?> getContainerClass(); // TODO why return Class<?> instead of Class<T>
+    public Class<?> getContainerClass(); // TODO why return Class<?> instead of Class<T>
 
     /**
      * Extracts a join key value from an instance of the

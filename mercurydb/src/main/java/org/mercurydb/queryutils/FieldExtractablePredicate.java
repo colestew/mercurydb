@@ -48,6 +48,6 @@ public class FieldExtractablePredicate<T, F> implements FieldExtractable<T, F> {
     }
 
     public boolean test(F value) {
-    	return predicate.test(value);
+        return predicate.test(value);
     }
 }
