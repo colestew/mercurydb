@@ -10,7 +10,7 @@ import java.util.Set;
  *
  * @param <T> // TODO documentation
  */
-abstract public class HgStream<T> implements Iterator<HgTuple>, Iterable<HgTuple> {
+abstract public class HgStream<T> implements Iterator<T>, Iterable<T> {
     protected int cardinality;
 
     abstract public void reset();
@@ -33,7 +33,7 @@ abstract public class HgStream<T> implements Iterator<HgTuple>, Iterable<HgTuple
         final Set<Object> valSet = new HashSet<Object>(Arrays.asList(val));
         return new HgStream<T>(this.cardinality) {
             private T next;
-            private HgStream<HgTuple> stream = HgStream.this;
+            private HgStream<T> stream = HgStream.this;
 
             @Override
             public boolean hasNext() {
@@ -65,7 +65,7 @@ abstract public class HgStream<T> implements Iterator<HgTuple>, Iterable<HgTuple
         };
     }
 
-    public Iterator<HgTuple> iterator() {
+    public Iterator<T> iterator() {
         HgStream.this.reset();
         return HgStream.this;
     }

@@ -1,10 +1,7 @@
 package org.mercurydb.queryutils;
 
-import java.util.Map;
-import java.util.Set;
-
 public class FieldExtractableDefinedPredicate<T, F>
-        extends FieldExtractableValue<T,F> {
+        extends FieldExtractableValue<T, F> {
 
     private HgRelation rel;
 

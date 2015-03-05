@@ -3,7 +3,7 @@ package org.mercurydb.queryutils;
 /**
  * Simple class for JoinPredicates. This is used
  * for Joins like in the following statement:
- * <p/>
+ * <p>
  * * For >1 predicates -- A.X=B.Y and B.C=C.D and A.Y=D.F
  * JoinDriver.join(
  * new Predicate(TableA.joinX(), TableB.joinY()),
@@ -64,11 +64,12 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * This method compares JoinPredicates with the
      * following ordering priority:
      * </p>
-     * <p/>
+     * <p>
      * <ol>
      * <li>Number of indices (greater first, i.e. descending)</li>
      * <li>Cardinality of its streams (smaller first, i.e. ascending [natural])</li>
      * </ol>
+     * </p>
      *
      * @param o // TODO documentation
      * @return // TODO documentation

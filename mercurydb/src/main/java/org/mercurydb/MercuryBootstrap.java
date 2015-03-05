@@ -167,7 +167,7 @@ public class MercuryBootstrap {
         ClassPool cp = ClassPool.getDefault();
         /*
          *  Modify original bytecode with the insert hooks
-		 */
+         */
         for (Class<?> cls : classes) {
             System.out.println("Adding insert hook to " + cls);
             try {

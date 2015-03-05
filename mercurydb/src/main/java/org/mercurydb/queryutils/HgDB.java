@@ -82,8 +82,8 @@ public class HgDB {
      * @return The HgPolyJoinInput resulting from performing on a join on the inputs with the equality relation.
      */
     public static HgPolyJoinInput join(
-            HgJoinInput a,
-            HgJoinInput b) {
+            final HgJoinInput a,
+            final HgJoinInput b) {
         return join(HgRelation.EQ, a, b);
     }
 
@@ -102,36 +102,36 @@ public class HgDB {
      */
     public static HgPolyJoinInput join(
             HgRelation relation,
-            HgJoinInput a,
-            HgJoinInput b) {
+            final HgJoinInput a,
+            final HgJoinInput b) {
         if (a.getContainerClass().equals(b.getContainerClass())) {
             /*
              * Self Join
-			 */
+             */
             throw new UnsupportedOperationException("Self joins not currently supported :(");
         } else if (!a.getContainedTypes().retainAll(b.getContainedTypes())
                 || !b.getContainedTypes().retainAll(a.getContainedTypes())) {
             /*
-			 * Filter operation
-			 */
+             * Filter operation
+             */
             return joinFilter(a, b);
         } else if (a.isIndexed() && b.isIndexed()) {
-			/*
-			 * Both A and B indexed
-			 * Do index intersection A, B
-			 */
+            /*
+             * Both A and B indexed
+             * Do index intersection A, B
+             */
             return joinIndexIntersection(a, b);
         } else if (a.isIndexed() || b.isIndexed()) {
-			/* 
-			 * Only A indexed
-			 * Scan B, use A index
-			 */
+            /*
+             * Only A indexed
+             * Scan B, use A index
+             */
             return joinIndexScan(a, b);
         } else {
-			/*
-			 * Neither is indexed
-			 * Do hash join
-			 */
+            /*
+             * Neither is indexed
+             * Do hash join
+             */
             return joinHash(a, b);
         }
     }
@@ -147,8 +147,8 @@ public class HgDB {
      */
     @SuppressWarnings("unchecked")
     private static HgPolyJoinInput joinFilter(
-            HgJoinInput a,
-            HgJoinInput b) {
+            final HgJoinInput a,
+            final HgJoinInput b) {
         final HgJoinInput ap;
         final HgJoinInput bp;
 
@@ -224,6 +224,7 @@ public class HgDB {
                     bInstances = bSeed.iterator();
                     return hasNext();
                 }
+
                 while (aKeys.hasNext()) {
                     Object currKey = aKeys.next();
                     bSeed = b.getIndex().get(currKey);
@@ -260,12 +261,12 @@ public class HgDB {
         final HgJoinInput ap;
         final HgJoinInput bp;
 
-        if (a.isIndexed()) {
-            ap = (HgJoinInput) a;
-            bp = (HgJoinInput) b;
+        if (b.isIndexed()) {
+            ap = b;
+            bp = a;
         } else {
-            ap = (HgJoinInput) b;
-            bp = (HgJoinInput) a;
+            ap = a;
+            bp = b;
         }
 
         return new HgPolyJoinInput(a, b) {
@@ -277,15 +278,18 @@ public class HgDB {
             public boolean hasNext() {
                 if (aInstances.hasNext()) {
                     return true;
-                } else while (bInstances.hasNext()) {
-                    currB = bInstances.next();
-                    Object currKey = bp.extractField(currB);
-                    Iterable<Object> aIterable = ap.getIndex().get(currKey);
-                    if (aIterable != null) {
-                        aInstances = aIterable.iterator();
-                        return true;
+                } else {
+                    while (bInstances.hasNext()) {
+                        currB = bInstances.next();
+                        Object currKey = bp.extractField(currB);
+                        Iterable<Object> aIterable = ap.getIndex().get(currKey);
+                        if (aIterable != null) {
+                            aInstances = aIterable.iterator();
+                            return true;
+                        }
                     }
                 }
+
                 return false;
             }
 
@@ -306,30 +310,32 @@ public class HgDB {
      */
     @SuppressWarnings("unchecked")
     public static HgPolyJoinInput joinHash(
-            HgJoinInput a,
-            HgJoinInput b) {
+            final HgJoinInput a,
+            final HgJoinInput b) {
         System.out.println("Performing Hash Join.");
+
         final HgJoinInput ap;
         final HgJoinInput bp;
 
         if (a.getCardinality() < b.getCardinality()) {
-            ap = (HgJoinInput) a;
-            bp = (HgJoinInput) b;
+            ap = a;
+            bp = b;
         } else {
-            ap = (HgJoinInput) b;
-            bp = (HgJoinInput) a;
+            ap = b;
+            bp = a;
         }
 
         final Map<Object, Set<Object>> aMap = new HashMap<Object, Set<Object>>();
 
         // Inhale stream A into hash table
-        for (Object aInstance : ap.elements()) {
+        for (Object aInstance : ap) {
             Object key = ap.extractField(aInstance);
 
             Set<Object> l = aMap.get(key);
             if (l == null) {
                 l = new HashSet<>();
             }
+
             l.add(aInstance);
             aMap.put(key, l);
         }
@@ -361,6 +367,7 @@ public class HgDB {
                         return true;
                     }
                 }
+
                 if (a.hasNext()) {
                     b.reset();
                     currA = a.next();

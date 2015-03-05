@@ -15,11 +15,12 @@ import java.util.Set;
  */
 public interface FieldExtractable<T, F> {
     /**
+     * <p>
      * Returns the name of the class owner. Note
      * that the parameter to extractJoinKey should
      * always be of this type. Ex. For a JoinStream
      * from ATable, this should return A.class
-     * <p/>
+     * </p>
      * // TODO extractJoinKey from which type?
      *
      * @return a Class

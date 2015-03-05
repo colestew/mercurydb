@@ -1,7 +1,5 @@
 package org.mercurydb.queryutils;
 
-import com.google.common.collect.Sets;
-
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
