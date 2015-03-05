@@ -5,7 +5,6 @@
 package weborders.source;
 
 /**
- *
  * @author dsb
  */
 public class Employee extends Common {
@@ -13,18 +12,18 @@ public class Employee extends Common {
     public String ename;
     public Zipcode zip;
     public String date;
-    
-    private Employee() {}
-    
+
+    private Employee() {
+    }
+
     public Employee(int e, String n, Zipcode z, String d) {
         eno = e;
         ename = n;
         zip = z;
         date = d;
     }
-    
+
     public String toString() {
-        return print(""+eno,ename,""+zip.zip,date);
+        return print("" + eno, ename, "" + zip.zip, date);
     }
-    
 }
