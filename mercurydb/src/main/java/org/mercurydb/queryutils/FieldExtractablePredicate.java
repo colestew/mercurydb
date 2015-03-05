@@ -22,7 +22,8 @@ public class FieldExtractablePredicate<T, F> implements FieldExtractable<T, F> {
     }
 
     @Override
-    public Class<T> getContainerClass() {
+    // TODO why Class<?>
+    public Class<?> getContainerClass() {
         return _fwd.getContainerClass();
     }
 
@@ -47,6 +48,6 @@ public class FieldExtractablePredicate<T, F> implements FieldExtractable<T, F> {
     }
 
     public boolean test(F value) {
-        return predicate.predicate(value);
+    	return predicate.test(value);
     }
 }

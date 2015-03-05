@@ -11,16 +11,16 @@ package org.mercurydb.queryutils;
  * new Predicate(TableA.joinY(), TableD.joinF()));
  */
 public class JoinPredicate implements Comparable<JoinPredicate> {
-    HgMonoStream<?> stream1, stream2;
-    public final String relation;
+	HgJoinInput stream1, stream2;
+	public final HgRelation predicate;
 
     /**
      * Construct a JoinPredicate from two HgMonoStreams.
      * @param s1 The first stream to join on.
      * @param s2 The second stream to join on.
      */
-    public JoinPredicate(HgMonoStream<?> s1, HgMonoStream<?> s2) {
-        this("=", s1, s2);
+     	public JoinPredicate(HgJoinInput s1, HgJoinInput s2) {
+		this(HgRelation.EQ, s1, s2);
     }
 
     /**
@@ -29,8 +29,8 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * @param s1 The first stream to join on.
      * @param s2 The second stream to join on.
      */
-    public JoinPredicate(String relation, HgMonoStream<?> s1, HgMonoStream<?> s2) {
-        this.relation = relation;
+     	public JoinPredicate(HgRelation predicate, HgJoinInput s1, HgJoinInput s2) {
+		this.predicate = predicate;
         this.stream1 = s1;
         this.stream2 = s2;
     }
@@ -41,10 +41,10 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * @return The number of indices.
      */
     private int numIndices() {
-        int indices = 0;
-        if (stream1.joinKey.isIndexed()) ++indices;
-        if (stream2.joinKey.isIndexed()) ++indices;
-        return indices;
+        int res = 0;
+		if (stream1.isIndexed()) ++res;
+		if (stream2.isIndexed()) ++res;
+        return res;
     }
 
     /**
@@ -54,7 +54,7 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * @return The cardinality.
      */
     private int cardinality() {
-        return stream1.cardinality() + stream2.cardinality();
+		return stream1.getCardinality() + stream2.getCardinality();
     }
 
     /**

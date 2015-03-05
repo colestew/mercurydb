@@ -10,7 +10,7 @@ import java.util.Set;
  * ask other JoinStreams how to extract a join key given
  * an instance of their class owner.
  *
- * @param <T> Type that the table contains. (e.g. CustomerTable -> Customer)
+ * @param <T> Type that the table contains. (e.g. CustomerTable: T = Customer)
  * @param <F> Field type.
  */
 public interface FieldExtractable<T, F> {
@@ -24,7 +24,7 @@ public interface FieldExtractable<T, F> {
      *
      * @return a Class
      */
-    public Class<T> getContainerClass();
+     public Class<?> getContainerClass(); // TODO why return Class<?> instead of Class<T>
 
     /**
      * Extracts a join key value from an instance of the

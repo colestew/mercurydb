@@ -5,5 +5,5 @@ package org.mercurydb.queryutils;
  * @param <T> // TODO documentation
  */
 public interface HgPredicate<T> {
-    public boolean predicate(T value);
+    public boolean test(T value);
 }

@@ -24,7 +24,7 @@ public class FieldExtractableValue<T, F> implements FieldExtractable<T, F> {
     }
 
     @Override
-    public Class<T> getContainerClass() {
+    public Class<?> getContainerClass() {
         return _fwd.getContainerClass();
     }
 

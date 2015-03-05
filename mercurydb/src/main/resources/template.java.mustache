@@ -97,7 +97,7 @@ public class {{sourceClass}}{{tableSuffix}} {
                 : new Retrieval<{{sourceClass}}>(result, result.size());
         {{/hasIndex}}
         {{^hasIndex}}
-        return scan().filter(on.{{name}},val);
+        return scan().filter(field.{{name}},val);
         {{/hasIndex}}
     }
 
@@ -131,10 +131,10 @@ public class {{sourceClass}}{{tableSuffix}} {
         // Filter {{name}}
         {{#hasIndex}}
         if ({{name}} != usedIndex)
-            result = result.filter(on.{{name}},{{name}});
+            result = result.filter(field.{{name}},{{name}});
         {{/hasIndex}}
         {{^hasIndex}}
-        result = result.filter(on.{{name}},{{name}});
+        result = result.filter(field.{{name}},{{name}});
         {{/hasIndex}}
 
         {{/qFields}}
@@ -185,35 +185,24 @@ public class {{sourceClass}}{{tableSuffix}} {
     	{{/fields}}
     }
 
+    public static final class on {
+        {{#fields}}
+    	public static final HgJoinInput
+    	{{name}}({{type}} val) {
+    	    return scan().joinOn(field.{{name}});
+    	}
+    	{{/fields}}
+    }
+    
     public static final class eq {
     	{{#fields}}
     	public static final FieldExtractableValue<{{sourceClass}}, {{type}}>
     	{{name}}({{type}} val) {
-    	    return new FieldExtractableValue(on.{{name}}, val);
+    	    return new FieldExtractableValue(field.{{name}}, val);
     	}
     	{{/fields}}
     }
 
-    public static HgMonoStream<{{sourceClass}}> joinOn(FieldExtractable jf) {
-        return scan().joinOn(jf);
-    }
-
-    {{#fields}}
-    public static HgMonoStream<{{sourceClass}}> joinOn{{CCname}}() {
-        {{#hasIndex}}
-        return new IndexRetrieval<{{sourceClass}}>({{name}}Index).joinOn(on.{{name}});
-        {{/hasIndex}}
-        {{^hasIndex}}
-        return scan().joinOn(on.{{name}});
-        {{/hasIndex}}
-    }
-    {{/fields}}
-
-/*
-    public static HgMonoStream<{{sourceClass}}> joinOnItself() {
-        return scan().joinOn(itself());
-    }
-*/
     public static Retrieval<{{sourceClass}}> scan() {
         /*
          * Here we need to do a tree traversal such that
