@@ -5,21 +5,21 @@
 package weborders.source;
 
 /**
- *
  * @author dsb
  */
-public class Zipcode extends Common{
+public class Zipcode extends Common {
     public int zip;
     public String city;
-    
-    private Zipcode() {}
-    
+
+    private Zipcode() {
+    }
+
     public Zipcode(int z, String c) {
         zip = z;
         city = c;
     }
-    
+
     public String toString() {
-        return print(""+zip,city);
+        return print("" + zip, city);
     }
 }

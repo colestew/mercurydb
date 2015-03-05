@@ -8,10 +8,10 @@ import com.google.common.collect.MapMaker;
 import {{fullSourceClass}};
 
 public class {{sourceClass}}{{tableSuffix}} {
-	public static final int JOIN_ID = {{joinId}};
-	
+    public static final int JOIN_ID = {{joinId}};
+
     public static final List<{{sourceClass}}> table = new ArrayList<>();
-    
+
     public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
 
     // Maps for indexed fields
@@ -41,28 +41,28 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{cSuper}}{{tableSuffix}}.insert(val);
         {{/hasSuper}}
     }
-    
+
     public static void remove({{sourceClass}} val) {
-    	// Remove from table
-    	if ({{sourceClass}}.class.equals(val.getClass()))
-    	    table.remove(val);
-    	{{#fields}}
-    	{{#hasIndex}}
-    	// Remove from {{name}} index
-    	{{name}}Index.values().removeAll(Collections.singleton(val));
-    	{{/hasIndex}}
-    	{{/fields}}
-    	{{#hasSuper}}
-    	// Remove from {{cSuper}} indices (superclass)
-    	{{cSuper}}{{tableSuffix}}.remove(val);
-    	{{/hasSuper}}
-    	// Remove from subclass indices
-    	{{#subClasses}}
-    	if ({{toString}}{{tableSuffix}}.containedClass.isInstance(val)) {
-    	    {{toString}}{{tableSuffix}}.remove({{toString}}{{tableSuffix}}.containedClass.cast(val));
-    	    return;
-    	}
-    	{{/subClasses}}
+        // Remove from table
+        if ({{sourceClass}}.class.equals(val.getClass()))
+            table.remove(val);
+        {{#fields}}
+        {{#hasIndex}}
+        // Remove from {{name}} index
+        {{name}}Index.values().removeAll(Collections.singleton(val));
+        {{/hasIndex}}
+        {{/fields}}
+        {{#hasSuper}}
+        // Remove from {{cSuper}} indices (superclass)
+        {{cSuper}}{{tableSuffix}}.remove(val);
+        {{/hasSuper}}
+        // Remove from subclass indices
+        {{#subClasses}}
+        if ({{toString}}{{tableSuffix}}.containedClass.isInstance(val)) {
+            {{toString}}{{tableSuffix}}.remove({{toString}}{{tableSuffix}}.containedClass.cast(val));
+            return;
+        }
+        {{/subClasses}}
     }
 
     // Set methods - make sure you use these on indexed fields for consistency!
@@ -94,7 +94,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         Set<{{sourceClass}}> result = {{name}}Index.get(val);
         return result == null
                 ? new Retrieval<{{sourceClass}}>(Collections.EMPTY_LIST, 0)
-                : new Retrieval<{{sourceClass}}>(result, result.size()); 
+                : new Retrieval<{{sourceClass}}>(result, result.size());
         {{/hasIndex}}
         {{^hasIndex}}
         return scan().filter(field.{{name}},val);
@@ -102,25 +102,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     }
 
     {{/fields}}
-    
-    // start here
-    {{#templateCounters}}
-    public static {{& template}} HgStream<{{sourceClass}}> 
-    query({{& prototype}}) {
-        Iterable<{{sourceClass}}> seed = table;
-        int size = table.size();
-        Set<{{sourceClass}}> l;
-        Object usedIndex = null;
-        {{#counter}}
-        if (fe{{toString}}.isIndexed()) {
-            l = fe{{toString}}.getIndex().get(val{{toString}});
-        }
-        {{/counter}}
-        
-        return null;
-    }
-    {{/templateCounters}}
-    
+
     {{#queries}}
     public static HgStream<{{sourceClass}}>
     query{{#qFields}}{{CCname}}{{/qFields}}({{prototype}}) {
@@ -162,8 +144,8 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{/queries}}
 
     public static final class field {
-	    {{#fields}}
-	    public static final FieldExtractable<{{sourceClass}}, {{type}}> {{name}} = new FieldExtractable<{{sourceClass}}, {{type}}>() {
+        {{#fields}}
+        public static final FieldExtractable<{{sourceClass}}, {{type}}> {{name}} = new FieldExtractable<{{sourceClass}}, {{type}}>() {
             @Override
             public {{type}} extractField({{sourceClass}} instance) {
                 return (({{sourceClass}})instance).{{name}};
@@ -183,43 +165,45 @@ public class {{sourceClass}}{{tableSuffix}} {
                 return false;
                 {{/hasIndex}}
             }
-            
+
             @Override
             public Map<{{type}}, Set<{{sourceClass}}>> getIndex() {
-            	{{#hasIndex}}
-            	return {{name}}Index;
-            	{{/hasIndex}}
-            	{{^hasIndex}}
-            	return null;
-            	{{/hasIndex}}
+                {{#hasIndex}}
+                return {{name}}Index;
+                {{/hasIndex}}
+                {{^hasIndex}}
+                return null;
+                {{/hasIndex}}
             }
-            
+
             @Override
             public int getContainerId() {
-            	return JOIN_ID;
+                return JOIN_ID;
             }
         };
 
-    	{{/fields}}
+        {{/fields}}
     }
-    
-    public static final class on {
+
+    public static class on {
         {{#fields}}
-    	public static final HgJoinInput
-    	{{name}}({{type}} val) {
-    	    return scan().joinOn(field.{{name}});
-    	}
-    	{{/fields}}
+        public static final HgJoinInput {{name}} = scan().joinOn(field.{{name}});
+        {{/fields}}
     }
-    
-    public static final class eq {
-    	{{#fields}}
-    	public static final FieldExtractableValue<{{sourceClass}}, {{type}}>
-    	{{name}}({{type}} val) {
-    	    return new FieldExtractableValue(field.{{name}}, val);
-    	}
-    	{{/fields}}
+
+    public static class eq {
+        {{#fields}}
+        public static FieldExtractableValue<{{sourceClass}}, {{type}}>
+        {{name}}({{type}} val) {
+            return new FieldExtractableValue<{{sourceClass}}, {{type}}>(field.{{name}}, val);
+        }
+        {{/fields}}
     }
+
+    // alias equal = eq
+    public static class equal extends eq {}
+
+    // TODO ne/neq/notEqual, lt/lessThan, le/leq/lessThanOrEqual, gt/greaterThan, ge/geq/greaterThanOrEqual
 
     public static Retrieval<{{sourceClass}}> scan() {
         /*
@@ -227,7 +211,7 @@ public class {{sourceClass}}{{tableSuffix}} {
          * every possible subclass table is joined with
          * this classes table in the scan
          */
-         
+
         Retrieval<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(table, table.size());
         {{#subClasses}}
         result = result.join({{toString}}{{tableSuffix}}.scan());

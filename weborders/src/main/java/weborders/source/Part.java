@@ -5,7 +5,6 @@
 package weborders.source;
 
 /**
- *
  * @author dsb
  */
 public class Part extends Common {
@@ -14,19 +13,19 @@ public class Part extends Common {
     public int qoh;
     public double price;
     public int olevel;
-    
-    private Part() {}
-    
-    public Part( int p, String n, int q, double c, int o) {
+
+    private Part() {
+    }
+
+    public Part(int p, String n, int q, double c, int o) {
         pno = p;
         pname = n;
         qoh = q;
         price = c;
         olevel = o;
     }
-    
+
     public String toString() {
-        return print(""+pno, pname, ""+qoh, ""+price, ""+olevel);
+        return print("" + pno, pname, "" + qoh, "" + price, "" + olevel);
     }
-    
 }
