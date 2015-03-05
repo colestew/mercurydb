@@ -17,8 +17,8 @@ public class TableEnumGenerator {
     public TableEnumGenerator(Collection<Class<?>> classes)
             throws IOException {
         this.classes = classes.stream()
-                .map(c -> new EnumTemplateVar(c)).collect(Collectors.toList());
-        // TODO remove dependence on streams and lambdas for Java 1.7 compatibility
+                .map(EnumTemplateVar::new).collect(Collectors.toList());
+        // TODO remove dependence on streams and lambdas and function references for Java 1.7 compatibility
     }
 
     private class EnumTemplateVar {
