@@ -144,8 +144,8 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{/queries}}
 
     public static final class field {
-            {{#fields}}
-            public static final FieldExtractable<{{sourceClass}}, {{type}}> {{name}} = new FieldExtractable<{{sourceClass}}, {{type}}>() {
+        {{#fields}}
+        public static final FieldExtractable<{{sourceClass}}, {{type}}> {{name}} = new FieldExtractable<{{sourceClass}}, {{type}}>() {
             @Override
             public {{type}} extractField({{sourceClass}} instance) {
                 return (({{sourceClass}})instance).{{name}};
