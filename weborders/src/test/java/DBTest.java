@@ -1,9 +1,6 @@
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mercurydb.queryutils.HgPredicate;
-import org.mercurydb.queryutils.HgQuery;
-import org.mercurydb.queryutils.HgStream;
-import org.mercurydb.queryutils.HgTuple;
+import org.mercurydb.queryutils.*;
 import weborders.db.OdetailTable;
 import weborders.db.OrderTable;
 import weborders.db.ZipcodeTable;
@@ -42,17 +39,39 @@ public class DBTest {
 
         // static class solution with FieldExtractableValue
         HgQuery.query(OrderTable.eq.ono(5), OrderTable.eq.cno(null));
+        HgQuery.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
+
+        HgQuery.query(OrderTable.ne.ono(5), OrderTable.eq.cno(null));
+        HgQuery.query(OrderTable.neq.ono(5), OrderTable.eq.cno(null));
+        HgQuery.query(OrderTable.notEqual.ono(5), OrderTable.equal.cno(null));
 
         HgQuery.query(OrderTable.lt.ono(5));
+        HgQuery.query(OrderTable.lessThan.ono(5));
 
+        HgQuery.query(OrderTable.le.ono(5));
+        HgQuery.query(OrderTable.leq.ono(5));
+        HgQuery.query(OrderTable.lessEqual.ono(5));
+        HgQuery.query(OrderTable.lessThanOrEqual.ono(5));
+
+        HgQuery.query(OrderTable.gt.ono(5));
+        HgQuery.query(OrderTable.greaterThan.ono(5));
+
+        HgQuery.query(OrderTable.ge.ono(5));
+        HgQuery.query(OrderTable.geq.ono(5));
+        HgQuery.query(OrderTable.greaterEqual.ono(5));
+        HgQuery.query(OrderTable.greaterThanOrEqual.ono(5));
+
+        HgQuery.query(OrderTable.test.ono(value -> value < 5));
         HgQuery.query(OrderTable.predicate.ono(value -> value < 5));
 
+        // java 7 syntax for the predicate
         HgQuery.query(OrderTable.predicate.ono(new HgPredicate<Integer>() {
             public boolean test(Integer value) {
                 return value < 5;
             }
         }));
 
+        // represents the new way, but we need to get the backing code up and running
         OrderTable.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
     }
 
@@ -60,8 +79,8 @@ public class DBTest {
     public void testHashJoin() {
         // Hash Join
         long count = 0;
-        HgPolyStream result = JoinDriver.joinHash(
-                OrderTable.joinOnOno(),
+        HgStream result = JoinDriver.joinHash(
+                OrderTable.on.ono,
                 OdetailTable.scan().joinOn(OdetailTable.on.ono));
 
         count = result.getCardinality();
@@ -86,7 +105,7 @@ public class DBTest {
         long count = 0;
         for (HgTuple jr : JoinDriver.join(
                 OrderTable.scan().joinOn(OrderTable.on.ono),
-                OdetailTable.joinOnOno()).elements()) {
+                OdetailTable.on.ono).elements()) {
             ++count;
         }
 
@@ -99,7 +118,7 @@ public class DBTest {
         // Index Scan
         long count = 0;
         for (HgTuple jr : JoinDriver.join(
-                OrderTable.joinOnOno(),
+                OrderTable.on.ono,
                 OdetailTable.scan().joinOn(OdetailTable.on.ono)).elements()) {
             ++count;
         }
@@ -113,8 +132,8 @@ public class DBTest {
         // Index Intersection
         long count = 0;
         for (HgTuple jr : JoinDriver.join(
-                OrderTable.joinOnOno(),
-                OdetailTable.joinOnOno()).elements()) {
+                OrderTable.on.ono,
+                OdetailTable.on.ono).elements()) {
             ++count;
         }
 
@@ -123,9 +142,9 @@ public class DBTest {
 
     @Test
     public void testReset() {
-        HgMonoStream<?> a = OrderTable.scan().joinOn(OrderTable.on.ono);
-        HgMonoStream<?> b = OdetailTable.scan().joinOn(OdetailTable.on.ono);
-        HgPolyStream c = JoinDriver.join(a, b);
+        HgJoinInput a = OrderTable.scan().joinOn(OrderTable.on.ono);
+        HgJoinInput b = OdetailTable.scan().joinOn(OdetailTable.on.ono);
+        HgStream c = JoinDriver.join(a, b);
 
         // TODO make this syntax happen
         // HgPolyStream d = JoinDriver.join(OrderTable.on.ono, OdetailTable.on.ono);
