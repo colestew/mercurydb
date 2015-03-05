@@ -3,28 +3,33 @@ package org.mercurydb.queryutils;
 import java.util.*;
 
 /**
+ * <p>
  * This class is the main class used for queries and join operations
  * on a hgdb instance. It can be used like the following:
- * <p/>
+ * </p>
+ * <p>
  * For 1 predicate -- A.X = B.Y
  * JoinDriver.join(TableA.joinX(), TableB.joinY());
- * <p/>
+ * </p>
  * For >1 predicates -- A.X=B.Y and B.C=C.D and A.Y=D.F
+ * <pre>
  * JoinDriver.join(
  * new Predicate(TableA.joinX(), TableB.joinY()),
  * new Predicate(TableB.joinC(), TableC.joinD()),
  * new Predicate(TableA.joinY(), TableD.joinF()));
- * <p/>
+ * </pre>
+ * </p>
+ * <p>
  * All join methods return a JoinResult, which is basically
  * an Iterator<JoinRecord>. Here is an example of a join method
  * in code and how to retrieve data values from JoinRecords:
- * <p/>
+ * </p>
+ * <pre>
  * for (JoinRecord jr : JoinDriver.join(TableA.joinX(), TableB.joinY())) {
  * A x = (A)jr.get(A.class); // Always returns Object, so must cast
  * B y = (B)jr.get(B.class); // Always returns Object, so must cast
  * }
- *
- * @author colestewart
+ * </pre>
  */
 public class HgQuery {
     @SafeVarargs
@@ -37,12 +42,11 @@ public class HgQuery {
      * join operation according to those rules defined
      * in JoinPredicate.
      *
-     * @param 1 or more join predicates
+     * @param preds One or more JoinPredicates
      * @return a JoinResult of a join on preds
      * @throws IllegalStateException if preds do not unify
      */
     public static HgPolyJoinInput join(JoinPredicate... preds) {
-
         if (preds.length == 1) {
             return join(preds[0].predicate, preds[0].stream1, preds[0].stream2);
         } else if (preds.length > 1) {
@@ -65,25 +69,23 @@ public class HgQuery {
             }
 
             throw new IllegalStateException("Predicates do not unify!");
-
         } else {
             throw new IllegalArgumentException("Must supply at least one predicate to join.");
         }
     }
 
     /**
-     * Returns a JoinResult using an equality predicate.
+     * Returns a HgPolyJoinInput using an equality predicate.
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a HgJoinInput // TODO documentation
+     * @param b HgJoinInput // TODO documentation
+     * @return The HgPolyJoinInput resulting from performing on a join on the inputs with the equality relation.
      */
     public static HgPolyJoinInput join(
             HgJoinInput a,
             HgJoinInput b) {
         return join(HgRelation.EQ, a, b);
     }
-
 
     /**
      * Joins two JoinStreams and returns a JoinResult. A JoinResult
@@ -93,15 +95,15 @@ public class HgQuery {
      * will select the correct join method based on the index status
      * of its arguments.
      *
-     * @param a JoinStream
-     * @param a JoinStream
-     * @return a JoinResult of a join on preds
+     * @param a HgJoinInput // TODO documentation
+     * @param b HgJoinInput // TODO documentation
+     * @param relation HgRelation // TODO documentation
+     * @return The HgPolyJoinInput resulting from performing on a join on the inputs with the given relation.
      */
     public static HgPolyJoinInput join(
             HgRelation relation,
             HgJoinInput a,
             HgJoinInput b) {
-
         if (a.getContainerClass().equals(b.getContainerClass())) {
             /*
              * Self Join
@@ -113,21 +115,18 @@ public class HgQuery {
 			 * Filter operation
 			 */
             return joinFilter(a, b);
-
         } else if (a.isIndexed() && b.isIndexed()) {
 			/*
 			 * Both A and B indexed
 			 * Do index intersection A, B
 			 */
             return joinIndexIntersection(a, b);
-
         } else if (a.isIndexed() || b.isIndexed()) {
 			/* 
 			 * Only A indexed
 			 * Scan B, use A index
 			 */
             return joinIndexScan(a, b);
-
         } else {
 			/*
 			 * Neither is indexed
@@ -142,9 +141,9 @@ public class HgQuery {
      * where one's set of contained types is
      * a subset of the other's.
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a HgJoinInput // TODO documentation
+     * @param b HgJoinInput // TODO documentation
+     * @return HgPolyJoinInput // TODO documentation
      */
     @SuppressWarnings("unchecked")
     private static HgPolyJoinInput joinFilter(
@@ -191,9 +190,9 @@ public class HgQuery {
      * indexed. Performs an intersection of two JoinStreams,
      * both of which must be index retrievals.
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a // TODO documentation
+     * @param b // TODO documentation
+     * @return // TODO documentation
      */
     @SuppressWarnings("unchecked")
     private static HgPolyJoinInput joinIndexIntersection(
@@ -246,9 +245,9 @@ public class HgQuery {
      * be indexed. Scans over the non-indexed stream
      * and uses the index on the indexed stream.
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a // TODO documentation
+     * @param b // TODO documentation
+     * @return // TODO documentation
      */
     @SuppressWarnings("unchecked")
     private static HgPolyJoinInput joinIndexScan(
@@ -299,9 +298,9 @@ public class HgQuery {
      * Simple hash join algorithm. Inhales the results
      * into a
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a // TODO documentation
+     * @param b // TODO documentation
+     * @return // TODO documentation
      */
     @SuppressWarnings("unchecked")
     public static HgPolyJoinInput joinHash(
@@ -341,9 +340,9 @@ public class HgQuery {
     /**
      * Simple nested loops join algorithm.
      *
-     * @param a
-     * @param b
-     * @return
+     * @param a // TODO documentation
+     * @param b // TODO documentation
+     * @return // TODO documentation
      */
     public static HgPolyJoinInput joinNestedLoops(
             final HgJoinInput a,

@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-
 public class MercuryBootstrap {
     /**
      * Predicate for classes which can be properly

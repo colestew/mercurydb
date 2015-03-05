@@ -19,6 +19,7 @@ public abstract class HgJoinInput
 
     @SuppressWarnings("unchecked")
     public HgJoinInput(FieldExtractable<Object, Object> fe) {
+        // TODO there's some problem here with types in Java 1.7
         this(fe, Sets.newHashSet(fe.getContainerClass()));
     }
 

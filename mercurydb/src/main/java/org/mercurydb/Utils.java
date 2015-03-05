@@ -60,15 +60,18 @@ public final class Utils {
         assert classLoader != null;
         String path = packageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(path);
+
         List<File> dirs = new ArrayList<File>();
         while (resources.hasMoreElements()) {
             URL resource = resources.nextElement();
             dirs.add(new File(resource.getFile()));
         }
+
         ArrayList<Class<?>> classes = new ArrayList<>();
         for (File directory : dirs) {
             classes.addAll(findClasses(directory, packageName));
         }
+
         return classes.toArray(new Class[classes.size()]);
     }
 
@@ -85,6 +88,7 @@ public final class Utils {
         if (!directory.exists()) {
             return classes;
         }
+
         File[] files = directory.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
@@ -94,6 +98,7 @@ public final class Utils {
                 classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
             }
         }
+
         return classes;
     }
 }
