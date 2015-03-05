@@ -187,10 +187,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class on {
         {{#fields}}
-        public static HgJoinInput
-        {{name}}({{type}} val) {
-            return scan().joinOn(field.{{name}});
-        }
+        public static HgJoinInput {{name}} = scan().joinOn(field.{{name}});
         {{/fields}}
     }
 
