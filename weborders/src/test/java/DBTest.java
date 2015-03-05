@@ -49,10 +49,28 @@ public class DBTest {
 		// OrderTbl.query(OrderTbl.on.ono, 1020);
 		
 		// static class solution with FieldExtractableValue
-		HgQuery.query(OrderTbl.equal.ono(5), OrderTbl.equal.cno(null));
+		HgQuery.query(OrderTbl.eq.ono(5), OrderTbl.eq.cno(null));
+		
+		HgQuery.query(OrderTbl.lt.ono(5));
+		
+		HgQuery.query(OrderTbl.predicate.ono(value -> value < 5));
+		
+		HgQuery.query(OrderTbl.predicate.ono(new HgPredicate<Integer>() {
+			public boolean predicate(Integer value) {
+				return value < 5;
+			}
+		}));
+		
+		
 		
 		// original table solution
 		OrderTbl.query(OrderTbl.on.ono, 5, OrderTbl.on.cno, null);
+		
+		OrderTbl.query(OrderTbl.equal.ono(5), OrderTbl.equal.cno(null));
+	}
+	
+	interface HgPredicate<T> {
+		public boolean predicate(T value);
 	}
 	
 	@Test
@@ -63,7 +81,7 @@ public class DBTest {
 				OrderTbl.joinOnOno(), 
 				OdetailTbl.scan().joinOn(OdetailTbl.on.ono));
 		
-		count = result.cardinality();
+		count = result.getCardinality();
 		
 		if (count != correctCount) fail();
 	}
