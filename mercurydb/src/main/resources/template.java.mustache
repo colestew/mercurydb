@@ -187,7 +187,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static final class on {
         {{#fields}}
-        public static final HgJoinInput
+        public static HgJoinInput
         {{name}}({{type}} val) {
             return scan().joinOn(field.{{name}});
         }
@@ -196,7 +196,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static final class eq {
         {{#fields}}
-        public static final FieldExtractableValue<{{sourceClass}}, {{type}}>
+        public static FieldExtractableValue<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableValue(field.{{name}}, val);
         }
