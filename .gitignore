@@ -1,3 +1,6 @@
+## gradle
+gradle-app.setting
+
 ## artifacts
 *.class
 *.jar
