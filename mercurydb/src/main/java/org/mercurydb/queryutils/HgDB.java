@@ -46,14 +46,14 @@ public class HgDB {
      * @return a JoinResult of a join on preds
      * @throws IllegalStateException if preds do not unify
      */
-    public static HgPolyJoinInput join(JoinPredicate... preds) {
+    public static HgPolyTupleStream join(JoinPredicate... preds) {
         if (preds.length == 1) {
             return join(preds[0].predicate, preds[0].stream1, preds[0].stream2);
         } else if (preds.length > 1) {
             Arrays.sort(preds);
             System.out.println("Joining " + preds[0].stream1.getContainerClass() +
                     " x " + preds[0].stream2.getContainerClass());
-            HgPolyJoinInput result = join(preds[0].stream1, preds[0].stream2);
+            HgPolyTupleStream result = join(preds[0].stream1, preds[0].stream2);
 
             for (int i = 1; i < preds.length; ++i) {
                 JoinPredicate p = preds[i];
@@ -75,15 +75,15 @@ public class HgDB {
     }
 
     /**
-     * Returns a HgPolyJoinInput using an equality predicate.
+     * Returns a HgPolyTupleStream using an equality predicate.
      *
-     * @param a HgJoinInput // TODO documentation
-     * @param b HgJoinInput // TODO documentation
-     * @return The HgPolyJoinInput resulting from performing on a join on the inputs with the equality relation.
+     * @param a HgTupleStream // TODO documentation
+     * @param b HgTupleStream // TODO documentation
+     * @return The HgPolyTupleStream resulting from performing on a join on the inputs with the equality relation.
      */
-    public static HgPolyJoinInput join(
-            final HgJoinInput a,
-            final HgJoinInput b) {
+    public static HgPolyTupleStream join(
+            final HgTupleStream a,
+            final HgTupleStream b) {
         return join(HgRelation.EQ, a, b);
     }
 
@@ -95,15 +95,15 @@ public class HgDB {
      * will select the correct join method based on the index status
      * of its arguments.
      *
-     * @param a        HgJoinInput // TODO documentation
-     * @param b        HgJoinInput // TODO documentation
+     * @param a        HgTupleStream // TODO documentation
+     * @param b        HgTupleStream // TODO documentation
      * @param relation HgRelation // TODO documentation
-     * @return The HgPolyJoinInput resulting from performing on a join on the inputs with the given relation.
+     * @return The HgPolyTupleStream resulting from performing on a join on the inputs with the given relation.
      */
-    public static HgPolyJoinInput join(
+    public static HgPolyTupleStream join(
             HgRelation relation,
-            final HgJoinInput a,
-            final HgJoinInput b) {
+            final HgTupleStream a,
+            final HgTupleStream b) {
         if (a.getContainerClass().equals(b.getContainerClass())) {
             /*
              * Self Join
@@ -141,16 +141,16 @@ public class HgDB {
      * where one's set of contained types is
      * a subset of the other's.
      *
-     * @param a HgJoinInput // TODO documentation
-     * @param b HgJoinInput // TODO documentation
-     * @return HgPolyJoinInput // TODO documentation
+     * @param a HgTupleStream // TODO documentation
+     * @param b HgTupleStream // TODO documentation
+     * @return HgPolyTupleStream // TODO documentation
      */
     @SuppressWarnings("unchecked")
-    private static HgPolyJoinInput joinFilter(
-            final HgJoinInput a,
-            final HgJoinInput b) {
-        final HgJoinInput ap;
-        final HgJoinInput bp;
+    private static HgPolyTupleStream joinFilter(
+            final HgTupleStream a,
+            final HgTupleStream b) {
+        final HgTupleStream ap;
+        final HgTupleStream bp;
 
         // Perform Filter operation on A
         if (b.getContainedTypes().retainAll(a.getContainedTypes())) {
@@ -161,7 +161,7 @@ public class HgDB {
             bp = a;
         }
 
-        return new HgPolyJoinInput(a, b) {
+        return new HgPolyTupleStream(a, b) {
             //Iterator<Object> aKeys = ap.keys().iterator();
             HgTuple currA;
 
@@ -201,10 +201,10 @@ public class HgDB {
      * @return // TODO documentation
      */
     @SuppressWarnings("unchecked")
-    private static HgPolyJoinInput joinIndexIntersection(
-            final HgJoinInput a,
-            final HgJoinInput b) {
-        return new HgPolyJoinInput(a, b) {
+    private static HgPolyTupleStream joinIndexIntersection(
+            final HgTupleStream a,
+            final HgTupleStream b) {
+        return new HgPolyTupleStream(a, b) {
             Iterator<Object> aKeys = a.getIndex().keySet().iterator();
             Iterator<Object> aInstances = Collections.emptyIterator();
             Object currA;
@@ -253,13 +253,13 @@ public class HgDB {
      * @return // TODO documentation
      */
     @SuppressWarnings("unchecked")
-    private static HgPolyJoinInput joinIndexScan(
-            final HgJoinInput a,
-            final HgJoinInput b) {
+    private static HgPolyTupleStream joinIndexScan(
+            final HgTupleStream a,
+            final HgTupleStream b) {
         System.out.println("Performing Index Scan");
 
-        final HgJoinInput ap;
-        final HgJoinInput bp;
+        final HgTupleStream ap;
+        final HgTupleStream bp;
 
         if (b.isIndexed()) {
             ap = b;
@@ -269,7 +269,7 @@ public class HgDB {
             bp = b;
         }
 
-        return new HgPolyJoinInput(a, b) {
+        return new HgPolyTupleStream(a, b) {
             Object currB;
             Iterator<Object> bInstances = bp.getObjectIterator();
             Iterator<Object> aInstances = Collections.emptyIterator();
@@ -309,13 +309,13 @@ public class HgDB {
      * @return // TODO documentation
      */
     @SuppressWarnings("unchecked")
-    public static HgPolyJoinInput joinHash(
-            final HgJoinInput a,
-            final HgJoinInput b) {
+    public static HgPolyTupleStream joinHash(
+            final HgTupleStream a,
+            final HgTupleStream b) {
         System.out.println("Performing Hash Join.");
 
-        final HgJoinInput ap;
-        final HgJoinInput bp;
+        final HgTupleStream ap;
+        final HgTupleStream bp;
 
         if (a.getCardinality() < b.getCardinality()) {
             ap = a;
@@ -340,7 +340,7 @@ public class HgDB {
             aMap.put(key, l);
         }
 
-        //HgJoinInput indexStream = new HgJoinInput(aMap);
+        //HgTupleStream indexStream = new HgTupleStream(aMap);
 
         return null; //joinIndexScan(indexStream.joinOn(ap, bp);
     }
@@ -352,10 +352,10 @@ public class HgDB {
      * @param b // TODO documentation
      * @return // TODO documentation
      */
-    public static HgPolyJoinInput joinNestedLoops(
-            final HgJoinInput a,
-            final HgJoinInput b) {
-        return new HgPolyJoinInput(a, b) {
+    public static HgPolyTupleStream joinNestedLoops(
+            final HgTupleStream a,
+            final HgTupleStream b) {
+        return new HgPolyTupleStream(a, b) {
             Object currA, currB;
 
             @Override

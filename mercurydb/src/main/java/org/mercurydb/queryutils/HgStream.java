@@ -23,13 +23,14 @@ abstract public class HgStream<T> implements Iterator<T>, Iterable<T> {
         this.cardinality = cardinality;
     }
 
-    public <F> HgJoinInput joinOn(FieldExtractable<?, F> fe) {
-        return HgJoinInput.createJoinInput(fe, this);
+    public <F> HgTupleStream joinOn(FieldExtractable<?, F> fe) {
+        return HgTupleStream.createJoinInput(fe, this);
     }
 
     // TODO understand heap pollution via template varargs
     @SuppressWarnings("unchecked")
     public <F> HgStream<T> filter(final FieldExtractable<T, F> fe, F... val) {
+        // TODO convert this filter to use the FieldExtractablePredicates and Values
         final Set<Object> valSet = new HashSet<Object>(Arrays.asList(val));
         return new HgStream<T>(this.cardinality) {
             private T next;

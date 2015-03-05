@@ -27,7 +27,7 @@ public class DBTest {
     @Test
     public void testFilter1() {
         OrderTable
-                .scan() // don't use index
+                .stream() // don't use index
                 .filter(OrderTable.equal.ono(1020));
 
         // ==
@@ -81,7 +81,7 @@ public class DBTest {
         long count = 0;
         HgStream result = HgDB.joinHash(
                 OrderTable.on.ono,
-                OdetailTable.scan().joinOn(OdetailTable.on.ono));
+                OdetailTable.stream().joinOn(OdetailTable.on.ono));
 
         count = result.getCardinality();
 
@@ -92,8 +92,8 @@ public class DBTest {
     public void testNestedLoops() {
         long count = 0;
         for (HgTuple jr : HgDB.joinNestedLoops(
-                OrderTable.scan().joinOn(OrderTable.on.ono),
-                OdetailTable.scan().joinOn(OdetailTable.on.ono)).elements()) {
+                OrderTable.stream().joinOn(OrderTable.on.ono),
+                OdetailTable.stream().joinOn(OdetailTable.on.ono))) {
             ++count;
         }
         if (count != correctCount) fail();
@@ -104,8 +104,8 @@ public class DBTest {
         // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
-                OrderTable.scan().joinOn(OrderTable.on.ono),
-                OdetailTable.on.ono).elements()) {
+                OrderTable.stream().joinOn(OrderTable.on.ono),
+                OdetailTable.on.ono)) {
             ++count;
         }
 
@@ -119,7 +119,7 @@ public class DBTest {
         long count = 0;
         for (HgTuple jr : HgDB.join(
                 OrderTable.on.ono,
-                OdetailTable.scan().joinOn(OdetailTable.on.ono)).elements()) {
+                OdetailTable.stream().joinOn(OdetailTable.on.ono))) {
             ++count;
         }
 
@@ -133,7 +133,7 @@ public class DBTest {
         long count = 0;
         for (HgTuple jr : HgDB.join(
                 OrderTable.on.ono,
-                OdetailTable.on.ono).elements()) {
+                OdetailTable.on.ono)) {
             ++count;
         }
 
@@ -142,20 +142,20 @@ public class DBTest {
 
     @Test
     public void testReset() {
-        HgJoinInput a = OrderTable.scan().joinOn(OrderTable.on.ono);
-        HgJoinInput b = OdetailTable.scan().joinOn(OdetailTable.on.ono);
-        HgJoinInput c = HgDB.join(a, b);
+        HgTupleStream a = OrderTable.stream().joinOn(OrderTable.on.ono);
+        HgTupleStream b = OdetailTable.stream().joinOn(OdetailTable.on.ono);
+        HgTupleStream c = HgDB.join(a, b);
 
         // TODO make this syntax happen
         // HgPolyStream d = HgDB.join(OrderTable.on.ono, OdetailTable.on.ono);
 
-        for (HgTuple jr : c.elements()) ;
+        for (HgTuple jr : c) ;
         c.reset();
-        for (HgTuple jr : c.elements()) ;
+        for (HgTuple jr : c) ;
         c.reset();
 
         long count = 0;
-        for (HgTuple jr : c.elements()) {
+        for (HgTuple jr : c) {
             ++count;
         }
         if (count != correctCount) fail();
@@ -216,15 +216,15 @@ public class DBTest {
         }
 
         correctResult = HgDB.joinHash(
-                OrderTable.scan().joinOn(OrderTable.on.ono),
-                OdetailTable.scan().joinOn(OdetailTable.on.ono));
+                OrderTable.on.ono,
+                OdetailTable.on.ono);
+
 
         long count = 0;
-        for (HgTuple jr : correctResult.elements()) {
+        for (HgTuple jr : correctResult) {
             ++count;
         }
         System.out.println("DB Size: " + ZipcodeTable.table.size());
         correctCount = count;
     }
-
 }

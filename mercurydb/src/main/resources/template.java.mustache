@@ -97,7 +97,7 @@ public class {{sourceClass}}{{tableSuffix}} {
                 : new Retrieval<{{sourceClass}}>(result, result.size());
         {{/hasIndex}}
         {{^hasIndex}}
-        return scan().filter(field.{{name}},val);
+        return stream().filter(field.{{name}},val);
         {{/hasIndex}}
     }
 
@@ -147,7 +147,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class on {
         {{#fields}}
-        public static final HgJoinInput {{name}} = scan().joinOn(field.{{name}});
+        public static final HgTupleStream {{name}} = stream().joinOn(field.{{name}});
         {{/fields}}
     }
 
@@ -164,18 +164,18 @@ public class {{sourceClass}}{{tableSuffix}} {
     public static class equal extends eq {}
 
 
-    // TODO ne/neq/notEqual, lt/lessThan, le/leq/lessThanOrEqual, gt/greaterThan, ge/geq/greaterThanOrEqual
+    // TODO ne/_neq_/notEqual, _lt_/lessThan, le/_leq_/lessThanOrEqual, _gt_/greaterThan, ge/_geq_/greaterThanOrEqual
 
-    public static Retrieval<{{sourceClass}}> scan() {
+    public static Retrieval<{{sourceClass}}> stream() {
         /*
          * Here we need to do a tree traversal such that
          * every possible subclass table is joined with
-         * this classes table in the scan
+         * this classes table in the stream
          */
 
         Retrieval<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(table, table.size());
         {{#subClasses}}
-        result = result.join({{toString}}{{tableSuffix}}.scan());
+        result = result.join({{toString}}{{tableSuffix}}.stream());
         {{/subClasses}}
         return result;
     }
