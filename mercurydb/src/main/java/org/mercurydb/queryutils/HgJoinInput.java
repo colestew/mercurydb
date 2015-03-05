@@ -2,6 +2,7 @@ package org.mercurydb.queryutils;
 
 import com.google.common.collect.Sets;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -17,18 +18,11 @@ public abstract class HgJoinInput
         this._containedTypes = a._containedTypes;
     }
 
-    @SuppressWarnings("unchecked")
     public HgJoinInput(FieldExtractable<Object, Object> fe) {
-        // TODO there's some problem here with types in Java 1.7
-        this(fe, Sets.newHashSet(fe.getContainerClass()));
-    }
-
-    public HgJoinInput(
-            FieldExtractable<Object, Object> fe,
-            Set<Class<?>> containedTypes) {
-        super(0); // TODO this needs some serious analysis
-        this._fwdFE = fe;
-        this._containedTypes = containedTypes;
+        super(0);
+        setJoinKey(fe);
+        this._containedTypes = new HashSet<Class<?>>();
+        _containedTypes.add(fe.getContainerClass());
     }
 
     @SuppressWarnings("unchecked")
@@ -36,7 +30,7 @@ public abstract class HgJoinInput
         this._fwdFE = (FieldExtractable<Object, Object>) fe;
     }
 
-    public Set<Class<?>> getContainedTypes() {
+    public Set<? extends Class<?>> getContainedTypes() {
         return _containedTypes;
     }
 
@@ -46,8 +40,9 @@ public abstract class HgJoinInput
     }
 
     @Override
-    public Object extractField(Object o) {
-        return _fwdFE.extractField(o);
+    public Object extractField(Object instance) {
+        HgTuple jr = (HgTuple) instance;
+        return _fwdFE.extractField(jr.get(_fwdFE.getContainerClass()));
     }
 
     @Override
@@ -83,7 +78,7 @@ public abstract class HgJoinInput
     @SuppressWarnings("unchecked")
     public static <F> HgJoinInput createJoinInput(
             FieldExtractable<?, F> fe,
-            HgStream<?> stream) {
+            final HgStream<?> stream) {
         FieldExtractable<Object, Object> feo = (FieldExtractable<Object, Object>) fe;
         return new HgJoinInput(feo) {
 
@@ -100,7 +95,7 @@ public abstract class HgJoinInput
             @Override
             public void reset() {
                 // TODO Auto-generated method stub
-
+                stream.reset();
             }
 
         };

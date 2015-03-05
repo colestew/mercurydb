@@ -21,7 +21,7 @@ public class DBTest {
     static Order[] orders;
     static Odetail[] odetails;
 
-    static HgStream correctResult;
+    static HgStream<HgTuple> correctResult;
     static long correctCount;
 
     @Test
@@ -38,48 +38,48 @@ public class DBTest {
         // OrderTable.query(OrderTable.on.ono, 1020);
 
         // static class solution with FieldExtractableValue
-        HgQuery.query(OrderTable.eq.ono(5), OrderTable.eq.cno(null));
-        HgQuery.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
+        HgDB.query(OrderTable.eq.ono(5), OrderTable.eq.cno(null));
+        HgDB.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
 
-        HgQuery.query(OrderTable.ne.ono(5), OrderTable.eq.cno(null));
-        HgQuery.query(OrderTable.neq.ono(5), OrderTable.eq.cno(null));
-        HgQuery.query(OrderTable.notEqual.ono(5), OrderTable.equal.cno(null));
-
-        HgQuery.query(OrderTable.lt.ono(5));
-        HgQuery.query(OrderTable.lessThan.ono(5));
-
-        HgQuery.query(OrderTable.le.ono(5));
-        HgQuery.query(OrderTable.leq.ono(5));
-        HgQuery.query(OrderTable.lessEqual.ono(5));
-        HgQuery.query(OrderTable.lessThanOrEqual.ono(5));
-
-        HgQuery.query(OrderTable.gt.ono(5));
-        HgQuery.query(OrderTable.greaterThan.ono(5));
-
-        HgQuery.query(OrderTable.ge.ono(5));
-        HgQuery.query(OrderTable.geq.ono(5));
-        HgQuery.query(OrderTable.greaterEqual.ono(5));
-        HgQuery.query(OrderTable.greaterThanOrEqual.ono(5));
-
-        HgQuery.query(OrderTable.test.ono(value -> value < 5));
-        HgQuery.query(OrderTable.predicate.ono(value -> value < 5));
-
-        // java 7 syntax for the predicate
-        HgQuery.query(OrderTable.predicate.ono(new HgPredicate<Integer>() {
-            public boolean test(Integer value) {
-                return value < 5;
-            }
-        }));
-
-        // represents the new way, but we need to get the backing code up and running
-        OrderTable.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
+//        HgDB.query(OrderTable.ne.ono(5), OrderTable.eq.cno(null));
+//        HgDB.query(OrderTable.neq.ono(5), OrderTable.eq.cno(null));
+//        HgDB.query(OrderTable.notEqual.ono(5), OrderTable.equal.cno(null));
+//
+//        HgDB.query(OrderTable.lt.ono(5));
+//        HgDB.query(OrderTable.lessThan.ono(5));
+//
+//        HgDB.query(OrderTable.le.ono(5));
+//        HgDB.query(OrderTable.leq.ono(5));
+//        HgDB.query(OrderTable.lessEqual.ono(5));
+//        HgDB.query(OrderTable.lessThanOrEqual.ono(5));
+//
+//        HgDB.query(OrderTable.gt.ono(5));
+//        HgDB.query(OrderTable.greaterThan.ono(5));
+//
+//        HgDB.query(OrderTable.ge.ono(5));
+//        HgDB.query(OrderTable.geq.ono(5));
+//        HgDB.query(OrderTable.greaterEqual.ono(5));
+//        HgDB.query(OrderTable.greaterThanOrEqual.ono(5));
+//
+//        HgDB.query(OrderTable.test.ono(value -> value < 5));
+//        HgDB.query(OrderTable.predicate.ono(value -> value < 5));
+//
+//        // java 7 syntax for the predicate
+//        HgDB.query(OrderTable.predicate.ono(new HgPredicate<Integer>() {
+//            public boolean test(Integer value) {
+//                return value < 5;
+//            }
+//        }));
+//
+//        // represents the new way, but we need to get the backing code up and running
+//        OrderTable.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
     }
 
     @Test
     public void testHashJoin() {
         // Hash Join
         long count = 0;
-        HgStream result = JoinDriver.joinHash(
+        HgStream result = HgDB.joinHash(
                 OrderTable.on.ono,
                 OdetailTable.scan().joinOn(OdetailTable.on.ono));
 
@@ -91,7 +91,7 @@ public class DBTest {
     @Test
     public void testNestedLoops() {
         long count = 0;
-        for (HgTuple jr : JoinDriver.joinNestedLoops(
+        for (HgTuple jr : HgDB.joinNestedLoops(
                 OrderTable.scan().joinOn(OrderTable.on.ono),
                 OdetailTable.scan().joinOn(OdetailTable.on.ono)).elements()) {
             ++count;
@@ -103,7 +103,7 @@ public class DBTest {
     public void testIndexScan() {
         // Index Scan
         long count = 0;
-        for (HgTuple jr : JoinDriver.join(
+        for (HgTuple jr : HgDB.join(
                 OrderTable.scan().joinOn(OrderTable.on.ono),
                 OdetailTable.on.ono).elements()) {
             ++count;
@@ -117,7 +117,7 @@ public class DBTest {
 
         // Index Scan
         long count = 0;
-        for (HgTuple jr : JoinDriver.join(
+        for (HgTuple jr : HgDB.join(
                 OrderTable.on.ono,
                 OdetailTable.scan().joinOn(OdetailTable.on.ono)).elements()) {
             ++count;
@@ -131,7 +131,7 @@ public class DBTest {
 
         // Index Intersection
         long count = 0;
-        for (HgTuple jr : JoinDriver.join(
+        for (HgTuple jr : HgDB.join(
                 OrderTable.on.ono,
                 OdetailTable.on.ono).elements()) {
             ++count;
@@ -144,10 +144,10 @@ public class DBTest {
     public void testReset() {
         HgJoinInput a = OrderTable.scan().joinOn(OrderTable.on.ono);
         HgJoinInput b = OdetailTable.scan().joinOn(OdetailTable.on.ono);
-        HgStream c = JoinDriver.join(a, b);
+        HgJoinInput c = HgDB.join(a, b);
 
         // TODO make this syntax happen
-        // HgPolyStream d = JoinDriver.join(OrderTable.on.ono, OdetailTable.on.ono);
+        // HgPolyStream d = HgDB.join(OrderTable.on.ono, OdetailTable.on.ono);
 
         for (HgTuple jr : c.elements()) ;
         c.reset();
@@ -215,7 +215,7 @@ public class DBTest {
                     rn.nextInt(10));
         }
 
-        correctResult = JoinDriver.joinHash(
+        correctResult = HgDB.joinHash(
                 OrderTable.scan().joinOn(OrderTable.on.ono),
                 OdetailTable.scan().joinOn(OdetailTable.on.ono));
 

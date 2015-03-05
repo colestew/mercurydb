@@ -27,7 +27,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         // Populate {{name}} index
         Set<{{sourceClass}}> {{name}}Set = {{name}}Index.get(val.{{name}});
         if ({{name}}Set == null) {
-            {{name}}Set = new HashSet<{{sourceClass}}>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());;
+            {{name}}Set = new HashSet<{{sourceClass}}>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());
         }
         {{name}}Set.add(val);
         {{name}}Index.put(val.{{name}}, {{name}}Set);
@@ -103,46 +103,6 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     {{/fields}}
 
-    {{#queries}}
-    public static HgStream<{{sourceClass}}>
-    query{{#qFields}}{{CCname}}{{/qFields}}({{prototype}}) {
-        Iterable<{{sourceClass}}> seed = table;
-        int size = table.size();
-        {{#hasIndex}}
-        Set<{{sourceClass}}> l;
-        Object usedIndex = null;
-
-        {{/hasIndex}}
-        {{#qFields}}
-        {{#hasIndex}}
-        // Check {{name}} index
-        l = {{name}}Index.get({{name}});
-        if (l != null && l.size() <= size) {
-            size = l.size();
-            seed = l;
-            usedIndex = {{name}};
-        }
-        {{/hasIndex}}
-        {{/qFields}}
-
-        HgStream<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(seed, size);
-
-        {{#qFields}}
-        // Filter {{name}}
-        {{#hasIndex}}
-        if ({{name}} != usedIndex)
-            result = result.filter(field.{{name}},{{name}});
-        {{/hasIndex}}
-        {{^hasIndex}}
-        result = result.filter(field.{{name}},{{name}});
-        {{/hasIndex}}
-
-        {{/qFields}}
-        return result;
-    }
-
-    {{/queries}}
-
     public static final class field {
         {{#fields}}
         public static final FieldExtractable<{{sourceClass}}, {{type}}> {{name}} = new FieldExtractable<{{sourceClass}}, {{type}}>() {
@@ -202,6 +162,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     // alias equal = eq
     public static class equal extends eq {}
+
 
     // TODO ne/neq/notEqual, lt/lessThan, le/leq/lessThanOrEqual, gt/greaterThan, ge/geq/greaterThanOrEqual
 
