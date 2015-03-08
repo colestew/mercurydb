@@ -23,15 +23,11 @@ abstract public class HgStream<T> implements Iterator<T>, Iterable<T> {
         this.cardinality = cardinality;
     }
 
-    public <F> HgTupleStream joinOn(FieldExtractable<?, F> fe) {
+    public HgTupleStream joinOn(FieldExtractable fe) {
         return HgTupleStream.createJoinInput(fe, this);
     }
 
-    // TODO understand heap pollution via template varargs
-    @SuppressWarnings("unchecked")
-    public <F> HgStream<T> filter(final FieldExtractable<T, F> fe, F... val) {
-        // TODO convert this filter to use the FieldExtractablePredicates and Values
-        final Set<Object> valSet = new HashSet<Object>(Arrays.asList(val));
+    public HgStream<T> filter(final AbstractFieldExtractablePredicate<T> pred) {
         return new HgStream<T>(this.cardinality) {
             private T next;
             private HgStream<T> stream = HgStream.this;
@@ -40,10 +36,11 @@ abstract public class HgStream<T> implements Iterator<T>, Iterable<T> {
             public boolean hasNext() {
                 while (stream.hasNext()) {
                     next = stream.next();
-                    if (!valSet.contains(fe.extractField(next))) {
-                        --cardinality;
-                    } else {
+
+                    if (pred.test(next)) {
                         return true;
+                    } else {
+                        --cardinality;
                     }
                 }
                 return false;

@@ -6,26 +6,51 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class HgTupleStream
-        extends HgStream<HgTuple> implements FieldExtractable<Object, Object> {
-    protected FieldExtractable<Object, Object> _fwdFE;
-    protected Set<Class<?>> _containedTypes;
+        extends HgStream<HgTuple> implements FieldExtractable {
+    protected FieldExtractable _fwdFE;
+    protected final Set<Class<?>> _containedTypes;
 
-    public HgTupleStream(HgTupleStream a, HgTupleStream b) {
-        super(0);
-        a._containedTypes.addAll(b._containedTypes);
-        this._containedTypes = a._containedTypes;
+    public HgTupleStream(HgTupleStream o) {
+        this(o._fwdFE);
+
     }
 
-    public HgTupleStream(FieldExtractable<Object, Object> fe) {
+    public HgTupleStream() {
         super(0);
-        setJoinKey(fe);
+        this._containedTypes = new HashSet<>();
+    }
+
+    public HgTupleStream(HgTupleStream a, HgTupleStream b) {
+        this();
+        _containedTypes.addAll(a._containedTypes);
+        _containedTypes.addAll(b._containedTypes);
+        a._containedTypes.addAll(b._containedTypes);
+    }
+
+    public HgStream<HgTuple> getDefaultStream() {
+        return this;
+    }
+
+    public HgTupleStream(FieldExtractable fe, Set<Class<?>> containedTypes) {
+        super(0);
+        this._fwdFE = fe;
+        this._containedTypes = containedTypes;
+    }
+
+    public HgTupleStream(FieldExtractable fe) {
+        super(0);
+        this._fwdFE = fe;
         this._containedTypes = new HashSet<Class<?>>();
         _containedTypes.add(fe.getContainerClass());
     }
 
+    public FieldExtractable getFieldExtractor() {
+        return _fwdFE;
+    }
+
     @SuppressWarnings("unchecked")
-    public void setJoinKey(FieldExtractable<?, ?> fe) {
-        this._fwdFE = (FieldExtractable<Object, Object>) fe;
+    public void setJoinKey(FieldExtractable fe) {
+        this._fwdFE = fe;
     }
 
     public Set<? extends Class<?>> getContainedTypes() {
@@ -39,8 +64,11 @@ public abstract class HgTupleStream
 
     @Override
     public Object extractField(Object instance) {
-        HgTuple jr = (HgTuple) instance;
-        return _fwdFE.extractField(jr.get(_fwdFE.getContainerClass()));
+        if (instance instanceof HgTuple) {
+            HgTuple t = (HgTuple) instance;
+            return _fwdFE.extractField(t.get(_fwdFE.getContainerClass()));
+        }
+        throw new IllegalArgumentException("Argument to HgTupleStream.extractField() should be an HgTuple!");
     }
 
     @Override
@@ -75,9 +103,9 @@ public abstract class HgTupleStream
 
     @SuppressWarnings("unchecked")
     public static <F> HgTupleStream createJoinInput(
-            FieldExtractable<?, F> fe,
+            FieldExtractable fe,
             final HgStream<?> stream) {
-        FieldExtractable<Object, Object> feo = (FieldExtractable<Object, Object>) fe;
+        FieldExtractable feo = fe;
         return new HgTupleStream(feo) {
 
             @Override

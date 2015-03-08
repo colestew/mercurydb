@@ -33,8 +33,43 @@ import java.util.*;
  */
 public class HgDB {
     @SafeVarargs
-    public static <T> HgStream<T> query(FieldExtractableValue<T, ?>... extractableValues) {
-        return null;
+    public static<T> HgStream<T> query(AbstractFieldExtractablePredicate<T>... extractableValues) {
+        if (extractableValues.length == 0) {
+            throw new IllegalArgumentException("Must supply at least one argument to query");
+        }
+
+        HgStream<T> seed = extractableValues[0].getDefaultStream();
+
+        // find smallest applicable index
+        int smallestIndex = Integer.MAX_VALUE;
+        Set<Object> index = null;
+        FieldExtractable usedFE = null;
+        for (FieldExtractableSeed<T> fe : extractableValues) {
+            if (fe instanceof FieldExtractableRelation) {
+                FieldExtractableRelation<T> fer = (FieldExtractableRelation<T>) fe;
+                if (fer.isIndexed() && fer.relation == HgRelation.EQ) {
+                    Set<Object> newIndex = fe.getIndex().get(fer.value);
+                    int newSmallestIndex = newIndex.size();
+                    if (newSmallestIndex < smallestIndex) {
+                        smallestIndex = newSmallestIndex;
+                        index = newIndex;
+                        usedFE = fe;
+                    }
+                }
+            }
+        }
+
+        if (index != null) {
+            seed = new Retrieval(index, index.size());
+        } else {
+            seed = extractableValues[0].getDefaultStream();
+        }
+
+        for (AbstractFieldExtractablePredicate<T> fe : extractableValues) {
+            if (fe == usedFE) continue;
+            seed = seed.filter(fe);
+        }
+        return seed;
     }
 
     /**
@@ -158,7 +193,7 @@ public class HgDB {
             bp = b;
         } else {
             ap = b;
-            bp = a;
+            bp = b;
         }
 
         return new HgPolyTupleStream(a, b) {
@@ -325,7 +360,7 @@ public class HgDB {
             bp = a;
         }
 
-        final Map<Object, Set<Object>> aMap = new HashMap<Object, Set<Object>>();
+        final Map<Object, Set<Object>> aMap = new HashMap<>();
 
         // Inhale stream A into hash table
         for (Object aInstance : ap) {
@@ -340,9 +375,9 @@ public class HgDB {
             aMap.put(key, l);
         }
 
-        //HgTupleStream indexStream = new HgTupleStream(aMap);
-
-        return null; //joinIndexScan(indexStream.joinOn(ap, bp);
+        FieldExtractableFakeIndex fei = new FieldExtractableFakeIndex(ap.getFieldExtractor(), aMap);
+        ap.setJoinKey(fei);
+        return joinIndexScan(ap, bp);
     }
 
     /**

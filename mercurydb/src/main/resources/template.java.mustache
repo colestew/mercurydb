@@ -87,32 +87,17 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{/isFinal}}
     {{/fields}}
 
-    // Get methods -- these are retrievals for attribute = value queries
-    {{#fields}}
-    public static HgStream<{{sourceClass}}> query{{CCname}}({{_type}} val) {
-        {{#hasIndex}}
-        Set<{{sourceClass}}> result = {{name}}Index.get(val);
-        return result == null
-                ? new Retrieval<{{sourceClass}}>(Collections.EMPTY_LIST, 0)
-                : new Retrieval<{{sourceClass}}>(result, result.size());
-        {{/hasIndex}}
-        {{^hasIndex}}
-        return stream().filter(field.{{name}},val);
-        {{/hasIndex}}
-    }
-
-    {{/fields}}
 
     public static final class field {
         {{#fields}}
-        public static final FieldExtractable<{{sourceClass}}, {{type}}> {{name}} = new FieldExtractable<{{sourceClass}}, {{type}}>() {
+        public static final FieldExtractableSeed<{{sourceClass}}> {{name}} = new FieldExtractableSeed<{{sourceClass}}>() {
             @Override
-            public {{type}} extractField({{sourceClass}} instance) {
+            public Object extractField(Object instance) {
                 return (({{sourceClass}})instance).{{name}};
             }
 
             @Override
-            public Class<{{sourceClass}}> getContainerClass() {
+            public Class<?> getContainerClass() {
                 return {{sourceClass}}.class;
             }
 
@@ -127,9 +112,9 @@ public class {{sourceClass}}{{tableSuffix}} {
             }
 
             @Override
-            public Map<{{type}}, Set<{{sourceClass}}>> getIndex() {
+            public Map<Object, Set<Object>> getIndex() {
                 {{#hasIndex}}
-                return {{name}}Index;
+                return (Map) {{name}}Index;
                 {{/hasIndex}}
                 {{^hasIndex}}
                 return null;
@@ -139,6 +124,11 @@ public class {{sourceClass}}{{tableSuffix}} {
             @Override
             public int getContainerId() {
                 return JOIN_ID;
+            }
+
+            @Override
+            public HgStream<{{sourceClass}}> getDefaultStream() {
+                return stream();
             }
         };
 
@@ -153,9 +143,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class eq {
         {{#fields}}
-        public static FieldExtractableValue<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableValue<{{sourceClass}}, {{type}}>(field.{{name}}, val);
+            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}, HgRelation.EQ, val);
         }
         {{/fields}}
     }
