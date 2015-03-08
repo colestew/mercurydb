@@ -137,7 +137,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class on {
         {{#fields}}
-        public static final HgTupleStream {{name}} = stream().joinOn(field.{{name}});
+        public static final HgTupleStream {{name}}() {
+            return stream().joinOn(field.{{name}});
+        }
         {{/fields}}
     }
 

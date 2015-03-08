@@ -139,6 +139,7 @@ public class HgDB {
             HgRelation relation,
             final HgTupleStream a,
             final HgTupleStream b) {
+
         if (a.getContainerClass().equals(b.getContainerClass())) {
             /*
              * Self Join
@@ -260,11 +261,17 @@ public class HgDB {
                     return hasNext();
                 }
 
+                // While there are more keys in a
                 while (aKeys.hasNext()) {
+                    // fetch the next key | field value from which to retrieve a's and b's
                     Object currKey = aKeys.next();
+                    // try and fetch a b from b's index
                     bSeed = b.getIndex().get(currKey);
                     if (bSeed != null) {
+                        // if we found a b, fetch a's instances at this point
                         aInstances = a.getIndex().get(currKey).iterator();
+
+                        // advance the iterator. The if statement at the top should catch now.
                         return hasNext();
                     }
                 }

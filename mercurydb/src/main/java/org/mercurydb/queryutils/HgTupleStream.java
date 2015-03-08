@@ -40,7 +40,7 @@ public abstract class HgTupleStream
     public HgTupleStream(FieldExtractable fe) {
         super(0);
         this._fwdFE = fe;
-        this._containedTypes = new HashSet<Class<?>>();
+        this._containedTypes = new HashSet<>();
         _containedTypes.add(fe.getContainerClass());
     }
 
@@ -54,7 +54,7 @@ public abstract class HgTupleStream
     }
 
     public Set<? extends Class<?>> getContainedTypes() {
-        return _containedTypes;
+        return new HashSet<>(_containedTypes);
     }
 
     @Override
@@ -106,8 +106,7 @@ public abstract class HgTupleStream
     public static <F> HgTupleStream createJoinInput(
             FieldExtractable fe,
             final HgStream<?> stream) {
-        FieldExtractable feo = fe;
-        return new HgTupleStream(feo) {
+        return new HgTupleStream(fe) {
 
             @Override
             public boolean hasNext() {
