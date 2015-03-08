@@ -204,8 +204,8 @@ public class HgDB {
             public boolean hasNext() {
                 if (ap.hasNext()) {
                     currA = ap.next();
-                    Object jkv1o = ap.extractField(currA);
-                    Object jkv2o = bp.extractField(currA);
+                    Object jkv1o = ap.extractFieldFromTuple(currA);
+                    Object jkv2o = bp.extractFieldFromTuple(currA);
 
                     // TODO why does having these be equal mean hasNext() is true?
                     // TODO also if this logic is sound, reduce it into a single expression as IntelliJ recommends
@@ -363,8 +363,8 @@ public class HgDB {
         final Map<Object, Set<Object>> aMap = new HashMap<>();
 
         // Inhale stream A into hash table
-        for (Object aInstance : ap) {
-            Object key = ap.extractField(aInstance);
+        for (HgTuple aInstance : ap) {
+            Object key = ap.extractFieldFromTuple(aInstance);
 
             Set<Object> l = aMap.get(key);
             if (l == null) {
@@ -391,14 +391,14 @@ public class HgDB {
             final HgTupleStream a,
             final HgTupleStream b) {
         return new HgPolyTupleStream(a, b) {
-            Object currA, currB;
+            HgTuple currA, currB;
 
             @Override
             public boolean hasNext() {
                 while (b.hasNext() && currA != null) {
                     currB = b.next();
-                    if (a.extractField(currA)
-                            .equals(b.extractField(currB))) {
+                    if (a.extractFieldFromTuple(currA)
+                            .equals(b.extractFieldFromTuple(currB))) {
                         return true;
                     }
                 }

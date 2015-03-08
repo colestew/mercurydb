@@ -1,6 +1,7 @@
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mercurydb.queryutils.*;
+import weborders.db.CustomerTable;
 import weborders.db.OdetailTable;
 import weborders.db.OrderTable;
 import weborders.db.ZipcodeTable;
@@ -30,49 +31,14 @@ public class DBTest {
                 .stream() // don't use index
                 .filter(OrderTable.equal.ono(1020));
 
-        // ==
+        int count = 0;
+        for (Order o : HgDB.query(OrderTable.eq.ono(1020))) {
+            if (o.ono != 1020) fail();
+            ++count;
+        }
 
-        OrderTable.queryOno(1020);
+        System.out.println("FILTER COUNT: " + count);
 
-        // TODO this syntax (make it efficient too by selecting index)
-        // OrderTable.query(OrderTable.on.ono, 1020);
-
-        // static class solution with FieldExtractableValue
-        HgDB.query(OrderTable.eq.ono(5), OrderTable.eq.cno(null));
-        HgDB.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
-
-//        HgDB.query(OrderTable.ne.ono(5), OrderTable.eq.cno(null));
-//        HgDB.query(OrderTable.neq.ono(5), OrderTable.eq.cno(null));
-//        HgDB.query(OrderTable.notEqual.ono(5), OrderTable.equal.cno(null));
-//
-//        HgDB.query(OrderTable.lt.ono(5));
-//        HgDB.query(OrderTable.lessThan.ono(5));
-//
-//        HgDB.query(OrderTable.le.ono(5));
-//        HgDB.query(OrderTable.leq.ono(5));
-//        HgDB.query(OrderTable.lessEqual.ono(5));
-//        HgDB.query(OrderTable.lessThanOrEqual.ono(5));
-//
-//        HgDB.query(OrderTable.gt.ono(5));
-//        HgDB.query(OrderTable.greaterThan.ono(5));
-//
-//        HgDB.query(OrderTable.ge.ono(5));
-//        HgDB.query(OrderTable.geq.ono(5));
-//        HgDB.query(OrderTable.greaterEqual.ono(5));
-//        HgDB.query(OrderTable.greaterThanOrEqual.ono(5));
-//
-//        HgDB.query(OrderTable.test.ono(value -> value < 5));
-//        HgDB.query(OrderTable.predicate.ono(value -> value < 5));
-//
-//        // java 7 syntax for the predicate
-//        HgDB.query(OrderTable.predicate.ono(new HgPredicate<Integer>() {
-//            public boolean test(Integer value) {
-//                return value < 5;
-//            }
-//        }));
-//
-//        // represents the new way, but we need to get the backing code up and running
-//        OrderTable.query(OrderTable.equal.ono(5), OrderTable.equal.cno(null));
     }
 
     @Test
@@ -215,7 +181,7 @@ public class DBTest {
                     rn.nextInt(10));
         }
 
-        correctResult = HgDB.joinHash(
+        correctResult = HgDB.joinNestedLoops(
                 OrderTable.on.ono,
                 OdetailTable.on.ono);
 
@@ -224,7 +190,11 @@ public class DBTest {
         for (HgTuple jr : correctResult) {
             ++count;
         }
-        System.out.println("DB Size: " + ZipcodeTable.table.size());
+
+        if (count == 0) {
+            throw new IllegalStateException("correct result is just plain wrong: " + count);
+        }
+        System.out.println("Count is: " + count);
         correctCount = count;
     }
 }

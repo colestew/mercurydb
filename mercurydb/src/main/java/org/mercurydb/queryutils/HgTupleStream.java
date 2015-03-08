@@ -64,11 +64,12 @@ public abstract class HgTupleStream
 
     @Override
     public Object extractField(Object instance) {
-        if (instance instanceof HgTuple) {
-            HgTuple t = (HgTuple) instance;
-            return _fwdFE.extractField(t.get(_fwdFE.getContainerClass()));
-        }
-        throw new IllegalArgumentException("Argument to HgTupleStream.extractField() should be an HgTuple!");
+        return _fwdFE.extractField(instance);
+    }
+
+    public Object extractFieldFromTuple(HgTuple instance) {
+        HgTuple t = (HgTuple) instance;
+        return _fwdFE.extractField(t.get(_fwdFE.getContainerClass()));
     }
 
     @Override

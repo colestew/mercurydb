@@ -143,15 +143,13 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class eq {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}>
+        public static final FieldExtractableRelation<{{sourceClass}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}, HgRelation.EQ, val);
         }
         {{/fields}}
     }
 
-    // alias equal = eq
-    public static class equal extends eq {}
 
 
     // TODO ne/_neq_/notEqual, _lt_/lessThan, le/_leq_/lessThanOrEqual, _gt_/greaterThan, ge/_geq_/greaterThanOrEqual
