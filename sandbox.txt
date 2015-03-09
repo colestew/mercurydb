@@ -1,3 +1,21 @@
+# Examples for converting 
+
+SELECT * FROM CustomerTable
+WHERE CustomerTable.cno = 5
+
+HgDB.query(CustomerTable.eq.cno(5))
+// should we rename "query" to "select"?
+
+SELECT cname, cno FROM CustomerTable
+WHERE CustomerTable.cno = 5
+
+HgDB.query(CustomerTable.eq.cno(5)).
+
+
+
+
+
+
 // TODO this syntax (make it efficient too by selecting index)
 // OrderTbl.query(OrderTbl.on.ono, 1020);
 

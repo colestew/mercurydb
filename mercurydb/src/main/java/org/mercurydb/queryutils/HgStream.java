@@ -10,7 +10,7 @@ import java.util.Set;
  *
  * @param <T> // TODO documentation
  */
-abstract public class HgStream<T> implements Iterator<T>, Iterable<T> {
+public abstract class HgStream<T> implements Iterator<T>, Iterable<T> {
     protected int cardinality;
 
     abstract public void reset();

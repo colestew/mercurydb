@@ -3,7 +3,7 @@ package org.mercurydb.queryutils;
 /**
  * JoinDriver join methods always return these.
  */
-abstract public class HgPolyTupleStream extends HgTupleStream {
+public abstract class HgPolyTupleStream extends HgTupleStream {
     private final HgTupleStream a, b;
 
     public HgPolyTupleStream(HgTupleStream a, HgTupleStream b) {
