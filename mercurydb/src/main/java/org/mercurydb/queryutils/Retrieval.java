@@ -24,6 +24,7 @@ public class Retrieval<T> extends HgStream<T> {
 
     public Retrieval<T> join(Retrieval<? extends T> or) {
         streamSeed = Iterables.concat(streamSeed, or.streamSeed);
+        stream = streamSeed.iterator();
         super.cardinality += or.cardinality;
         return this;
     }
@@ -38,8 +39,12 @@ public class Retrieval<T> extends HgStream<T> {
         return stream.next();
     }
 
+    public static boolean debug = false;
     @Override
     public void reset() {
+        if (debug) {
+            System.out.println("Reset!");
+        }
         stream = streamSeed.iterator();
     }
 }

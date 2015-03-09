@@ -64,7 +64,7 @@ abstract public class HgStream<T> implements Iterator<T>, Iterable<T> {
     }
 
     public Iterator<T> iterator() {
-        HgStream.this.reset();
+        reset();
         return HgStream.this;
     }
 }

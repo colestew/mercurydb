@@ -1,5 +1,9 @@
 package org.mercurydb.queryutils;
 
+import org.mercurydb.queryutils.joiners.JoinFilter;
+import org.mercurydb.queryutils.joiners.JoinIndexIntersection;
+import org.mercurydb.queryutils.joiners.JoinIndexScan;
+
 import java.util.*;
 
 /**
@@ -137,8 +141,8 @@ public class HgDB {
      */
     public static HgPolyTupleStream join(
             HgRelation relation,
-            final HgTupleStream a,
-            final HgTupleStream b) {
+            HgTupleStream a,
+            HgTupleStream b) {
 
         if (a.getContainerClass().equals(b.getContainerClass())) {
             /*
@@ -150,196 +154,29 @@ public class HgDB {
             /*
              * Filter operation
              */
-            return joinFilter(a, b);
+            return new JoinFilter(a, b);
         } else if (a.isIndexed() && b.isIndexed()) {
             /*
              * Both A and B indexed
              * Do index intersection A, B
              */
-            return joinIndexIntersection(a, b);
+            System.out.println("Performing Index Intersection.");
+            return new JoinIndexIntersection(a, b);
         } else if (a.isIndexed() || b.isIndexed()) {
             /*
              * Only A indexed
              * Scan B, use A index
              */
-            return joinIndexScan(a, b);
+            System.out.println("Performing Index Scan.");
+            return new JoinIndexScan(a, b);
         } else {
             /*
              * Neither is indexed
              * Do hash join
              */
+            System.out.println("Performing Hash Join.");
             return joinHash(a, b);
         }
-    }
-
-    /**
-     * Performs a filter join on two streams
-     * where one's set of contained types is
-     * a subset of the other's.
-     *
-     * @param a HgTupleStream // TODO documentation
-     * @param b HgTupleStream // TODO documentation
-     * @return HgPolyTupleStream // TODO documentation
-     */
-    @SuppressWarnings("unchecked")
-    private static HgPolyTupleStream joinFilter(
-            final HgTupleStream a,
-            final HgTupleStream b) {
-        final HgTupleStream ap;
-        final HgTupleStream bp;
-
-        // Perform Filter operation on A
-        if (b.getContainedTypes().retainAll(a.getContainedTypes())) {
-            ap = a;
-            bp = b;
-        } else {
-            ap = b;
-            bp = b;
-        }
-
-        return new HgPolyTupleStream(a, b) {
-            //Iterator<Object> aKeys = ap.keys().iterator();
-            HgTuple currA;
-
-            @Override
-            public boolean hasNext() {
-                if (ap.hasNext()) {
-                    currA = ap.next();
-                    Object jkv1o = ap.extractFieldFromTuple(currA);
-                    Object jkv2o = bp.extractFieldFromTuple(currA);
-
-                    // TODO why does having these be equal mean hasNext() is true?
-                    // TODO also if this logic is sound, reduce it into a single expression as IntelliJ recommends
-                    if (jkv1o.equals(jkv2o)) {
-                        return true;
-                    } else {
-                        return hasNext();
-                    }
-                }
-
-                return false;
-            }
-
-            @Override
-            public HgTuple next() {
-                return currA;
-            }
-        };
-    }
-
-    /**
-     * Joins two JoinStreams. Both of which must be
-     * indexed. Performs an intersection of two JoinStreams,
-     * both of which must be index retrievals.
-     *
-     * @param a // TODO documentation
-     * @param b // TODO documentation
-     * @return // TODO documentation
-     */
-    @SuppressWarnings("unchecked")
-    private static HgPolyTupleStream joinIndexIntersection(
-            final HgTupleStream a,
-            final HgTupleStream b) {
-        return new HgPolyTupleStream(a, b) {
-            Iterator<Object> aKeys = a.getIndex().keySet().iterator();
-            Iterator<Object> aInstances = Collections.emptyIterator();
-            Object currA;
-            Iterator<Object> bInstances = Collections.emptyIterator();
-            Object currB;
-            Iterable<Object> bSeed;
-
-            @Override
-            public boolean hasNext() {
-                // Note: this was difficult for Cole's feeble mind to think about
-                // TODO: comment this sorcery
-                if (bInstances.hasNext()) {
-                    currB = bInstances.next();
-                    return true;
-                } else if (aInstances.hasNext()) {
-                    currA = aInstances.next();
-                    bInstances = bSeed.iterator();
-                    return hasNext();
-                }
-
-                // While there are more keys in a
-                while (aKeys.hasNext()) {
-                    // fetch the next key | field value from which to retrieve a's and b's
-                    Object currKey = aKeys.next();
-                    // try and fetch a b from b's index
-                    bSeed = b.getIndex().get(currKey);
-                    if (bSeed != null) {
-                        // if we found a b, fetch a's instances at this point
-                        aInstances = a.getIndex().get(currKey).iterator();
-
-                        // advance the iterator. The if statement at the top should catch now.
-                        return hasNext();
-                    }
-                }
-                return false;
-            }
-
-            @Override
-            public HgTuple next() {
-                return new HgTuple(a, currA, b, currB);
-            }
-        };
-    }
-
-    /**
-     * Joins two JoinStreams, one of which must
-     * be indexed. Scans over the non-indexed stream
-     * and uses the index on the indexed stream.
-     *
-     * @param a // TODO documentation
-     * @param b // TODO documentation
-     * @return // TODO documentation
-     */
-    @SuppressWarnings("unchecked")
-    private static HgPolyTupleStream joinIndexScan(
-            final HgTupleStream a,
-            final HgTupleStream b) {
-        System.out.println("Performing Index Scan");
-
-        final HgTupleStream ap;
-        final HgTupleStream bp;
-
-        if (b.isIndexed()) {
-            ap = b;
-            bp = a;
-        } else {
-            ap = a;
-            bp = b;
-        }
-
-        return new HgPolyTupleStream(a, b) {
-            Object currB;
-            Iterator<Object> bInstances = bp.getObjectIterator();
-            Iterator<Object> aInstances = Collections.emptyIterator();
-
-            @Override
-            public boolean hasNext() {
-                if (aInstances.hasNext()) {
-                    return true;
-                } else {
-                    while (bInstances.hasNext()) {
-                        currB = bInstances.next();
-                        Object currKey = bp.extractField(currB);
-                        Iterable<Object> aIterable = ap.getIndex().get(currKey);
-                        if (aIterable != null) {
-                            aInstances = aIterable.iterator();
-                            return true;
-                        }
-                    }
-                }
-
-                return false;
-            }
-
-            @Override
-            public HgTuple next() {
-                return new HgTuple(ap, aInstances.next(), bp, currB);
-            }
-        };
     }
 
     /**
@@ -384,45 +221,7 @@ public class HgDB {
 
         FieldExtractableFakeIndex fei = new FieldExtractableFakeIndex(ap.getFieldExtractor(), aMap);
         ap.setJoinKey(fei);
-        return joinIndexScan(ap, bp);
+        return new JoinIndexScan(ap, bp);
     }
 
-    /**
-     * Simple nested loops join algorithm.
-     *
-     * @param a // TODO documentation
-     * @param b // TODO documentation
-     * @return // TODO documentation
-     */
-    public static HgPolyTupleStream joinNestedLoops(
-            final HgTupleStream a,
-            final HgTupleStream b) {
-        return new HgPolyTupleStream(a, b) {
-            HgTuple currA, currB;
-
-            @Override
-            public boolean hasNext() {
-                while (b.hasNext() && currA != null) {
-                    currB = b.next();
-                    if (a.extractFieldFromTuple(currA)
-                            .equals(b.extractFieldFromTuple(currB))) {
-                        return true;
-                    }
-                }
-
-                if (a.hasNext()) {
-                    b.reset();
-                    currA = a.next();
-                    return hasNext();
-                }
-
-                return false;
-            }
-
-            @Override
-            public HgTuple next() {
-                return new HgTuple(a, currA, b, currB);
-            }
-        };
-    }
 }

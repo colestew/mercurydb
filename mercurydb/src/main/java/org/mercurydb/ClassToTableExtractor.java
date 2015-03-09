@@ -6,8 +6,10 @@ import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class ClassToTableExtractor {
@@ -27,6 +29,8 @@ public class ClassToTableExtractor {
 
     public String tableSuffix;
 
+    public List<ConstructorData> constructors;
+
     public int joinId;
 
     public ClassToTableExtractor(
@@ -40,10 +44,12 @@ public class ClassToTableExtractor {
 
         this.fields = new ArrayList<>();
         this.queries = new ArrayList<>();
+        this.constructors = new ArrayList<>();
 
         this.subClasses = subClassTables;
         populateFieldsList();
         populateQueriesList(queries, fields);
+        populateConstructorsList();
     }
 
     private void populateFieldsList() {
@@ -67,6 +73,21 @@ public class ClassToTableExtractor {
             if (querySet.size() > 1 && querySet.size() <= 5) {
                 queries.add(new QueryData(querySet));
             }
+        }
+    }
+
+    private void populateConstructorsList() {
+        for (Constructor<?> con : c.getConstructors()) {
+            constructors.add(new ConstructorData(con));
+        }
+    }
+
+    private static class ConstructorData {
+
+        public ConstructorData(Constructor<?> con) {
+//            for (Parameter p : con.getParameters()) {
+//                System.out.println(p.getParameterizedType().getTypeName() + " " + p.getName());
+//            }
         }
     }
 
