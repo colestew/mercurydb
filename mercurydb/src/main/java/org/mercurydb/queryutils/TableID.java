@@ -169,6 +169,11 @@ public class TableID<T> {
         allowNames = false;
         firstAliasID = counter;
     }
+
+    @Override
+    public String toString() {
+        return String.format("TableID<%s>:%d", this.getClass().getName(), id);
+    }
 }
 
 // TODO remove the test code, below
