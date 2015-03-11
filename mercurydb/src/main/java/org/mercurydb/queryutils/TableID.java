@@ -89,16 +89,25 @@ public class TableID<T> {
      * aliases. If they violate this contract, this method will throw an
      * OutOfNamesException.
      *
-     * Note: The fact that this throws an OutOfNamesException is a good thing because
-     * it will cause users to think twice before using this method, since they will
-     * have to account for the appropriate exception in their client code.
+     * This method will throw OutOfNamesException if Long.MAX_VALUE names have
+     * already been created. Users can't do anything about this Exception so it is
+     * implemented as a RuntimeException and not added to the throws clause here.
+     *
+     * This method will throw NameCreationDisallowedException if called after
+     * createAlias has been called.
+     *
+     * Having both of these Exceptions as RuntimeExceptions makes this method
+     * more practical to use because it can be used to initialize static class fields.
      *
      * @param <T> The type to represent.
      * @return a new TableID name representing the type T.
-     * @throws OutOfNamesException in case all available name IDs have been used.
      */
-    public static <T> TableID<T> createName() throws OutOfNamesException {
+    public static <T> TableID<T> createName() {
         // TODO call this from inside the Table* classes
+
+        if (!allowNames) {
+            throw new NameCreationDisallowedException();
+        }
 
         if (counter == Long.MIN_VALUE) {
             throw new OutOfNamesException();
@@ -130,8 +139,28 @@ public class TableID<T> {
         return new TableID<T>();
     }
 
-    public static class OutOfNamesException extends Exception {
-        // TODO implement (is there anything to do here?)
+    /**
+     * Thrown when a total of Long.MAX_VALUE names have been created, and
+     * we have thus exhausted all available names.
+     *
+     * This is a RuntimeException because a user catching this exception would have
+     * very little practical meaning. The only fallback would be not to create as
+     * many names, which is exactly what needs to be done in the first place, and
+     * needs to be fixed statically, not dynamically after the exception occurs.
+     */
+    public static class OutOfNamesException extends RuntimeException {
+    }
+
+    /**
+     * This is thrown when a user attempts to create a name after already
+     * creating one or more aliases.
+     *
+     * This is a RuntimeException because a user catching this exception would have
+     * very little practical meaning. The only fallback would be use create an alias
+     * instead of a name, and if that is acceptable, it should be done in any case.
+     * Instead of using a try/catch block, this can be fixed by correcting the code.
+     */
+    public static class NameCreationDisallowedException extends RuntimeException {
     }
 
     /**

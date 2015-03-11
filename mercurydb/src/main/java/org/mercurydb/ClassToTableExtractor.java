@@ -9,7 +9,6 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.util.*;
 
 public class ClassToTableExtractor {
@@ -83,7 +82,6 @@ public class ClassToTableExtractor {
     }
 
     private static class ConstructorData {
-
         public ConstructorData(Constructor<?> con) {
 //            for (Parameter p : con.getParameters()) {
 //                System.out.println(p.getParameterizedType().getTypeName() + " " + p.getName());
@@ -102,7 +100,7 @@ public class ClassToTableExtractor {
         String prototype() {
             StringBuilder result = new StringBuilder();
             for (FieldData fd : qFields) {
-                result.append(fd.type() + " " + fd.name + ", ");
+                result.append(String.format("%s %s, ", fd.type(), fd.name));
             }
             return result.substring(0, result.length() - 2);
         }
@@ -114,7 +112,6 @@ public class ClassToTableExtractor {
             return false;
         }
     }
-
 
     @SuppressWarnings("unused")
     private static class FieldData implements Comparable<FieldData> {
