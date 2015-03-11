@@ -103,8 +103,6 @@ public class TableID<T> {
      * @return a new TableID name representing the type T.
      */
     public static <T> TableID<T> createName() {
-        // TODO call this from inside the Table* classes
-
         if (!allowNames) {
             throw new NameCreationDisallowedException();
         }
@@ -124,8 +122,6 @@ public class TableID<T> {
      * @return a new TableID alias representing the type T.
      */
     public static <T> TableID<T> createAlias() {
-        // TODO call this from within a method "createAlias" of the Table* classes
-
         if (allowNames) {
             sealNames();
         }

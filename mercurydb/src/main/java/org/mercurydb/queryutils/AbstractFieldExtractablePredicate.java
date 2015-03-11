@@ -4,12 +4,13 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by colestewart on 3/7/15.
+ *
+ * @param <T> // TODO seriously this is confusing. what is T?
  */
 public abstract class AbstractFieldExtractablePredicate<T> implements FieldExtractableSeed<T>, HgPredicate<T>  {
     protected final FieldExtractableSeed<T> _fwdFE;
 
-    public AbstractFieldExtractablePredicate(FieldExtractableSeed fe) {
+    public AbstractFieldExtractablePredicate(FieldExtractableSeed<T> fe) {
         this._fwdFE = fe;
     }
 
@@ -34,7 +35,8 @@ public abstract class AbstractFieldExtractablePredicate<T> implements FieldExtra
     }
 
     @Override
-    public int getContainerId() {
+    // TODO should this be TableID<?> or something else?
+    public TableID<?> getContainerId() {
         return _fwdFE.getContainerId();
     }
 

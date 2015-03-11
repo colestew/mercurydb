@@ -3,9 +3,6 @@ package org.mercurydb.queryutils;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by colestewart on 3/7/15.
- */
 public class FieldExtractableFakeIndex implements FieldExtractable {
     private final FieldExtractable _fwdFE;
     private final Map<Object, Set<Object>> _index;
@@ -36,7 +33,7 @@ public class FieldExtractableFakeIndex implements FieldExtractable {
     }
 
     @Override
-    public int getContainerId() {
+    public TableID<?> getContainerId() {
         return _fwdFE.getContainerId();
     }
 }

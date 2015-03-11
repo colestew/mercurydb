@@ -83,7 +83,7 @@ public abstract class HgTupleStream
     }
 
     @Override
-    public int getContainerId() {
+    public TableID<?> getContainerId() {
         return _fwdFE.getContainerId();
     }
 

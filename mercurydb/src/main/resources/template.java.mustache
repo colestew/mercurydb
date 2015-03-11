@@ -8,9 +8,16 @@ import com.google.common.collect.MapMaker;
 import {{fullSourceClass}};
 
 public class {{sourceClass}}{{tableSuffix}} {
-    public static final int JOIN_ID = {{joinId}};
+    public static final TableID<{{sourceClass}}> ID = TableID.<{{sourceClass}}>createName();
 
-    public static final List<{{sourceClass}}> table = new ArrayList<>();
+    /**
+     * Create a temporary alias for this table, for joins.
+     */
+    public static TableID<{{sourceClass}}> createAlias() {
+        return TableID.<{{sourceClass}}>createAlias();
+    }
+
+    public static final List<{{sourceClass}}> table = new ArrayList<{{sourceClass}}>();
 
     public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
 
@@ -87,7 +94,6 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{/isFinal}}
     {{/fields}}
 
-
     public static final class field {
         {{#fields}}
         public static final FieldExtractableSeed<{{sourceClass}}> {{name}} = new FieldExtractableSeed<{{sourceClass}}>() {
@@ -122,8 +128,8 @@ public class {{sourceClass}}{{tableSuffix}} {
             }
 
             @Override
-            public int getContainerId() {
-                return JOIN_ID;
+            public TableID<{{sourceClass}}> getContainerId() {
+                return ID;
             }
 
             @Override
@@ -152,7 +158,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
-    // TODO ne/_neq_/notEqual, _lt_/lessThan, le/_leq_/lessThanOrEqual, _gt_/greaterThan, ge/_geq_/greaterThanOrEqual
+    // TODO neq, lt, leq, gt, geq
 
     public static Retrieval<{{sourceClass}}> stream() {
         /*
