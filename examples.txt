@@ -1,0 +1,14 @@
+class JavaClass { // creates JavaClassTable
+    String name;
+    JavaClass extends;
+    List<JavaClass> implements;
+    // ...
+}
+
+// read in all the source code under the refactoring engine
+
+// SomeBaseClass is a class in the source code the refactoring engine read in
+var someBaseClassResultStream = HgDB.query(JavaClassTable.eq.name("SomeBaseClass");
+
+JavaClass baseclass = someBaseClassResultStream.first(); // get value from stream
+var subclasses = HgDB.query(JavaClassTable.eq.extends(baseclass));
