@@ -27,6 +27,8 @@ outdb/
 bin/
 build/
 target/
+latex/
+html/
 
 # -------------------------------------------------------
 # IDEA settings
@@ -40,3 +42,4 @@ target/
 .idea/vcs.xml
 .idea/misc.xml
 .idea/libraries
+
