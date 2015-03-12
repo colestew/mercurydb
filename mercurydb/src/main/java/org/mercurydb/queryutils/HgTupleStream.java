@@ -4,13 +4,27 @@ import java.util.*;
 
 public abstract class HgTupleStream
         extends HgStream<HgTupleStream.HgTuple> implements FieldExtractable {
+
+    // TODO document these fields
     protected FieldExtractable _fwdFE;
     protected final Map<TableID<?>, Integer> _containedTypes;
     private int tupleIndexCounter = 0;
 
+//    public HgTupleStream as(TableID<?> id) {
+//        if (1 == _containedTypes.size()) {
+//            // complex surgery to replace the existing id
+//            TableID<?> x = _containedTypes.keySet().iterator().next();
+//            Integer i = _containedTypes.get(x);
+//            _containedTypes.remove(x);
+//            _containedTypes.put(id, i);
+//            return this;
+//        } else {
+//            throw new IllegalStateException("Can't create an alias for an HgTupleStream of cardinality > 1.");
+//        }
+//    }
+
     public HgTupleStream(HgTupleStream o) {
         this(o._fwdFE);
-
     }
 
     public HgTupleStream() {
@@ -18,14 +32,20 @@ public abstract class HgTupleStream
         this._containedTypes = new HashMap<>();
     }
 
-    public HgTupleStream(HgTupleStream a, HgTupleStream b) {
+    @Override
+    public HgTupleStream joinOn(FieldExtractable fe) {
+        this._fwdFE = fe;
+        return this;
+    }
+
+    public HgTupleStream(Collection<TableID<?>> aids, Collection<TableID<?>> bids) {
         this();
 
-        for (TableID<?> tid : a._containedTypes.keySet()) {
+        for (TableID<?> tid : aids) {
             addContainedType(tid);
         }
 
-        for (TableID<?> tid : b._containedTypes.keySet()) {
+        for (TableID<?> tid : bids) {
             addContainedType(tid);
         }
     }
@@ -162,16 +182,26 @@ public abstract class HgTupleStream
 
             // ensure we have the capacity
             _entries.ensureCapacity(tupleIndex+1);
+            while (_entries.size() < tupleIndex+1) {
+                _entries.add(null);
+            }
 
             _entries.set(tupleIndex, o);
         }
 
         public<T> T get(TableID<T> id) {
+            if (!_containedTypes.containsKey(id)) {
+                throw new IllegalArgumentException("ID not present in HgTupleStream instance.");
+            }
             return (T)_entries.get(_containedTypes.get(id));
         }
 
         public Object extractJoinedField() {
             return _fwdFE.extractField(this.get(_fwdFE.getContainerId()));
+        }
+
+        public Object extractJoinedEntry() {
+            return get(_fwdFE.getContainerId());
         }
     }
 }

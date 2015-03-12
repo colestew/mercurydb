@@ -1,7 +1,9 @@
 package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
+import org.mercurydb.queryutils.HgRelation;
 import org.mercurydb.queryutils.HgTupleStream;
+import org.mercurydb.queryutils.JoinPredicate;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,15 +23,19 @@ public class JoinIndexScan extends HgPolyTupleStream {
     private Iterator<Object> bInstances;
     private Iterator<Object> aInstances;
 
-    public JoinIndexScan(HgTupleStream a, HgTupleStream b) {
-        super(a, b);
+    public JoinIndexScan(JoinPredicate pred) {
+        super(pred);
 
-        if (b.isIndexed()) {
-            ap = b;
-            bp = a;
-        } else if (a.isIndexed()){
-            ap = a;
-            bp = b;
+        if (!pred.relation.equals(HgRelation.EQ)) {
+            throw new IllegalArgumentException("Relations other than == are not supported for indices");
+        }
+
+        if (pred.streamA.isIndexed()) {
+            ap = pred.streamB;
+            bp = pred.streamA;
+        } else if (pred.streamA.isIndexed()){
+            ap = pred.streamA;
+            bp = pred.streamB;
         } else {
             throw new IllegalArgumentException("One of the arguments must be indexed!");
         }

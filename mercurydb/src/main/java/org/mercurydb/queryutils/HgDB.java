@@ -3,20 +3,19 @@ package org.mercurydb.queryutils;
 import org.mercurydb.queryutils.joiners.JoinFilter;
 import org.mercurydb.queryutils.joiners.JoinIndexIntersection;
 import org.mercurydb.queryutils.joiners.JoinIndexScan;
-import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 
 import java.util.*;
 
 /**
- * <p>
+ * <p/>
  * This class is the main class used for queries and join operations
  * on a hgdb instance. It can be used like the following:
- *
+ * <p/>
  * TODO UPDATE DOCUMENTATION
  */
 public class HgDB {
     @SafeVarargs
-    public static<T> HgStream<T> query(AbstractFieldExtractablePredicate<T>... extractableValues) {
+    public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T>... extractableValues) {
         if (extractableValues.length == 0) {
             throw new IllegalArgumentException("Must supply at least one argument to query");
         }
@@ -55,7 +54,7 @@ public class HgDB {
 
         return seed;
     }
-    
+
 
     /**
      * Joins a set of Predicates. Creates optimal
@@ -69,19 +68,17 @@ public class HgDB {
     public static HgPolyTupleStream join(JoinPredicate... preds) {
         // TODO fix this whole thing when TableID's are implemented | can't use classes to verify unification
         if (preds.length == 1) {
-            return join(preds[0].predicate, preds[0].stream1, preds[0].stream2);
+            return join(preds[0]);
         } else if (preds.length > 1) {
             Arrays.sort(preds);
-            System.out.println("Joining " + preds[0].stream1.getContainerClass() +
-                    " x " + preds[0].stream2.getContainerClass());
-            HgPolyTupleStream result = join(preds[0].stream1, preds[0].stream2);
+            HgPolyTupleStream result = join(preds[0]);
 
             for (int i = 1; i < preds.length; ++i) {
                 JoinPredicate p = preds[i];
-                if (result.containsId(p.stream1.getContainerId())) {
-                    p.stream1 = result.joinOn(p.stream1);
-                } else if (result.containsId(p.stream2.getContainerId())) {
-                    p.stream2 = result.joinOn(p.stream2);
+                if (result.containsId(p.streamA.getContainerId())) {
+                    preds[i] = new JoinPredicate(p.relation, result.joinOn(p.streamA), p.streamB);
+                } else if (result.containsId(p.streamB.getContainerId())) {
+                    preds[i] = new JoinPredicate(p.relation, p.streamA, result.joinOn(p.streamB));
                 } else {
                     continue;
                 }
@@ -125,32 +122,34 @@ public class HgDB {
             HgRelation relation,
             HgTupleStream a,
             HgTupleStream b) {
+        return join(new JoinPredicate(relation, a, b));
+    }
 
-        if (a.getContainerClass().equals(b.getContainerClass())) {
-            /*
-             * Self Join
-             */
-            throw new UnsupportedOperationException("Self joins not currently supported :(");
+    public static HgPolyTupleStream join(JoinPredicate predicate) {
+        HgTupleStream a = predicate.streamA, b = predicate.streamB;
+
+        if (predicate.relation != HgRelation.EQ) {
+            return joinHash(a, b);
         } else if (!a.getContainedIds().retainAll(b.getContainedIds())
                 || !b.getContainedIds().retainAll(a.getContainedIds())) {
             /*
              * Filter operation
              */
-            return new JoinFilter(a, b);
+            return new JoinFilter(predicate);
         } else if (a.isIndexed() && b.isIndexed()) {
             /*
              * Both A and B indexed
              * Do index intersection A, B
              */
             System.out.println("Performing Index Intersection.");
-            return new JoinIndexIntersection(a, b);
+            return new JoinIndexIntersection(predicate);
         } else if (a.isIndexed() || b.isIndexed()) {
             /*
              * Only A indexed
              * Scan B, use A index
              */
             System.out.println("Performing Index Scan.");
-            return new JoinIndexScan(a, b);
+            return new JoinIndexScan(predicate);
         } else {
             /*
              * Neither is indexed
@@ -203,7 +202,7 @@ public class HgDB {
 
         FieldExtractableFakeIndex fei = new FieldExtractableFakeIndex(ap.getFieldExtractor(), aMap);
         ap.setJoinKey(fei);
-        return new JoinIndexScan(ap, bp);
-    }
 
+        return new JoinIndexScan(new JoinPredicate(HgRelation.EQ, ap, bp));
+    }
 }

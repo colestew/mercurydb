@@ -30,7 +30,7 @@ public enum HgRelation {
             }
         } else {
             throw new IllegalArgumentException("Arguments must implement the Comparable interface to use" +
-                    "LT, LE, GT, and GE relations.");
+                    "<, <=, >, and >= relations.");
         }
 
         return false;

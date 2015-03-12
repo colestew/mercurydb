@@ -39,12 +39,8 @@ public class Retrieval<T> extends HgStream<T> {
         return stream.next();
     }
 
-    public static boolean debug = false;
     @Override
     public void reset() {
-        if (debug) {
-            System.out.println("Reset!");
-        }
         stream = streamSeed.iterator();
     }
 }

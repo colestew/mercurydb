@@ -60,3 +60,26 @@ public interface HgPredicate<T> {
     public boolean predicate(T val);
 }
 
+
+
+
+
+
+
+
+
+
+    CustomerTable.on.ono().as(CustomerTable.createAlias());
+
+    CustomerTable.on.ono()
+
+    CustomerTable.as(...).on.ono(); // is this feasible?
+
+    TableID<Person> parent = PersonTable.createAlias();
+    CustomerTable.as(parent).on.ono();
+
+
+    CustomerTable.eq.ono(42); // this is bad
+    CustomerTable.ono.eq(42); // reads better, makes more sense
+
+

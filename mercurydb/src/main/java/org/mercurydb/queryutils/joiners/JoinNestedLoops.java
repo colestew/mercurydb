@@ -1,37 +1,33 @@
 package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
-import org.mercurydb.queryutils.HgTupleStream;
+import org.mercurydb.queryutils.JoinPredicate;
 
 /**
  * Simple nested loops join algorithm.
  */
 public class JoinNestedLoops extends HgPolyTupleStream {
-    private final HgTupleStream a;
-    private final HgTupleStream b;
-
     private HgTuple currA;
     private HgTuple currB;
 
-    public JoinNestedLoops(HgTupleStream a, HgTupleStream b) {
-        super(a, b);
-        this.a = a;
-        this.b = b;
+    public JoinNestedLoops(JoinPredicate predicate) {
+        super(predicate);
     }
 
     @Override
     public boolean hasNext() {
-        while (b.hasNext() && currA != null) {
-            currB = b.next();
-            if (a.extractFieldFromTuple(currA)
-                    .equals(b.extractFieldFromTuple(currB))) {
+        while (_predicate.streamB.hasNext() && currA != null) {
+            currB = _predicate.streamB.next();
+            if (_predicate.relation.compare(
+                    _predicate.streamA.extractFieldFromTuple(currA),
+                    _predicate.streamB.extractFieldFromTuple(currB))) {
                 return true;
             }
         }
 
-        if (a.hasNext()) {
-            b.reset();
-            currA = a.next();
+        if (_predicate.streamA.hasNext()) {
+            _predicate.streamB.reset();
+            currA = _predicate.streamA.next();
             return hasNext();
         }
 
@@ -41,7 +37,11 @@ public class JoinNestedLoops extends HgPolyTupleStream {
     @Override
     public HgTuple next() {
         // TODO investigate possibly different constructor in HgTuple
-        return new HgTuple(a.getContainerId(), currA.get(a.getContainerId()), b.getContainerId(), b.getContainerId());
+        return new HgTuple(
+                _predicate.streamA.getContainerId(),
+                currA.extractJoinedEntry(),
+                _predicate.streamB.getContainerId(),
+                currB.extractJoinedEntry());
     }
 
     @Override

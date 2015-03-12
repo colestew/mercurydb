@@ -4,17 +4,16 @@ package org.mercurydb.queryutils;
  * JoinDriver join methods always return these.
  */
 public abstract class HgPolyTupleStream extends HgTupleStream {
-    public final HgTupleStream a, b;
+    protected final JoinPredicate _predicate;
 
-    public HgPolyTupleStream(HgTupleStream a, HgTupleStream b) {
-        super(a, b);
-        this.a = a;
-        this.b = b;
+    public HgPolyTupleStream(JoinPredicate predicate) {
+        super(predicate.streamA.getContainedIds(), predicate.streamB.getContainedIds());
+        this._predicate = predicate;
     }
 
     @Override
     public void reset() {
-        a.reset();
-        b.reset();
+        _predicate.streamA.reset();
+        _predicate.streamB.reset();
     }
 }

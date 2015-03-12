@@ -2,6 +2,7 @@ package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
 import org.mercurydb.queryutils.HgTupleStream;
+import org.mercurydb.queryutils.JoinPredicate;
 
 
 /**
@@ -15,16 +16,16 @@ public class JoinFilter extends HgPolyTupleStream {
     private final HgTupleStream bp;
     private HgTuple currA;
 
-    public JoinFilter(HgTupleStream a, HgTupleStream b) {
-        super(a, b);
+    public JoinFilter(JoinPredicate predicate) {
+        super(predicate);
 
         // Perform Filter operation on A
-        if (b.getContainedIds().retainAll(a.getContainedIds())) {
-            ap = a;
-            bp = b;
+        if (predicate.streamA.getContainedIds().retainAll(predicate.streamB.getContainedIds())) {
+            ap = predicate.streamA;
+            bp = predicate.streamB;
         } else {
-            ap = b;
-            bp = b;
+            ap = predicate.streamB;
+            bp = predicate.streamA;
         }
     }
 
@@ -37,7 +38,7 @@ public class JoinFilter extends HgPolyTupleStream {
 
             // TODO why does having these be equal mean hasNext() is true?
             // TODO also if this logic is sound, reduce it into a single expression as IntelliJ recommends
-            if (jkv1o.equals(jkv2o)) {
+            if (_predicate.relation.compare(jkv1o, jkv2o)) {
                 return true;
             } else {
                 return hasNext();

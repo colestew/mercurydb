@@ -1,7 +1,8 @@
 package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
-import org.mercurydb.queryutils.HgTupleStream;
+import org.mercurydb.queryutils.HgRelation;
+import org.mercurydb.queryutils.JoinPredicate;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -20,16 +21,19 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
     private Object currB;
     private Iterable<Object> bSeed;
 
-    public JoinIndexIntersection(HgTupleStream a, HgTupleStream b) {
-        super(a, b);
-        if (!a.isIndexed() || !b.isIndexed()) {
+    public JoinIndexIntersection(JoinPredicate pred) {
+        super(pred);
+        if (!pred.relation.equals(HgRelation.EQ)) {
+            throw new IllegalArgumentException("Relations other than == are not supported for indices");
+        }
+        if (!pred.streamA.isIndexed() || !pred.streamB.isIndexed()) {
             throw new IllegalArgumentException("Both inputs must be indexed!");
         }
         setup();
     }
 
     private void setup() {
-        aKeys = a.getIndex().keySet().iterator();
+        aKeys = _predicate.streamA.getIndex().keySet().iterator();
         currA = null;
         currB = null;
         bSeed = null;
@@ -56,10 +60,10 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
             // fetch the next key | field value from which to retrieve a's and b's
             Object currKey = aKeys.next();
             // try and fetch a b from b's index
-            bSeed = b.getIndex().get(currKey);
+            bSeed = _predicate.streamB.getIndex().get(currKey);
             if (bSeed != null) {
                 // if we found a b, fetch a's instances at this point
-                aInstances = a.getIndex().get(currKey).iterator();
+                aInstances = _predicate.streamA.getIndex().get(currKey).iterator();
 
                 // advance the iterator. The if statement at the top should catch now.
                 return hasNext();
@@ -70,7 +74,11 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
 
     @Override
     public HgTuple next() {
-        return this.new HgTuple(a.getContainerId(), currA, b.getContainerId(), currB);
+        return this.new HgTuple(
+                _predicate.streamA.getContainerId(),
+                currA,
+                _predicate.streamB.getContainerId(),
+                currB);
     }
 
     @Override

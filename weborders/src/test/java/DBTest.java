@@ -31,11 +31,6 @@ public class DBTest {
                 .stream() // don't use index
                 .filter(OrderTable.eq.ono(1020));
 
-        int count = 0;
-        for (Order o : HgDB.query(OrderTable.eq.ono(1020))) {
-            if (o.ono != 1020) fail();
-            ++count;
-        }
     }
 
     @Test
@@ -54,9 +49,9 @@ public class DBTest {
     @Test
     public void testNestedLoops() {
         long count = 0;
-        for (HgTuple jr : new JoinNestedLoops(
+        for (HgTuple jr : new JoinNestedLoops(new JoinPredicate(
                 OrderTable.stream().joinOn(OrderTable.on.ono()),
-                OdetailTable.stream().joinOn(OdetailTable.on.ono()))) {
+                OdetailTable.stream().joinOn(OdetailTable.on.ono())))) {
             ++count;
         }
         if (count != correctCount) fail();
@@ -67,6 +62,7 @@ public class DBTest {
         // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
+                HgRelation.EQ,
                 OrderTable.stream().joinOn(OrderTable.on.ono()),
                 OdetailTable.on.ono())) {
             ++count;
@@ -111,7 +107,6 @@ public class DBTest {
         HgTupleStream b = OdetailTable.on.ono();
         HgPolyTupleStream c = HgDB.join(a, b);
 
-        Retrieval.debug = true;
         long count = 0;
         for (HgTuple jr : c) ++count;
         System.out.println("Reset Count: " + count);
@@ -124,7 +119,6 @@ public class DBTest {
         for (HgTuple jr : c) {
             ++count;
         }
-        Retrieval.debug = false;
         System.out.println("Reset Count: " + count);
         if (count != correctCount) fail();
     }
@@ -192,15 +186,12 @@ public class DBTest {
                 OrderTable.on.ono(),
                 OdetailTable.on.ono());
 
-
         long count = 0;
-        for (HgTuple jr : correctResult) {
+
+        for (HgTuple t : correctResult) {
             ++count;
         }
 
-        if (count == 0) {
-            throw new IllegalStateException("correct result is just plain wrong: " + count);
-        }
         System.out.println("Count is: " + count);
         correctCount = count;
     }
