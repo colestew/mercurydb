@@ -1,14 +1,12 @@
 package org.mercurydb.queryutils;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public abstract class HgTupleStream
-        extends HgStream<HgTuple> implements FieldExtractable {
+        extends HgStream<HgTupleStream.HgTuple> implements FieldExtractable {
     protected FieldExtractable _fwdFE;
-    protected final Set<Class<?>> _containedTypes;
+    protected final Map<TableID<?>, Integer> _containedTypes;
+    private int tupleIndexCounter = 0;
 
     public HgTupleStream(HgTupleStream o) {
         this(o._fwdFE);
@@ -17,31 +15,42 @@ public abstract class HgTupleStream
 
     public HgTupleStream() {
         super(0);
-        this._containedTypes = new HashSet<>();
+        this._containedTypes = new HashMap<>();
     }
 
     public HgTupleStream(HgTupleStream a, HgTupleStream b) {
         this();
-        _containedTypes.addAll(a._containedTypes);
-        _containedTypes.addAll(b._containedTypes);
-        a._containedTypes.addAll(b._containedTypes);
+
+        for (TableID<?> tid : a._containedTypes.keySet()) {
+            addContainedType(tid);
+        }
+
+        for (TableID<?> tid : b._containedTypes.keySet()) {
+            addContainedType(tid);
+        }
     }
 
-    public HgStream<HgTuple> getDefaultStream() {
-        return this;
-    }
-
-    public HgTupleStream(FieldExtractable fe, Set<Class<?>> containedTypes) {
+    public HgTupleStream(FieldExtractable fe, Set<TableID<?>> containedTypes) {
         super(0);
         this._fwdFE = fe;
-        this._containedTypes = containedTypes;
+        this._containedTypes = new HashMap<>();
+
+        for (TableID<?> id: containedTypes) {
+            addContainedType(id);
+        }
     }
 
     public HgTupleStream(FieldExtractable fe) {
         super(0);
         this._fwdFE = fe;
-        this._containedTypes = new HashSet<>();
-        _containedTypes.add(fe.getContainerClass());
+        this._containedTypes = new HashMap<>();
+        addContainedType(fe.getContainerId());
+    }
+
+    private void addContainedType(TableID<?> id) {
+        if (!_containedTypes.containsKey(id)) {
+            _containedTypes.put(id, tupleIndexCounter++);
+        }
     }
 
     public FieldExtractable getFieldExtractor() {
@@ -53,8 +62,12 @@ public abstract class HgTupleStream
         this._fwdFE = fe;
     }
 
-    public Set<? extends Class<?>> getContainedTypes() {
-        return new HashSet<>(_containedTypes);
+    public Set<TableID<?>> getContainedIds() {
+        return new HashSet<>(_containedTypes.keySet());
+    }
+
+    public boolean containsId(TableID<?> id) {
+        return _containedTypes.containsKey(id);
     }
 
     @Override
@@ -67,9 +80,8 @@ public abstract class HgTupleStream
         return _fwdFE.extractField(instance);
     }
 
-    public Object extractFieldFromTuple(HgTuple instance) {
-        HgTuple t = (HgTuple) instance;
-        return _fwdFE.extractField(t.get(_fwdFE.getContainerClass()));
+    public Object extractFieldFromTuple(HgTuple t) {
+        return _fwdFE.extractField(t.get(_fwdFE.getContainerId()));
     }
 
     @Override
@@ -97,13 +109,13 @@ public abstract class HgTupleStream
 
             @Override
             public Object next() {
-                return HgTupleStream.this.next().get(_fwdFE.getContainerClass());
+                return HgTupleStream.this.next().get(_fwdFE.getContainerId());
             }
         };
     }
 
     @SuppressWarnings("unchecked")
-    public static <F> HgTupleStream createJoinInput(
+    public static HgTupleStream createJoinInput(
             FieldExtractable fe,
             final HgStream<?> stream) {
         return new HgTupleStream(fe) {
@@ -115,7 +127,7 @@ public abstract class HgTupleStream
 
             @Override
             public HgTuple next() {
-                return HgTuple.singleton(this, stream.next());
+                return this.new HgTuple(stream.next());
             }
 
             @Override
@@ -123,5 +135,43 @@ public abstract class HgTupleStream
                 stream.reset();
             }
         };
+    }
+
+
+    public class HgTuple {
+        private ArrayList<Object> _entries;
+
+        public HgTuple() {
+            _entries = new ArrayList<>();
+        }
+
+        public HgTuple(Object o) {
+            this();
+            _entries.add(o);
+        }
+
+        public HgTuple(TableID<?> s1, final Object o1, TableID<?> s2, final Object o2) {
+            this();
+            insertRecord(s1, o1);
+            insertRecord(s2, o2);
+        }
+
+        private void insertRecord(TableID<?> s, Object o) {
+            // fetch the tuple index from the contained types with the given id
+            int tupleIndex = _containedTypes.get(s);
+
+            // ensure we have the capacity
+            _entries.ensureCapacity(tupleIndex+1);
+
+            _entries.set(tupleIndex, o);
+        }
+
+        public<T> T get(TableID<T> id) {
+            return (T)_entries.get(_containedTypes.get(id));
+        }
+
+        public Object extractJoinedField() {
+            return _fwdFE.extractField(this.get(_fwdFE.getContainerId()));
+        }
     }
 }

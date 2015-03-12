@@ -1,7 +1,6 @@
 package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
-import org.mercurydb.queryutils.HgTuple;
 import org.mercurydb.queryutils.HgTupleStream;
 
 import java.util.Collections;
@@ -62,7 +61,7 @@ public class JoinIndexScan extends HgPolyTupleStream {
 
     @Override
     public HgTuple next() {
-        return new HgTuple(ap, aInstances.next(), bp, currB);
+        return new HgTuple(ap.getContainerId(), aInstances.next(), bp.getContainerId(), currB);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
-import org.mercurydb.queryutils.HgTuple;
 import org.mercurydb.queryutils.HgTupleStream;
 
 
@@ -20,7 +19,7 @@ public class JoinFilter extends HgPolyTupleStream {
         super(a, b);
 
         // Perform Filter operation on A
-        if (b.getContainedTypes().retainAll(a.getContainedTypes())) {
+        if (b.getContainedIds().retainAll(a.getContainedIds())) {
             ap = a;
             bp = b;
         } else {

@@ -1,7 +1,6 @@
 package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
-import org.mercurydb.queryutils.HgTuple;
 import org.mercurydb.queryutils.HgTupleStream;
 
 /**
@@ -41,7 +40,8 @@ public class JoinNestedLoops extends HgPolyTupleStream {
 
     @Override
     public HgTuple next() {
-        return new HgTuple(a, currA, b, currB);
+        // TODO investigate possibly different constructor in HgTuple
+        return new HgTuple(a.getContainerId(), currA.get(a.getContainerId()), b.getContainerId(), b.getContainerId());
     }
 
     @Override

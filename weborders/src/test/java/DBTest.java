@@ -8,6 +8,8 @@ import weborders.source.*;
 import java.sql.Date;
 import java.util.Random;
 
+import org.mercurydb.queryutils.HgTupleStream.HgTuple;
+
 import static org.junit.Assert.fail;
 
 public class DBTest {
@@ -20,7 +22,7 @@ public class DBTest {
     static Order[] orders;
     static Odetail[] odetails;
 
-    static HgStream<HgTuple> correctResult;
+    static HgStream<HgTupleStream.HgTuple> correctResult;
     static long correctCount;
 
     @Test
@@ -44,7 +46,7 @@ public class DBTest {
                 OrderTable.on.ono(),
                 OdetailTable.stream().joinOn(OdetailTable.on.ono()));
 
-        for (HgTuple t : result) ++count;
+        for (HgTupleStream.HgTuple t : result) ++count;
 
         if (count != correctCount) fail();
     }

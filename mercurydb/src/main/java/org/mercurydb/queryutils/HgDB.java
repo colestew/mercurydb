@@ -3,6 +3,7 @@ package org.mercurydb.queryutils;
 import org.mercurydb.queryutils.joiners.JoinFilter;
 import org.mercurydb.queryutils.joiners.JoinIndexIntersection;
 import org.mercurydb.queryutils.joiners.JoinIndexScan;
+import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 
 import java.util.*;
 
@@ -10,30 +11,8 @@ import java.util.*;
  * <p>
  * This class is the main class used for queries and join operations
  * on a hgdb instance. It can be used like the following:
- * </p>
- * <p>
- * For 1 predicate -- A.X = B.Y
- * JoinDriver.join(TableA.joinX(), TableB.joinY());
- * </p>
- * For >1 predicates -- A.X=B.Y and B.C=C.D and A.Y=D.F
- * <pre>
- * JoinDriver.join(
- * new Predicate(TableA.joinX(), TableB.joinY()),
- * new Predicate(TableB.joinC(), TableC.joinD()),
- * new Predicate(TableA.joinY(), TableD.joinF()));
- * </pre>
- * </p>
- * <p>
- * All join methods return a JoinResult, which is basically
- * an Iterator<JoinRecord>. Here is an example of a join method
- * in code and how to retrieve data values from JoinRecords:
- * </p>
- * <pre>
- * for (JoinRecord jr : JoinDriver.join(TableA.joinX(), TableB.joinY())) {
- * A x = (A)jr.get(A.class); // Always returns Object, so must cast
- * B y = (B)jr.get(B.class); // Always returns Object, so must cast
- * }
- * </pre>
+ *
+ * TODO UPDATE DOCUMENTATION
  */
 public class HgDB {
     @SafeVarargs
@@ -73,8 +52,10 @@ public class HgDB {
             if (fe == usedFE) continue;
             seed = seed.filter(fe);
         }
+
         return seed;
     }
+    
 
     /**
      * Joins a set of Predicates. Creates optimal
@@ -86,6 +67,7 @@ public class HgDB {
      * @throws IllegalStateException if preds do not unify
      */
     public static HgPolyTupleStream join(JoinPredicate... preds) {
+        // TODO fix this whole thing when TableID's are implemented | can't use classes to verify unification
         if (preds.length == 1) {
             return join(preds[0].predicate, preds[0].stream1, preds[0].stream2);
         } else if (preds.length > 1) {
@@ -96,9 +78,9 @@ public class HgDB {
 
             for (int i = 1; i < preds.length; ++i) {
                 JoinPredicate p = preds[i];
-                if (result.getContainedTypes().contains(p.stream1.getContainerClass())) {
+                if (result.containsId(p.stream1.getContainerId())) {
                     p.stream1 = result.joinOn(p.stream1);
-                } else if (result.getContainedTypes().contains(p.stream2.getContainerClass())) {
+                } else if (result.containsId(p.stream2.getContainerId())) {
                     p.stream2 = result.joinOn(p.stream2);
                 } else {
                     continue;
@@ -149,8 +131,8 @@ public class HgDB {
              * Self Join
              */
             throw new UnsupportedOperationException("Self joins not currently supported :(");
-        } else if (!a.getContainedTypes().retainAll(b.getContainedTypes())
-                || !b.getContainedTypes().retainAll(a.getContainedTypes())) {
+        } else if (!a.getContainedIds().retainAll(b.getContainedIds())
+                || !b.getContainedIds().retainAll(a.getContainedIds())) {
             /*
              * Filter operation
              */
@@ -207,8 +189,8 @@ public class HgDB {
         final Map<Object, Set<Object>> aMap = new HashMap<>();
 
         // Inhale stream A into hash table
-        for (HgTuple aInstance : ap) {
-            Object key = ap.extractFieldFromTuple(aInstance);
+        for (HgTupleStream.HgTuple aInstance : ap) {
+            Object key = aInstance.extractJoinedField();
 
             Set<Object> l = aMap.get(key);
             if (l == null) {

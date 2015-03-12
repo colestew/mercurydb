@@ -1,7 +1,6 @@
 package org.mercurydb.queryutils.joiners;
 
 import org.mercurydb.queryutils.HgPolyTupleStream;
-import org.mercurydb.queryutils.HgTuple;
 import org.mercurydb.queryutils.HgTupleStream;
 
 import java.util.Collections;
@@ -14,8 +13,6 @@ import java.util.Iterator;
  */
 public class JoinIndexIntersection extends HgPolyTupleStream {
 
-    private final HgTupleStream a;
-    private final HgTupleStream b;
     private Iterator<Object> aKeys;
     private Iterator<Object> aInstances;
     private Object currA;
@@ -28,8 +25,6 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
         if (!a.isIndexed() || !b.isIndexed()) {
             throw new IllegalArgumentException("Both inputs must be indexed!");
         }
-        this.a = a;
-        this.b = b;
         setup();
     }
 
@@ -75,7 +70,7 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
 
     @Override
     public HgTuple next() {
-        return new HgTuple(a, currA, b, currB);
+        return this.new HgTuple(a.getContainerId(), currA, b.getContainerId(), currB);
     }
 
     @Override
