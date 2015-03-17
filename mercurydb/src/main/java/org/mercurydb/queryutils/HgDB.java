@@ -16,7 +16,7 @@ import java.util.*;
  */
 public class HgDB {
     @SafeVarargs
-    public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T>... extractableValues) {
+    public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T,?>... extractableValues) {
         if (extractableValues.length == 0) {
             throw new IllegalArgumentException("Must supply at least one argument to query");
         }
@@ -29,7 +29,7 @@ public class HgDB {
         FieldExtractable usedFE = null;
         for (FieldExtractableSeed<T> fe : extractableValues) {
             if (fe instanceof FieldExtractableRelation) {
-                FieldExtractableRelation<T> fer = (FieldExtractableRelation<T>) fe;
+                FieldExtractableRelation<T,?> fer = (FieldExtractableRelation<T,?>) fe;
                 if (fer.isIndexed() && fer.relation == HgRelation.EQ) {
                     Set<Object> newIndex = fe.getIndex().get(fer.value);
                     int newSmallestIndex = newIndex.size();
@@ -48,7 +48,7 @@ public class HgDB {
             seed = extractableValues[0].getDefaultStream();
         }
 
-        for (AbstractFieldExtractablePredicate<T> fe : extractableValues) {
+        for (AbstractFieldExtractablePredicate<T,?> fe : extractableValues) {
             if (fe == usedFE) continue;
             seed = seed.filter(fe);
         }
@@ -142,21 +142,18 @@ public class HgDB {
              * Both A and B indexed
              * Do index intersection A, B
              */
-            System.out.println("Performing Index Intersection.");
             return new JoinIndexIntersection(predicate);
         } else if (a.isIndexed() || b.isIndexed()) {
             /*
              * Only A indexed
              * Scan B, use A index
              */
-            System.out.println("Performing Index Scan.");
             return new JoinIndexScan(predicate);
         } else {
             /*
              * Neither is indexed
              * Do hash join
              */
-            System.out.println("Performing Hash Join.");
             return joinHash(a, b);
         }
     }
@@ -173,7 +170,6 @@ public class HgDB {
     public static HgPolyTupleStream joinHash(
             final HgTupleStream a,
             final HgTupleStream b) {
-        System.out.println("Performing Hash Join.");
 
         final HgTupleStream ap;
         final HgTupleStream bp;

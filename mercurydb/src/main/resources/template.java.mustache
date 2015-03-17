@@ -154,9 +154,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class eq {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}>
+        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.EQ, val);
+            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.EQ, val);
         }
         {{/fields}}
     }
@@ -164,9 +164,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class ne {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}>
+        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.NE, val);
+            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.NE, val);
         }
         {{/fields}}
     }
@@ -174,9 +174,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class lt {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}>
+        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.LT, val);
+            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.LT, val);
         }
         {{/fields}}
     }
@@ -184,9 +184,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class le {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}>
+        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.LE, val);
+            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.LE, val);
         }
         {{/fields}}
     }
@@ -194,9 +194,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class gt {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}>
+        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.GT, val);
+            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.GT, val);
         }
         {{/fields}}
     }
@@ -204,13 +204,21 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class ge {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}>
+        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.GE, val);
+            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.GE, val);
         }
         {{/fields}}
     }
 
+    public static class predicate {
+        {{#fields}}
+        public static final FieldExtractablePredicate<{{sourceClass}}, {{type}}>
+        {{name}}(HgPredicate<{{type}}> predicate) {
+            return new FieldExtractablePredicate<{{sourceClass}}, {{type}}>(field.{{name}}(ID), predicate);
+        }
+        {{/fields}}
+    }
 
     public static Retrieval<{{sourceClass}}> stream() {
         /*

@@ -31,6 +31,15 @@ public class DBTest {
                 .stream() // don't use index
                 .filter(OrderTable.eq.ono(1020));
 
+
+        for (Order o : HgDB.query(OrderTable.predicate.ono(new HgPredicate<Integer>() {
+            @Override
+            public boolean test(Integer value) {
+                return value <= 1021;
+            }
+        }))) {
+            System.out.println(o);
+        }
     }
 
     @Test

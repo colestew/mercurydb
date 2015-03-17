@@ -3,7 +3,7 @@ package org.mercurydb.queryutils;
 import java.util.Map;
 import java.util.Set;
 
-public class FieldExtractableRelation<T> extends AbstractFieldExtractablePredicate<T> {
+public class FieldExtractableRelation<T, F> extends AbstractFieldExtractablePredicate<T, F> {
 
     public final HgRelation relation;
 
