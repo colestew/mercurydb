@@ -3,6 +3,7 @@ package org.mercurydb.queryutils;
 import org.mercurydb.queryutils.joiners.JoinFilter;
 import org.mercurydb.queryutils.joiners.JoinIndexIntersection;
 import org.mercurydb.queryutils.joiners.JoinIndexScan;
+import org.mercurydb.queryutils.joiners.JoinNestedLoops;
 
 import java.util.*;
 
@@ -102,7 +103,7 @@ public class HgDB {
     public static HgPolyTupleStream join(
             final HgTupleStream a,
             final HgTupleStream b) {
-        return join(HgRelation.EQ, a, b);
+        return join(a, b, HgRelation.EQ);
     }
 
     /**
@@ -113,15 +114,15 @@ public class HgDB {
      * will select the correct join method based on the index status
      * of its arguments.
      *
+     * @param relation HgRelation // TODO documentation
      * @param a        HgTupleStream // TODO documentation
      * @param b        HgTupleStream // TODO documentation
-     * @param relation HgRelation // TODO documentation
      * @return The HgPolyTupleStream resulting from performing on a join on the inputs with the given relation.
      */
     public static HgPolyTupleStream join(
-            HgRelation relation,
             HgTupleStream a,
-            HgTupleStream b) {
+            HgTupleStream b,
+            HgRelation relation) {
         return join(new JoinPredicate(relation, a, b));
     }
 
@@ -129,7 +130,7 @@ public class HgDB {
         HgTupleStream a = predicate.streamA, b = predicate.streamB;
 
         if (predicate.relation != HgRelation.EQ) {
-            return joinHash(a, b);
+            return new JoinNestedLoops(predicate);
         } else if (!a.getContainedIds().retainAll(b.getContainedIds())
                 || !b.getContainedIds().retainAll(a.getContainedIds())) {
             /*

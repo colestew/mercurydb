@@ -62,7 +62,6 @@ public class DBTest {
         // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
-                HgRelation.EQ,
                 OrderTable.stream().joinOn(OrderTable.on.ono()),
                 OdetailTable.on.ono())) {
             ++count;
@@ -133,7 +132,19 @@ public class DBTest {
         for (HgTuple t : HgDB.join(a, b)) {
             ++count;
         }
-        System.out.println("alias count: " + count);
+
+        if (count != correctCount) fail();
+    }
+
+    @Test
+    public void testLT() {
+        for (HgTuple t : HgDB.join(
+                OrderTable.on.ono(),
+                OdetailTable.on.ono(),
+                HgRelation.LT)) {
+            if (t.get(OrderTable.ID).ono >= t.get(OdetailTable.ID).ono)
+                fail();
+        }
     }
 
     @BeforeClass

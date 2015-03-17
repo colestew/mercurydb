@@ -161,7 +161,56 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
-    // TODO neq, lt, leq, gt, geq
+
+    public static class ne {
+        {{#fields}}
+        public static final FieldExtractableRelation<{{sourceClass}}>
+        {{name}}({{type}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.NE, val);
+        }
+        {{/fields}}
+    }
+
+
+    public static class lt {
+        {{#fields}}
+        public static final FieldExtractableRelation<{{sourceClass}}>
+        {{name}}({{type}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.LT, val);
+        }
+        {{/fields}}
+    }
+
+
+    public static class le {
+        {{#fields}}
+        public static final FieldExtractableRelation<{{sourceClass}}>
+        {{name}}({{type}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.LE, val);
+        }
+        {{/fields}}
+    }
+
+
+    public static class gt {
+        {{#fields}}
+        public static final FieldExtractableRelation<{{sourceClass}}>
+        {{name}}({{type}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.GT, val);
+        }
+        {{/fields}}
+    }
+
+
+    public static class ge {
+        {{#fields}}
+        public static final FieldExtractableRelation<{{sourceClass}}>
+        {{name}}({{type}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.GE, val);
+        }
+        {{/fields}}
+    }
+
 
     public static Retrieval<{{sourceClass}}> stream() {
         /*
