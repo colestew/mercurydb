@@ -123,6 +123,19 @@ public class DBTest {
         if (count != correctCount) fail();
     }
 
+    @Test
+    public void testAlias() {
+        TableID<Order> oid = OrderTable.createAlias();
+        HgTupleStream a = OrderTable.on.ono(oid);
+        HgTupleStream b = OdetailTable.on.ono();
+
+        int count = 0;
+        for (HgTuple t : HgDB.join(a, b)) {
+            ++count;
+        }
+        System.out.println("alias count: " + count);
+    }
+
     @BeforeClass
     public static void setup() {
         zips = new Zipcode[]{

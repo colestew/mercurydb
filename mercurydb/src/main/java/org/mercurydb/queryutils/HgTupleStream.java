@@ -64,7 +64,7 @@ public abstract class HgTupleStream
         super(0);
         this._fwdFE = fe;
         this._containedTypes = new HashMap<>();
-        addContainedType(fe.getContainerId());
+        addContainedType(fe.getTableId());
     }
 
     private void addContainedType(TableID<?> id) {
@@ -101,7 +101,7 @@ public abstract class HgTupleStream
     }
 
     public Object extractFieldFromTuple(HgTuple t) {
-        return _fwdFE.extractField(t.get(_fwdFE.getContainerId()));
+        return _fwdFE.extractField(t.get(_fwdFE.getTableId()));
     }
 
     @Override
@@ -115,8 +115,8 @@ public abstract class HgTupleStream
     }
 
     @Override
-    public TableID<?> getContainerId() {
-        return _fwdFE.getContainerId();
+    public TableID<?> getTableId() {
+        return _fwdFE.getTableId();
     }
 
     public Iterator<Object> getObjectIterator() {
@@ -129,7 +129,7 @@ public abstract class HgTupleStream
 
             @Override
             public Object next() {
-                return HgTupleStream.this.next().get(_fwdFE.getContainerId());
+                return HgTupleStream.this.next().get(_fwdFE.getTableId());
             }
         };
     }
@@ -197,11 +197,11 @@ public abstract class HgTupleStream
         }
 
         public Object extractJoinedField() {
-            return _fwdFE.extractField(this.get(_fwdFE.getContainerId()));
+            return _fwdFE.extractField(this.get(_fwdFE.getTableId()));
         }
 
         public Object extractJoinedEntry() {
-            return get(_fwdFE.getContainerId());
+            return get(_fwdFE.getTableId());
         }
     }
 }

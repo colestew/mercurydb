@@ -33,7 +33,7 @@ public class FieldExtractableFakeIndex implements FieldExtractable {
     }
 
     @Override
-    public TableID<?> getContainerId() {
-        return _fwdFE.getContainerId();
+    public TableID<?> getTableId() {
+        return _fwdFE.getTableId();
     }
 }

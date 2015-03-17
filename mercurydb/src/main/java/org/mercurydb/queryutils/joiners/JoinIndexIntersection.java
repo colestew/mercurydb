@@ -75,9 +75,9 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
     @Override
     public HgTuple next() {
         return this.new HgTuple(
-                _predicate.streamA.getContainerId(),
+                _predicate.streamA.getTableId(),
                 currA,
-                _predicate.streamB.getContainerId(),
+                _predicate.streamB.getTableId(),
                 currB);
     }
 

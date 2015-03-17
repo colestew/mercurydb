@@ -38,9 +38,9 @@ public class JoinNestedLoops extends HgPolyTupleStream {
     public HgTuple next() {
         // TODO investigate possibly different constructor in HgTuple
         return new HgTuple(
-                _predicate.streamA.getContainerId(),
+                _predicate.streamA.getTableId(),
                 currA.extractJoinedEntry(),
-                _predicate.streamB.getContainerId(),
+                _predicate.streamB.getTableId(),
                 currB.extractJoinedEntry());
     }
 

@@ -10,6 +10,8 @@ import {{fullSourceClass}};
 public class {{sourceClass}}{{tableSuffix}} {
     public static final TableID<{{sourceClass}}> ID = TableID.<{{sourceClass}}>createName();
 
+
+
     /**
      * Create a temporary alias for this table, for joins.
      */
@@ -96,47 +98,44 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static final class field {
         {{#fields}}
-        public static final FieldExtractableSeed<{{sourceClass}}> {{name}} = new FieldExtractableSeed<{{sourceClass}}>() {
-            @Override
-            public Object extractField(Object instance) {
-                return (({{sourceClass}})instance).{{name}};
-            }
+        public static final FieldExtractableSeed<{{sourceClass}}> {{name}}(TableID<{{sourceClass}}> id) {
+            return new FieldExtractableSeed<{{sourceClass}}>(id) {
+                @Override
+                public Object extractField(Object instance) {
+                    return (({{sourceClass}})instance).{{name}};
+                }
 
-            @Override
-            public Class<?> getContainerClass() {
-                return {{sourceClass}}.class;
-            }
+                @Override
+                public Class<?> getContainerClass() {
+                    return {{sourceClass}}.class;
+                }
 
-            @Override
-            public boolean isIndexed() {
-                {{#hasIndex}}
-                return true;
-                {{/hasIndex}}
-                {{^hasIndex}}
-                return false;
-                {{/hasIndex}}
-            }
+                @Override
+                public boolean isIndexed() {
+                    {{#hasIndex}}
+                    return true;
+                    {{/hasIndex}}
+                    {{^hasIndex}}
+                    return false;
+                    {{/hasIndex}}
+                }
 
-            @Override
-            public Map<Object, Set<Object>> getIndex() {
-                {{#hasIndex}}
-                return (Map) {{name}}Index;
-                {{/hasIndex}}
-                {{^hasIndex}}
-                return null;
-                {{/hasIndex}}
-            }
+                @Override
+                public Map<Object, Set<Object>> getIndex() {
+                    {{#hasIndex}}
+                    return (Map) {{name}}Index;
+                    {{/hasIndex}}
+                    {{^hasIndex}}
+                    return null;
+                    {{/hasIndex}}
+                }
 
-            @Override
-            public TableID<{{sourceClass}}> getContainerId() {
-                return ID;
-            }
-
-            @Override
-            public HgStream<{{sourceClass}}> getDefaultStream() {
-                return stream();
-            }
-        };
+                @Override
+                public HgStream<{{sourceClass}}> getDefaultStream() {
+                    return stream();
+                }
+            };
+        }
 
         {{/fields}}
     }
@@ -144,7 +143,11 @@ public class {{sourceClass}}{{tableSuffix}} {
     public static class on {
         {{#fields}}
         public static final HgTupleStream {{name}}() {
-            return stream().joinOn(field.{{name}});
+            return stream().joinOn(field.{{name}}(ID));
+        }
+
+        public static final HgTupleStream {{name}}(TableID<{{sourceClass}}> aliasId) {
+            return stream().joinOn(field.{{name}}(aliasId));
         }
         {{/fields}}
     }
@@ -153,7 +156,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static final FieldExtractableRelation<{{sourceClass}}>
         {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}, HgRelation.EQ, val);
+            return new FieldExtractableRelation<{{sourceClass}}>(field.{{name}}(ID), HgRelation.EQ, val);
         }
         {{/fields}}
     }

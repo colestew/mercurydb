@@ -7,10 +7,11 @@ import java.util.Set;
  *
  * @param <T> // TODO seriously this is confusing. what is T?
  */
-public abstract class AbstractFieldExtractablePredicate<T> implements FieldExtractableSeed<T>, HgPredicate<T>  {
+public abstract class AbstractFieldExtractablePredicate<T> extends FieldExtractableSeed<T> implements HgPredicate<T>  {
     protected final FieldExtractableSeed<T> _fwdFE;
 
     public AbstractFieldExtractablePredicate(FieldExtractableSeed<T> fe) {
+        super(fe.getTableId());
         this._fwdFE = fe;
     }
 
@@ -35,9 +36,8 @@ public abstract class AbstractFieldExtractablePredicate<T> implements FieldExtra
     }
 
     @Override
-    // TODO should this be TableID<?> or something else?
-    public TableID<?> getContainerId() {
-        return _fwdFE.getContainerId();
+    public TableID<T> getTableId() {
+        return _fwdFE.getTableId();
     }
 
     public HgStream<T> getDefaultStream() {

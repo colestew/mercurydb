@@ -75,9 +75,9 @@ public class HgDB {
 
             for (int i = 1; i < preds.length; ++i) {
                 JoinPredicate p = preds[i];
-                if (result.containsId(p.streamA.getContainerId())) {
+                if (result.containsId(p.streamA.getTableId())) {
                     preds[i] = new JoinPredicate(p.relation, result.joinOn(p.streamA), p.streamB);
-                } else if (result.containsId(p.streamB.getContainerId())) {
+                } else if (result.containsId(p.streamB.getTableId())) {
                     preds[i] = new JoinPredicate(p.relation, p.streamA, result.joinOn(p.streamB));
                 } else {
                     continue;

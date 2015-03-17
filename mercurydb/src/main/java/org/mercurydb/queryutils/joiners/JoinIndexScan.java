@@ -67,7 +67,7 @@ public class JoinIndexScan extends HgPolyTupleStream {
 
     @Override
     public HgTuple next() {
-        return new HgTuple(ap.getContainerId(), aInstances.next(), bp.getContainerId(), currB);
+        return new HgTuple(ap.getTableId(), aInstances.next(), bp.getTableId(), currB);
     }
 
     @Override
