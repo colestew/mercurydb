@@ -10,19 +10,6 @@ public abstract class HgTupleStream
     protected final Map<TableID<?>, Integer> _containedTypes;
     private int tupleIndexCounter = 0;
 
-//    public HgTupleStream as(TableID<?> id) {
-//        if (1 == _containedTypes.size()) {
-//            // complex surgery to replace the existing id
-//            TableID<?> x = _containedTypes.keySet().iterator().next();
-//            Integer i = _containedTypes.get(x);
-//            _containedTypes.remove(x);
-//            _containedTypes.put(id, i);
-//            return this;
-//        } else {
-//            throw new IllegalStateException("Can't create an alias for an HgTupleStream of cardinality > 1.");
-//        }
-//    }
-
     public HgTupleStream(HgTupleStream o) {
         this(o._fwdFE);
     }
@@ -30,12 +17,6 @@ public abstract class HgTupleStream
     public HgTupleStream() {
         super(0);
         this._containedTypes = new HashMap<>();
-    }
-
-    @Override
-    public HgTupleStream joinOn(FieldExtractable fe) {
-        this._fwdFE = fe;
-        return this;
     }
 
     public HgTupleStream(Collection<TableID<?>> aids, Collection<TableID<?>> bids) {
@@ -58,6 +39,12 @@ public abstract class HgTupleStream
         for (TableID<?> id: containedTypes) {
             addContainedType(id);
         }
+    }
+
+    @Override
+    public HgTupleStream joinOn(FieldExtractable fe) {
+        this._fwdFE = fe;
+        return this;
     }
 
     public HgTupleStream(FieldExtractable fe) {
@@ -170,10 +157,30 @@ public abstract class HgTupleStream
             _entries.add(o);
         }
 
-        public HgTuple(TableID<?> s1, final Object o1, TableID<?> s2, final Object o2) {
+        public HgTuple(TableID<?> aid, Object a, TableID<?> bid, Object b) {
             this();
-            insertRecord(s1, o1);
-            insertRecord(s2, o2);
+            insertRecord(aid, a);
+            insertRecord(bid, b);
+        }
+
+        public HgTuple(HgTuple a, HgTuple b) {
+            this();
+
+            for (TableID<?> id : a.getStream()._containedTypes.keySet()) {
+                insertRecord(id, a.get(id));
+            }
+
+            for (TableID<?> id : b.getStream()._containedTypes.keySet()) {
+                int index = _containedTypes.get(id);
+                if (index < _entries.size() && _entries.get(index) != null) {
+                    throw new IllegalArgumentException("Cannot merge tuples which contain the same ids");
+                }
+                insertRecord(id, b.get(id));
+            }
+        }
+
+        public HgTupleStream getStream() {
+            return HgTupleStream.this;
         }
 
         private void insertRecord(TableID<?> s, Object o) {

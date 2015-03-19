@@ -21,17 +21,17 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * @param s2 The second stream to join on.
      */
     public JoinPredicate(HgTupleStream s1, HgTupleStream s2) {
-        this(HgRelation.EQ, s1, s2);
+        this(s1, s2, HgRelation.EQ);
     }
 
     /**
      * Construct a JoinPredicate from two HgMonoStreams with a memo about what the predicate represents.
      *
-     * @param relation  A short memo about the relation represented by this JoinPredicate.
      * @param s1        The first stream to join on.
      * @param s2        The second stream to join on.
+     * @param relation  A short memo about the relation represented by this JoinPredicate.
      */
-    public JoinPredicate(HgRelation relation, HgTupleStream s1, HgTupleStream s2) {
+    public JoinPredicate(HgTupleStream s1, HgTupleStream s2, HgRelation relation) {
         this.relation = relation;
         this.streamA = s1;
         this.streamB = s2;

@@ -21,8 +21,6 @@ public class HgDB {
             throw new IllegalArgumentException("Must supply at least one argument to query");
         }
 
-        HgStream<T> seed = extractableValues[0].getDefaultStream();
-
         // find smallest applicable index
         int smallestIndex = Integer.MAX_VALUE;
         Set<Object> index = null;
@@ -41,6 +39,8 @@ public class HgDB {
                 }
             }
         }
+
+        HgStream<T> seed;
 
         if (index != null) {
             seed = new Retrieval(index, index.size());
@@ -67,7 +67,6 @@ public class HgDB {
      * @throws IllegalStateException if preds do not unify
      */
     public static HgPolyTupleStream join(JoinPredicate... preds) {
-        // TODO fix this whole thing when TableID's are implemented | can't use classes to verify unification
         if (preds.length == 1) {
             return join(preds[0]);
         } else if (preds.length > 1) {
@@ -77,9 +76,9 @@ public class HgDB {
             for (int i = 1; i < preds.length; ++i) {
                 JoinPredicate p = preds[i];
                 if (result.containsId(p.streamA.getTableId())) {
-                    preds[i] = new JoinPredicate(p.relation, result.joinOn(p.streamA), p.streamB);
+                    preds[i] = new JoinPredicate(result.joinOn(p.streamA), p.streamB, p.relation);
                 } else if (result.containsId(p.streamB.getTableId())) {
-                    preds[i] = new JoinPredicate(p.relation, p.streamA, result.joinOn(p.streamB));
+                    preds[i] = new JoinPredicate(p.streamA, result.joinOn(p.streamB), p.relation);
                 } else {
                     continue;
                 }
@@ -123,7 +122,7 @@ public class HgDB {
             HgTupleStream a,
             HgTupleStream b,
             HgRelation relation) {
-        return join(new JoinPredicate(relation, a, b));
+        return join(new JoinPredicate(a, b, relation));
     }
 
     public static HgPolyTupleStream join(JoinPredicate predicate) {
@@ -200,6 +199,6 @@ public class HgDB {
         FieldExtractableFakeIndex fei = new FieldExtractableFakeIndex(ap.getFieldExtractor(), aMap);
         ap.setJoinKey(fei);
 
-        return new JoinIndexScan(new JoinPredicate(HgRelation.EQ, ap, bp));
+        return new JoinIndexScan(new JoinPredicate(ap, bp));
     }
 }

@@ -140,6 +140,36 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
+    public static final FieldExtractableSeed<{{sourceClass}}> self(TableID<{{sourceClass}}> id) {
+        return new FieldExtractableSeed<{{sourceClass}}>(id) {
+            @Override
+            public Object extractField(Object instance) {
+                return instance;
+            }
+
+            @Override
+            public Class<?> getContainerClass() {
+                return {{sourceClass}}.class;
+            }
+
+            @Override
+            public boolean isIndexed() {
+                return false;
+            }
+
+            @Override
+            public Map<Object, Set<Object>> getIndex() {
+                return null;
+            }
+
+            @Override
+            public HgStream<{{sourceClass}}> getDefaultStream() {
+                return stream();
+            }
+        };
+    }
+
+
     public static class on {
         {{#fields}}
         public static final HgTupleStream {{name}}() {
@@ -211,7 +241,12 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
-    public static class predicate {
+    public static final FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
+    predicate (HgPredicate<{{sourceClass}}> predicate) {
+        return new FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>(self(ID), predicate);
+    }
+
+    public static class predicates {
         {{#fields}}
         public static final FieldExtractablePredicate<{{sourceClass}}, {{type}}>
         {{name}}(HgPredicate<{{type}}> predicate) {

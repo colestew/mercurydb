@@ -27,19 +27,32 @@ public class DBTest {
 
     @Test
     public void testFilter1() {
-        OrderTable
+        boolean hasData = false;
+        for (Order o: OrderTable
                 .stream() // don't use index
-                .filter(OrderTable.eq.ono(1020));
-
-
-        for (Order o : HgDB.query(OrderTable.predicate.ono(new HgPredicate<Integer>() {
-            @Override
-            public boolean test(Integer value) {
-                return value <= 1021;
-            }
-        }))) {
-            System.out.println(o);
+                .filter(OrderTable.eq.ono(1020))) {
+            hasData = true;
+            if (o.ono != 1020) fail();
         }
+
+        if (!hasData) fail();
+    }
+
+    @Test
+    public void testSelfPredicate() {
+        boolean hasData = false;
+        for (Order o: HgDB.query(
+                OrderTable.predicate(new HgPredicate<Order>() {
+                    @Override
+                    public boolean test(Order value) {
+                        return value.ono == 1020;
+                    }
+                }))) {
+            if (o.ono != 1020) fail();
+            hasData = true;
+        }
+
+        if (!hasData) fail();
     }
 
     @Test
@@ -146,13 +159,28 @@ public class DBTest {
     }
 
     @Test
-    public void testLT() {
+    public void testJoinLt() {
         for (HgTuple t : HgDB.join(
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
                 HgRelation.LT)) {
             if (t.get(OrderTable.ID).ono >= t.get(OdetailTable.ID).ono)
                 fail();
+        }
+    }
+
+    @Test
+    public void testMultiJoin() {
+        HgTupleStream result = HgDB.join(
+                new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
+                new JoinPredicate(OdetailTable.on.qty(), ZipcodeTable.on.zip(), HgRelation.LT));
+
+        for (HgTuple t : result) {
+            Order o = t.get(OrderTable.ID);
+            Odetail od = t.get(OdetailTable.ID);
+            Zipcode z = t.get(ZipcodeTable.ID);
+
+            if (o.ono != od.ono || od.qty >= z.zip) fail();
         }
     }
 
