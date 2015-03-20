@@ -91,7 +91,7 @@ public class DBTest {
 
         for (HgTuple t : stream) {
             hasData = true;
-            if (!(t.get(OdetailTable.ID).pnos.contains(t.get(PartTable.ID).pno))) fail();
+            if (!(t.get(OdetailTable.ID).pnos.contains(t.get(PartTable.ID)))) fail();
         }
 
         if (!hasData) fail();
