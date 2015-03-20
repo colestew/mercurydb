@@ -94,7 +94,6 @@ public class DBTest {
             if (!(t.get(OdetailTable.ID).pnos.contains(t.get(PartTable.ID)))) fail();
         }
 
-        if (!hasData) fail();
     }
 
     @Test
@@ -189,11 +188,13 @@ public class DBTest {
     @Test
     public void testAlias() {
         TableID<Order> oid = OrderTable.createAlias();
+        TableID<Odetail> odid = OdetailTable.createAlias();
         HgTupleStream a = OrderTable.on.ono(oid);
-        HgTupleStream b = OdetailTable.on.ono();
+        HgTupleStream b = OdetailTable.on.ono(odid);
 
         int count = 0;
         for (HgTuple t : HgDB.join(a, b)) {
+            if (t.get(oid).ono != t.get(odid).ono) fail();
             ++count;
         }
 
@@ -212,18 +213,58 @@ public class DBTest {
     }
 
     @Test
-    public void testMultiJoin() {
+    public void testMultiJoinReset() {
         HgTupleStream result = HgDB.join(
                 new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
                 new JoinPredicate(OdetailTable.on.qty(), ZipcodeTable.on.zip(), HgRelation.LT));
 
+        boolean hasData = false;
+
         for (HgTuple t : result) {
+            hasData = true;
             Order o = t.get(OrderTable.ID);
             Odetail od = t.get(OdetailTable.ID);
             Zipcode z = t.get(ZipcodeTable.ID);
 
             if (o.ono != od.ono || od.qty >= z.zip) fail();
         }
+
+        if (!hasData) fail();
+
+        result.reset();
+        hasData = false;
+
+        for (HgTuple t : result) {
+            hasData = true;
+            Order o = t.get(OrderTable.ID);
+            Odetail od = t.get(OdetailTable.ID);
+            Zipcode z = t.get(ZipcodeTable.ID);
+
+            if (o.ono != od.ono || od.qty >= z.zip) fail();
+        }
+
+        if (!hasData) fail();
+    }
+
+    @Test
+    public void testMultiJoin() {
+        HgTupleStream result = HgDB.join(
+                new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
+                new JoinPredicate(OdetailTable.on.qty(), ZipcodeTable.on.zip(), HgRelation.LT));
+
+        boolean hasData = false;
+
+        for (HgTuple t : result) {
+            hasData = true;
+            Order o = t.get(OrderTable.ID);
+            Odetail od = t.get(OdetailTable.ID);
+            Zipcode z = t.get(ZipcodeTable.ID);
+
+            if (o.ono != od.ono || od.qty >= z.zip) fail();
+        }
+
+        if (!hasData) fail();
+
     }
 
     @BeforeClass
