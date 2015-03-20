@@ -12,7 +12,7 @@ package org.mercurydb.queryutils;
  */
 public class JoinPredicate implements Comparable<JoinPredicate> {
     public final HgTupleStream streamA, streamB;
-    public final HgRelation relation;
+    public final HgBiPredicate relation;
 
     /**
      * Construct a JoinPredicate from two HgMonoStreams.
@@ -31,7 +31,7 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      * @param s2        The second stream to join on.
      * @param relation  A short memo about the relation represented by this JoinPredicate.
      */
-    public JoinPredicate(HgTupleStream s1, HgTupleStream s2, HgRelation relation) {
+    public JoinPredicate(HgTupleStream s1, HgTupleStream s2, HgBiPredicate<?,?> relation) {
         this.relation = relation;
         this.streamA = s1;
         this.streamB = s2;

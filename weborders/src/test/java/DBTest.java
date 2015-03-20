@@ -56,6 +56,29 @@ public class DBTest {
     }
 
     @Test
+    public void testJoinPredicate() {
+        boolean hasData = false;
+        HgTupleStream stream = HgDB.join(
+                OrderTable.on.ono(),
+                OdetailTable.on.ono(),
+                new HgBiPredicate<Integer, Integer>() {
+                    @Override
+                    public boolean test(Integer o1, Integer o2) {
+                        return o1 == 1020 && o2 == 1020;
+                    }
+                }
+        );
+
+        for (HgTuple t : stream) {
+            hasData = true;
+            if (t.get(OrderTable.ID).ono != t.get(OdetailTable.ID).ono &&
+                    t.get(OrderTable.ID).ono != 1020) fail();
+        }
+
+        if (!hasData) fail();
+    }
+
+    @Test
     public void testHashJoin() {
         // Hash Join
         long count = 0;

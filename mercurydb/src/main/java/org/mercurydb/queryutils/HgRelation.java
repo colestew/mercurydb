@@ -1,38 +1,69 @@
 package org.mercurydb.queryutils;
 
-public enum HgRelation {
-    EQ,
-    NE,
-    LT,
-    LE,
-    GT,
-    GE;
+public class HgRelation {
 
-    public<T> boolean compare(T o1, T o2) {
-        switch (this) {
-            case EQ:
-                return o1.equals(o2);
-            case NE:
-                return !o1.equals(o2);
+    public static final HgBiPredicate<Object, Object> EQ = new HgBiPredicate<Object, Object>() {
+
+        @Override
+        public boolean test(Object o1, Object o2) {
+            return o1.equals(o2);
         }
+    };
 
-        if (o1 instanceof Comparable) {
-            int result = ((Comparable) o1).compareTo(o2);
-            switch (this) {
-                case LT:
-                    return result < 0;
-                case LE:
-                    return result <= 0;
-                case GT:
-                    return result > 0;
-                case GE:
-                    return result >= 0;
+    public static final HgBiPredicate<Object, Object> NE = new HgBiPredicate<Object, Object>() {
+
+        @Override
+        public boolean test(Object o1, Object o2) {
+            return !o1.equals(o2);
+        }
+    };
+
+    public static final HgBiPredicate<Object, Object> LT = new HgBiPredicate<Object, Object>() {
+
+        @Override
+        public boolean test(Object o1, Object o2) {
+            if (o1 instanceof Comparable) {
+                return ((Comparable)o1).compareTo(o2) < 0;
             }
-        } else {
-            throw new IllegalArgumentException("Arguments must implement the Comparable interface to use" +
-                    "<, <=, >, and >= relations.");
-        }
 
-        return false;
-    }
+            throw new IllegalArgumentException("Arguments must implement the Comparable interface to use inequality relations");
+        }
+    };
+
+    public static final HgBiPredicate<Object, Object> LE = new HgBiPredicate<Object, Object>() {
+
+        @Override
+        public boolean test(Object o1, Object o2) {
+            if (o1 instanceof Comparable) {
+                return ((Comparable)o1).compareTo(o2) <= 0;
+            }
+
+            throw new IllegalArgumentException("Arguments must implement the Comparable interface to use inequality relations");
+        }
+    };
+
+
+    public static final HgBiPredicate<Object, Object> GT = new HgBiPredicate<Object, Object>() {
+
+        @Override
+        public boolean test(Object o1, Object o2) {
+            if (o1 instanceof Comparable) {
+                return ((Comparable)o1).compareTo(o2) > 0;
+            }
+
+            throw new IllegalArgumentException("Arguments must implement the Comparable interface to use inequality relations");
+        }
+    };
+
+    public static final HgBiPredicate<Object, Object> GE = new HgBiPredicate<Object, Object>() {
+
+        @Override
+        public boolean test(Object o1, Object o2) {
+            if (o1 instanceof Comparable) {
+                return ((Comparable)o1).compareTo(o2) >= 0;
+            }
+
+            throw new IllegalArgumentException("Arguments must implement the Comparable interface to use inequality relations");
+        }
+    };
 }

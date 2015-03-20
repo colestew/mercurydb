@@ -121,7 +121,7 @@ public class HgDB {
     public static HgPolyTupleStream join(
             HgTupleStream a,
             HgTupleStream b,
-            HgRelation relation) {
+            HgBiPredicate<?,?> relation) {
         return join(new JoinPredicate(a, b, relation));
     }
 

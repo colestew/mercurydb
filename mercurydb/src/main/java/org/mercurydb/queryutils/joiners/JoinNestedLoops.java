@@ -18,7 +18,7 @@ public class JoinNestedLoops extends HgPolyTupleStream {
     public boolean hasNext() {
         while (_predicate.streamB.hasNext() && currA != null) {
             currB = _predicate.streamB.next();
-            if (_predicate.relation.compare(
+            if (_predicate.relation.test(
                     _predicate.streamA.extractFieldFromTuple(currA),
                     _predicate.streamB.extractFieldFromTuple(currB))) {
                 return true;

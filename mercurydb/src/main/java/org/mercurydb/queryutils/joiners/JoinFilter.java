@@ -38,7 +38,7 @@ public class JoinFilter extends HgPolyTupleStream {
 
             // TODO why does having these be equal mean hasNext() is true?
             // TODO also if this logic is sound, reduce it into a single expression as IntelliJ recommends
-            if (_predicate.relation.compare(jkv1o, jkv2o)) {
+            if (_predicate.relation.test(jkv1o, jkv2o)) {
                 return true;
             } else {
                 return hasNext();
