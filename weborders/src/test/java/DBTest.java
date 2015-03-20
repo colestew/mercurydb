@@ -90,8 +90,11 @@ public class DBTest {
         );
 
         for (HgTuple t : stream) {
-            System.out.println(t.get(OdetailTable.ID) + " | " + t.get(PartTable.ID));
+            hasData = true;
+            if (!(t.get(OdetailTable.ID).pnos.contains(t.get(PartTable.ID).pno))) fail();
         }
+
+        if (!hasData) fail();
     }
 
     @Test
