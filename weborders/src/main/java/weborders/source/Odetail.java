@@ -6,13 +6,16 @@ package weborders.source;
 
 import org.mercurydb.HgIndex;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author dsb
  */
 public class Odetail extends Common {
     @HgIndex
     public int ono;
-    public Part pno;
+    public List<Part> pnos = new ArrayList<>();
     public int qty;
 
     private Odetail() {
@@ -20,11 +23,11 @@ public class Odetail extends Common {
 
     public Odetail(Order o, Part p, int q) {
         ono = o.ono;
-        pno = p;
+        pnos.add(p);
         qty = q;
     }
 
     public String toString() {
-        return print("" + ono, "" + pno.pno, "" + qty);
+        return print("" + ono, "" + pnos.get(0).pno, "" + qty);
     }
 }

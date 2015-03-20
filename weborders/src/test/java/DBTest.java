@@ -58,6 +58,7 @@ public class DBTest {
     @Test
     public void testJoinPredicate() {
         boolean hasData = false;
+
         HgTupleStream stream = HgDB.join(
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
@@ -76,6 +77,21 @@ public class DBTest {
         }
 
         if (!hasData) fail();
+    }
+
+    @Test
+    public void testJoinCollection() {
+        boolean hasData = false;
+
+        HgTupleStream stream = HgDB.join(
+                PartTable.stream().joinOn(PartTable.self(PartTable.ID)),
+                OdetailTable.on.pnos(),
+                HgRelation.IN
+        );
+
+        for (HgTuple t : stream) {
+            System.out.println(t.get(OdetailTable.ID) + " | " + t.get(PartTable.ID));
+        }
     }
 
     @Test

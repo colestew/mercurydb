@@ -147,15 +147,15 @@ public class MercuryBootstrap {
             }
         }
 
-        if (!classes.isEmpty()) {
-            // Generate Tables.java
-            try {
-                TableEnumGenerator teGen = new TableEnumGenerator(classes);
-                teGen.extract(basePath + "/Tables.java", _outPackage);
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-            }
-        }
+//        if (!classes.isEmpty()) {
+//            // Generate Tables.java
+//            try {
+//                TableEnumGenerator teGen = new TableEnumGenerator(classes);
+//                teGen.extract(basePath + "/Tables.java", _outPackage);
+//            } catch (IOException e) {
+//                System.err.println(e.getMessage());
+//            }
+//        }
     }
 
 
