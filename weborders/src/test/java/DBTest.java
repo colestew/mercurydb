@@ -6,7 +6,9 @@ import weborders.db.*;
 import weborders.source.*;
 
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 
@@ -40,7 +42,13 @@ public class DBTest {
 
     @Test
     public void testFilterOr() {
-        // unfinished
+        Set<Integer> seen = new HashSet<>();
+        for (Order o : HgDB.query(OrderTable.eq.ono(1020))
+                .concat(HgDB.query(OrderTable.eq.ono(1021)))) {
+            seen.add(o.ono);
+        }
+
+        if (seen.size() != 2 || !seen.contains(1020) || !seen.contains(1021)) fail();
     }
 
     @Test
