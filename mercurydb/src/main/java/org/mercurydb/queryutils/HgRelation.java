@@ -1,18 +1,39 @@
 package org.mercurydb.queryutils;
 
-import java.util.Collection;
+import com.google.common.collect.Iterables;
 
-public class HgRelation {
+import java.util.*;
 
-    public static final HgBiPredicate<?, ?> EQ = new HgBiPredicate<Object, Object>() {
+public abstract class HgRelation implements HgBiPredicate<Object, Object> {
+    abstract public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value);
+
+    public static final HgRelation EQ = new HgRelation() {
 
         @Override
         public boolean test(Object o1, Object o2) {
             return o1.equals(o2);
         }
+
+        @Override
+        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+            return index.get(value);
+        }
     };
 
-    public static final HgBiPredicate<?, ?> NE = new HgBiPredicate<Object, Object>() {
+    public static final HgRelation NE = new HgRelation() {
+
+        @Override
+        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+            Collection<Collection<Object>> iterables = new ArrayList<>(index.keySet().size()-1);
+
+            for (Object key : index.keySet()) {
+                if (!key.equals(value)) {
+                    iterables.add(index.get(key));
+                }
+            }
+
+            return Iterables.concat(iterables);
+        }
 
         @Override
         public boolean test(Object o1, Object o2) {
@@ -20,7 +41,17 @@ public class HgRelation {
         }
     };
 
-    public static final HgBiPredicate<?, ?> LT = new HgBiPredicate<Object, Object>() {
+    public static final HgRelation LT = new HgRelation() {
+
+        @Override
+        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+            if (index instanceof TreeMap) {
+                TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
+                return Iterables.concat(tIndex.headMap(value, false).values());
+            }
+
+            throw new IllegalArgumentException("index must be ordered to use inequality relations!");
+        }
 
         @Override
         public boolean test(Object o1, Object o2) {
@@ -32,7 +63,18 @@ public class HgRelation {
         }
     };
 
-    public static final HgBiPredicate<Object, Object> LE = new HgBiPredicate<Object, Object>() {
+
+    public static final HgRelation LE = new HgRelation() {
+
+        @Override
+        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+            if (index instanceof TreeMap) {
+                TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
+                return Iterables.concat(tIndex.headMap(value, true).values());
+            }
+
+            throw new IllegalArgumentException("index must be ordered to use inequality relations!");
+        }
 
         @Override
         public boolean test(Object o1, Object o2) {
@@ -44,8 +86,17 @@ public class HgRelation {
         }
     };
 
+    public static final HgRelation GT = new HgRelation() {
 
-    public static final HgBiPredicate<?, ?> GT = new HgBiPredicate<Object, Object>() {
+        @Override
+        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+            if (index instanceof TreeMap) {
+                TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
+                return Iterables.concat(tIndex.tailMap(value, false).values());
+            }
+
+            throw new IllegalArgumentException("index must be ordered to use inequality relations!");
+        }
 
         @Override
         public boolean test(Object o1, Object o2) {
@@ -57,7 +108,17 @@ public class HgRelation {
         }
     };
 
-    public static final HgBiPredicate<?, ?> GE = new HgBiPredicate<Object, Object>() {
+    public static final HgRelation GE = new HgRelation() {
+
+        @Override
+        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+            if (index instanceof TreeMap) {
+                TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
+                return Iterables.concat(tIndex.headMap(value, true).values());
+            }
+
+            throw new IllegalArgumentException("index must be ordered to use inequality relations!");
+        }
 
         @Override
         public boolean test(Object o1, Object o2) {
@@ -68,6 +129,8 @@ public class HgRelation {
             throw new IllegalArgumentException("Arguments must implement the Comparable interface to use inequality relations");
         }
     };
+
+
 
     // TODO figure out if this should be templated as <?,? extends Collection<?>> instead
     public static final HgBiPredicate<?, ?> IN = new HgBiPredicate<Object, Object>() {
@@ -83,4 +146,16 @@ public class HgRelation {
             throw new IllegalArgumentException("At least one argument must be a Collection!");
         }
     };
+
+    public static final boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
+        if (pred == EQ) {
+            return true;
+        } else if (index instanceof TreeMap<?,?> &&
+                pred == LT || pred == LE || pred == GT || pred == GE) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

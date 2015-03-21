@@ -6,6 +6,7 @@ import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -55,12 +56,7 @@ public class ClassToTableExtractor {
         for (Field f : c.getFields()) {
             // Ignore fields belonging to superclasses
             if (!f.getDeclaringClass().equals(c)) continue;
-
-            String type = f.getType().getName();
-            String fieldName = f.getName();
-            boolean hasIndex = hasIndexAnnotation(f);
-            boolean isFinal = Modifier.isFinal(f.getModifiers());
-            fields.add(new FieldData(type, fieldName, hasIndex, isFinal));
+            fields.add(new FieldData(f));
         }
     }
 
@@ -115,47 +111,53 @@ public class ClassToTableExtractor {
 
     @SuppressWarnings("unused")
     private static class FieldData implements Comparable<FieldData> {
-        String _type;
+        Class<?> _type;
         String name;
         boolean hasIndex;
+        boolean isOrdered;
         boolean isFinal;
 
-        FieldData(String type, String fieldName, boolean hasIndex, boolean isFinal) {
-            this._type = type;
-            this.name = fieldName;
-            this.hasIndex = hasIndex;
-            this.isFinal = isFinal;
+        FieldData(Field f) {
+            _type = f.getType();
+            name = f.getName();
+
+            // fetch index annotation
+            HgIndex indexAnnotation = getIndexAnnotation(f);
+            if (indexAnnotation != null) {
+                hasIndex = true;
+                isOrdered = indexAnnotation.ordered() && Comparable.class.isAssignableFrom(classType());
+            }
+
+            hasIndex = indexAnnotation != null;
+            isFinal = Modifier.isFinal(f.getModifiers());
         }
 
-        FieldData(String type, String fieldName, boolean hasIndex) {
-            this(type, fieldName, hasIndex, false);
-        }
-
-        FieldData(String type, String fieldName) {
-            this(type, fieldName, false);
-        }
-
-        String type() {
-            switch (_type) {
+        Class<?> classType() {
+            switch (_type.getName()) {
                 case "boolean":
-                    return "Boolean";
+                    return Boolean.class;
                 case "byte":
-                    return "Byte";
+                    return Byte.class;
                 case "char":
-                    return "Character";
+                    return Character.class;
                 case "short":
-                    return "Short";
+                    return Short.class;
                 case "int":
-                    return "Integer";
+                    return Integer.class;
                 case "long":
-                    return "Long";
+                    return Long.class;
                 case "float":
-                    return "Float";
+                    return Float.class;
                 case "double":
-                    return "Double";
+                    return Double.class;
                 default:
                     return _type;
             }
+        }
+
+
+        String type() {
+            return classType().getName();
         }
 
         String CCname() {
@@ -194,7 +196,7 @@ public class ClassToTableExtractor {
         execute.flush();
     }
 
-    private boolean hasIndexAnnotation(Field f) {
-        return f.getAnnotation(org.mercurydb.HgIndex.class) != null;
+    private static HgIndex getIndexAnnotation(Field f) {
+        return f.getAnnotation(org.mercurydb.HgIndex.class);
     }
 }

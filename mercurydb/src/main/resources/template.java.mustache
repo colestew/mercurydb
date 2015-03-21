@@ -25,7 +25,12 @@ public class {{sourceClass}}{{tableSuffix}} {
     // Maps for indexed fields
     {{#fields}}
     {{#hasIndex}}
+    {{#isOrdered}}
+    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<>();
+    {{/isOrdered}}
+    {{^isOrdered}}
     private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<>();
+    {{/isOrdered}}
 
     {{/hasIndex}}
     {{/fields}}
@@ -76,7 +81,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     // Set methods - make sure you use these on indexed fields for consistency!
     {{#fields}}
     {{^isFinal}}
-    public static void set{{CCname}}({{sourceClass}} instance, {{_type}} val) {
+    public static void set{{CCname}}({{sourceClass}} instance, {{type}} val) {
         {{#hasIndex}}
         {{name}}Index.get(instance.{{name}}).remove(instance);
         instance.{{name}} = val;

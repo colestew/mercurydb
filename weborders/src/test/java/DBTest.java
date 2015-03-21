@@ -9,6 +9,7 @@ import java.sql.Date;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 
@@ -241,7 +242,7 @@ public class DBTest {
     }
 
     @Test
-    public void testAlias() {
+    public void testSelfJoin() {
         TableID<Order> oid = OrderTable.createAlias();
         TableID<Odetail> odid = OdetailTable.createAlias();
         HgTupleStream a = OrderTable.on.ono(oid);
@@ -254,6 +255,15 @@ public class DBTest {
         }
 
         if (count != correctCount) fail();
+    }
+
+    @Test
+    public void testSelfJoin2() {
+        TableID<Part> partAlias = PartTable.createAlias();
+
+        for (HgTuple t : HgDB.join(PartTable.on.price(), PartTable.on.price(partAlias), HgRelation.LT)) {
+            if (t.get(PartTable.ID).price >= t.get(partAlias).price) fail();
+        }
     }
 
     @Test

@@ -4,8 +4,7 @@ import org.mercurydb.queryutils.HgPolyTupleStream;
 import org.mercurydb.queryutils.HgRelation;
 import org.mercurydb.queryutils.JoinPredicate;
 
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.*;
 
 /**
  * Joins two JoinStreams. Both of which must be
@@ -14,17 +13,24 @@ import java.util.Iterator;
  */
 public class JoinIndexIntersection extends HgPolyTupleStream {
 
-    private Iterator<Object> aKeys;
+    private Iterator<Object> bKeys;
     private Iterator<Object> aInstances;
     private Object currA;
     private Iterator<Object> bInstances;
     private Object currB;
-    private Iterable<Object> bSeed;
+    private Iterable<Object> aSeed;
+
+    private HgRelation relation;
 
     public JoinIndexIntersection(JoinPredicate pred) {
         super(pred);
-        if (!pred.relation.equals(HgRelation.EQ)) {
-            throw new IllegalArgumentException("Relations other than == are not supported for indices");
+
+        System.out.println("Performing Index Intersection.");
+
+        if (pred.relation instanceof HgRelation) {
+            relation = (HgRelation)pred.relation;
+        } else {
+            throw new IllegalArgumentException("Relation must be an HgRelation to use index!");
         }
         if (!pred.streamA.isIndexed() || !pred.streamB.isIndexed()) {
             throw new IllegalArgumentException("Both inputs must be indexed!");
@@ -33,42 +39,43 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
     }
 
     private void setup() {
-        aKeys = _predicate.streamA.getIndex().keySet().iterator();
+        bKeys = _predicate.streamB.getIndex().keySet().iterator();
         currA = null;
         currB = null;
-        bSeed = null;
+        aSeed = null;
         aInstances = Collections.emptyIterator();
         bInstances = Collections.emptyIterator();
     }
 
-
     @Override
     public boolean hasNext() {
         // Note: this was difficult for Cole's feeble mind to think about
-        // TODO: comment this sorcery
-        if (bInstances.hasNext()) {
-            currB = bInstances.next();
-            return true;
-        } else if (aInstances.hasNext()) {
+        if (aInstances.hasNext()) {
             currA = aInstances.next();
-            bInstances = bSeed.iterator();
+            return true;
+        } else if (bInstances.hasNext()) {
+            currB = bInstances.next();
+            aInstances = aSeed.iterator();
             return hasNext();
         }
 
-        // While there are more keys in a
-        while (aKeys.hasNext()) {
+        // While there are more keys in b
+        while (bKeys.hasNext()) {
             // fetch the next key | field value from which to retrieve a's and b's
-            Object currKey = aKeys.next();
-            // try and fetch a b from b's index
-            bSeed = _predicate.streamB.getIndex().get(currKey);
-            if (bSeed != null) {
-                // if we found a b, fetch a's instances at this point
-                aInstances = _predicate.streamA.getIndex().get(currKey).iterator();
+            Object currKey = bKeys.next();
+
+            // try and fetch an a from a's index
+            aSeed = relation.getFromIndex(_predicate.streamA.getIndex(), currKey);
+
+            if (aSeed != null) {
+                // if we found an a, fetch b's instances at this point
+                bInstances = _predicate.streamB.getIndex().get(currKey).iterator();
 
                 // advance the iterator. The if statement at the top should catch now.
                 return hasNext();
             }
         }
+
         return false;
     }
 

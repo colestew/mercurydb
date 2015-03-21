@@ -23,19 +23,25 @@ public class JoinIndexScan extends HgPolyTupleStream {
     private Iterator<Object> bInstances;
     private Iterator<Object> aInstances;
 
+    private HgRelation relation;
+
     public JoinIndexScan(JoinPredicate pred) {
         super(pred);
 
-        if (!pred.relation.equals(HgRelation.EQ)) {
-            throw new IllegalArgumentException("Relations other than == are not supported for indices");
+        System.out.println("Performing Index Scan.");
+
+        if (pred.relation instanceof HgRelation) {
+            this.relation = (HgRelation) pred.relation;
+        } else {
+            throw new IllegalArgumentException("Relation must be an HgRelation to use index!");
         }
 
         if (pred.streamA.isIndexed()) {
-            ap = pred.streamB;
-            bp = pred.streamA;
-        } else if (pred.streamA.isIndexed()){
             ap = pred.streamA;
             bp = pred.streamB;
+        } else if (pred.streamB.isIndexed()){
+            ap = pred.streamB;
+            bp = pred.streamA;
         } else {
             throw new IllegalArgumentException("One of the arguments must be indexed!");
         }

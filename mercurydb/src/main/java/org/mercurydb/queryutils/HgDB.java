@@ -128,32 +128,40 @@ public class HgDB {
     public static HgPolyTupleStream join(JoinPredicate predicate) {
         HgTupleStream a = predicate.streamA, b = predicate.streamB;
 
-        if (predicate.relation != HgRelation.EQ) {
-            return new JoinNestedLoops(predicate);
-        } else if (!a.getContainedIds().retainAll(b.getContainedIds())
+        if (!a.getContainedIds().retainAll(b.getContainedIds())
                 || !b.getContainedIds().retainAll(a.getContainedIds())) {
             /*
              * Filter operation
              */
             return new JoinFilter(predicate);
-        } else if (a.isIndexed() && b.isIndexed()) {
+        } else if ((a.isIndexed() || b.isIndexed()) && (predicate.relation instanceof HgRelation)) {
+            if (a.isIndexed() && b.isIndexed()) {
+
+                /*
+                 * Both A and B indexed
+                 * Do index intersection A, B
+                 */
+                return new JoinIndexIntersection(predicate);
+            } else {
+
+                /*
+                 * Only A indexed
+                 * Scan B, use A index
+                 */
+                return new JoinIndexScan(predicate);
+            }
+        } else if (predicate.relation == HgRelation.EQ) {
             /*
-             * Both A and B indexed
-             * Do index intersection A, B
-             */
-            return new JoinIndexIntersection(predicate);
-        } else if (a.isIndexed() || b.isIndexed()) {
-            /*
-             * Only A indexed
-             * Scan B, use A index
-             */
-            return new JoinIndexScan(predicate);
-        } else {
-            /*
-             * Neither is indexed
+             * Neither is indexed and relation is known to be equality
              * Do hash join
              */
             return joinHash(a, b);
+        } else {
+            /*
+             * Neither is indexed and relation is unknown.
+             * Time for some nested loops.
+             */
+            return new JoinNestedLoops(predicate);
         }
     }
 

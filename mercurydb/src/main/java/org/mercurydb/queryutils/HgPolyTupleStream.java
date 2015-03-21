@@ -12,6 +12,11 @@ public abstract class HgPolyTupleStream extends HgTupleStream {
     }
 
     @Override
+    public boolean isIndexed() {
+        return false;
+    }
+
+    @Override
     public void reset() {
         _predicate.streamA.reset();
         _predicate.streamB.reset();
