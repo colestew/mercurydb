@@ -27,7 +27,7 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T> {
         return HgTupleStream.createJoinInput(fe, this);
     }
 
-    public<F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T,F> pred) {
+    public<F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T,F>... preds) {
         return new HgStream<T>(this.cardinality) {
             private T next;
             private HgStream<T> stream = HgStream.this;
@@ -36,11 +36,17 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T> {
             public boolean hasNext() {
                 while (stream.hasNext()) {
                     next = stream.next();
+                    boolean pass = true;
 
-                    if (pred.test((F)pred.extractField(next))) {
+                    for (AbstractFieldExtractablePredicate<T,F> pred : preds) {
+                        if (!pred.test((F) pred.extractField(next))) {
+                            pass = false;
+                            break;
+                        }
+                    }
+
+                    if (pass) {
                         return true;
-                    } else {
-                        --cardinality;
                     }
                 }
 

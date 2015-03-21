@@ -240,6 +240,17 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
+
+    public static class in {
+        {{#fields}}
+        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        {{name}}({{type}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.IN, val);
+        }
+        {{/fields}}
+    }
+
+
     public static final FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
     predicate (HgPredicate<{{sourceClass}}> predicate) {
         return new FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>(self(ID), predicate);
