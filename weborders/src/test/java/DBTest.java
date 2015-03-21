@@ -41,6 +41,48 @@ public class DBTest {
     }
 
     @Test
+    public void testQuery() {
+        Set<Integer> seen = new HashSet<>();
+        for (Order o : HgDB.query(OrderTable.eq.ono(1020))) {
+            seen.add(o.ono);
+        }
+
+        if (seen.size() != 1 || !seen.contains(1020)) fail();
+    }
+
+    @Test
+    public void testQueryPredicate() {
+        Set<Integer> seen = new HashSet<>();
+
+        for (Order o : HgDB.query(OrderTable.predicate(new HgPredicate<Order>() {
+            @Override
+            public boolean test(Order value) {
+                return value.ono == 1020;
+            }
+        }))) {
+            seen.add(o.ono);
+        }
+
+        if (seen.size() != 1 || !seen.contains(1020)) fail();
+    }
+
+    @Test
+    public void testQueryPredicate2() {
+        Set<Integer> seen = new HashSet<>();
+
+        for (Order o : HgDB.query(OrderTable.predicates.ono(new HgPredicate<Integer>() {
+            @Override
+            public boolean test(Integer value) {
+                return value == 1020;
+            }
+        }))) {
+            seen.add(o.ono);
+        }
+
+        if (seen.size() != 1 || !seen.contains(1020)) fail();
+    }
+
+    @Test
     public void testFilterOr() {
         Set<Integer> seen = new HashSet<>();
         for (Order o : HgDB.query(OrderTable.eq.ono(1020))
