@@ -263,7 +263,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
         Retrieval<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(table, table.size());
         {{#subClasses}}
-        result = result.join({{toString}}{{tableSuffix}}.stream());
+        result = result.concat({{toString}}{{tableSuffix}}.stream());
         {{/subClasses}}
         return result;
     }

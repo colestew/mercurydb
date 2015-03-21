@@ -39,6 +39,14 @@ public class DBTest {
     }
 
     @Test
+    public void testFilterOr() {
+        boolean hasData = false;
+        HgStream<Order> orders = HgDB.query(OrderTable.eq.ono(1020).).
+        for (Order o : HgDB.query(
+                OrderTable.eq.ono(1020))
+    }
+
+    @Test
     public void testSelfPredicate() {
         boolean hasData = false;
         for (Order o: HgDB.query(

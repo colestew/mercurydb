@@ -22,7 +22,7 @@ public class Retrieval<T> extends HgStream<T> {
         stream = streamSeed.iterator();
     }
 
-    public Retrieval<T> join(Retrieval<? extends T> or) {
+    public Retrieval<T> concat(Retrieval<? extends T> or) {
         streamSeed = Iterables.concat(streamSeed, or.streamSeed);
         stream = streamSeed.iterator();
         super.cardinality += or.cardinality;

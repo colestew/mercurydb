@@ -7,7 +7,8 @@ import java.util.Set;
  *
  * @param <T> // TODO seriously this is confusing. what is T?
  */
-public abstract class AbstractFieldExtractablePredicate<T,F> extends FieldExtractableSeed<T> implements HgPredicate<F>  {
+public abstract class AbstractFieldExtractablePredicate<T,F>
+        extends FieldExtractableSeed<T> implements HgPredicate<F>  {
     protected final FieldExtractableSeed<T> _fwdFE;
 
     public AbstractFieldExtractablePredicate(FieldExtractableSeed<T> fe) {
