@@ -20,6 +20,10 @@ abstract public class HgWrappedIterableStream<T> extends HgStream<T> {
         return this;
     }
 
+    public Iterable<T> getStreamSeed() {
+        return streamSeed;
+    }
+
     @Override
     public boolean hasNext() {
         return stream.hasNext();

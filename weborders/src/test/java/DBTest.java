@@ -16,7 +16,7 @@ import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 import static org.junit.Assert.fail;
 
 public class DBTest {
-    public static final int TEST_SIZE = 50;
+    public static final int TEST_SIZE = 500;
 
     static Zipcode[] zips;
     static Employee[] emps;
@@ -175,7 +175,7 @@ public class DBTest {
         long count = 0;
         HgTupleStream result = HgDB.joinHash(
                 OrderTable.on.ono(),
-                OdetailTable.stream().joinOn(OdetailTable.on.ono()));
+                noIndexStream(OdetailTable.on.ono()));
 
         for (HgTupleStream.HgTuple t : result) ++count;
 
@@ -187,8 +187,8 @@ public class DBTest {
         long count = 0;
         long startTime = System.currentTimeMillis();
         for (HgTuple jr : new JoinNestedLoops(new JoinPredicate(
-                OrderTable.stream().joinOn(OrderTable.on.ono()),
-                OdetailTable.stream().joinOn(OdetailTable.on.ono())))) {
+                noIndexStream(OrderTable.on.ono()),
+                noIndexStream(OdetailTable.on.ono())))) {
             ++count;
         }
         long stopTime = System.currentTimeMillis();
@@ -202,7 +202,7 @@ public class DBTest {
         // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
-                OrderTable.stream().joinOn(OrderTable.on.ono()),
+                noIndexStream(OrderTable.on.ono()),
                 OdetailTable.on.ono())) {
             ++count;
         }
@@ -214,13 +214,50 @@ public class DBTest {
     }
 
     @Test
-    public void testIndexScan2() {
+    public void testIndexScanLt() {
+        long startTime = System.currentTimeMillis();
+        // Index Scan
+        long count = 0;
+        for (HgTuple jr : HgDB.join(
+                noIndexStream(OrderTable.on.ono()),
+                OdetailTable.on.ono(),
+                HgRelation.LT)) {
+            ++count;
+
+            if (jr.get(OrderTable.ID).ono >= jr.get(OdetailTable.ID).ono) fail();
+        }
+        long stopTime = System.currentTimeMillis();
+
+        System.out.println("Index Scan Lt Time for " + count + " elements: " + (stopTime-startTime)/1000.0);
+
+    }
+
+    @Test
+    public void testNestedLoopsLt() {
+        long startTime = System.currentTimeMillis();
+        // Index Scan
+        long count = 0;
+        for (HgTuple jr : HgDB.join(
+                noIndexStream(OrderTable.on.ono()),
+                noIndexStream(OdetailTable.on.ono()),
+                HgRelation.LT)) {
+            ++count;
+            if (jr.get(OrderTable.ID).ono >= jr.get(OdetailTable.ID).ono) fail();
+        }
+        long stopTime = System.currentTimeMillis();
+
+        System.out.println("Nested Loops Lt Time for " + count + " elements: " + (stopTime-startTime)/1000.0);
+
+    }
+
+    @Test
+    public void testIndexScan3() {
 
         // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
                 OrderTable.on.ono(),
-                OdetailTable.stream().joinOn(OdetailTable.on.ono()))) {
+                noIndexStream(OdetailTable.on.ono()))) {
             ++count;
         }
 
@@ -288,7 +325,19 @@ public class DBTest {
     }
 
     @Test
-    public void testJoinLt() {
+    public void testJoinNe() {
+        for (HgTuple t : HgDB.join(
+                OrderTable.on.ono(),
+                OdetailTable.on.ono(),
+                HgRelation.NE)) {
+            if (t.get(OrderTable.ID).ono == t.get(OdetailTable.ID).ono)
+                fail();
+        }
+    }
+
+    @Test
+    public void testJoinLtIntersection() {
+        System.out.println("Testing Join Lt Intersection");
         for (HgTuple t : HgDB.join(
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
@@ -297,6 +346,65 @@ public class DBTest {
                 fail();
         }
     }
+
+    @Test
+    public void testJoinLtScan1() {
+        System.out.println("Testing Join Lt Scan using index A");
+        for (HgTuple t : HgDB.join(
+                noIndexStream(OrderTable.on.ono()),
+                OdetailTable.on.ono(),
+                HgRelation.LT)) {
+            if (t.get(OrderTable.ID).ono >= t.get(OdetailTable.ID).ono)
+                fail();
+        }
+    }
+
+    @Test
+    public void testJoinLtScan2() {
+        System.out.println("Test Join Lt Scan using index B");
+        for (HgTuple t : HgDB.join(
+                OrderTable.on.ono(),
+                noIndexStream(OdetailTable.on.ono()),
+                HgRelation.LT)) {
+            if (t.get(OrderTable.ID).ono >= t.get(OdetailTable.ID).ono)
+                fail();
+        }
+    }
+
+    @Test
+    public void testJoinLe() {
+        for (HgTuple t : HgDB.join(
+                OrderTable.on.ono(),
+                OdetailTable.on.ono(),
+                HgRelation.LE)) {
+            if (t.get(OrderTable.ID).ono > t.get(OdetailTable.ID).ono)
+                fail();
+        }
+    }
+
+    @Test
+    public void testJoinGt() {
+        for (HgTuple t : HgDB.join(
+                OrderTable.on.ono(),
+                OdetailTable.on.ono(),
+                HgRelation.GT)) {
+            if (t.get(OrderTable.ID).ono <= t.get(OdetailTable.ID).ono)
+                fail();
+        }
+    }
+
+
+    @Test
+    public void testJoinGe() {
+        for (HgTuple t : HgDB.join(
+                OrderTable.on.ono(),
+                OdetailTable.on.ono(),
+                HgRelation.GE)) {
+            if (t.get(OrderTable.ID).ono < t.get(OdetailTable.ID).ono)
+                fail();
+        }
+    }
+
 
     @Test
     public void testMultiJoin() {
@@ -353,6 +461,14 @@ public class DBTest {
         System.out.println("Overhead of tuple retrievals: " + (time1-time2)/1000.0 + " seconds");
         System.out.println("Overhead % : " + (time1-time2)/(double)time1);
         if (count == 0) fail();
+    }
+
+    public static HgTupleStream noIndexStream(HgTupleStream src) {
+        return new HgWrappedTupleStream(src) {
+            public boolean isIndexed() {
+                return false;
+            }
+        };
     }
 
     @BeforeClass

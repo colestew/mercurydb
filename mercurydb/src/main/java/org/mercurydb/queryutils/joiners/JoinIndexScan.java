@@ -23,26 +23,26 @@ public class JoinIndexScan extends HgPolyTupleStream {
     private Iterator<Object> bInstances;
     private Iterator<Object> aInstances;
 
-    private HgRelation relation;
+    private final HgRelation relation;
 
-    public JoinIndexScan(JoinPredicate pred) {
-        super(pred);
-
-        if (pred.relation instanceof HgRelation) {
-            this.relation = (HgRelation) pred.relation;
-        } else {
+    private static JoinPredicate fixAndCheckPredicate(JoinPredicate predicate) {
+        if (!(predicate.relation instanceof HgRelation)) {
             throw new IllegalArgumentException("Relation must be an HgRelation to use index!");
         }
 
-        if (pred.streamA.isIndexed()) {
-            ap = pred.streamA;
-            bp = pred.streamB;
-        } else if (pred.streamB.isIndexed()){
-            ap = pred.streamB;
-            bp = pred.streamA;
-        } else {
+        if (predicate.numIndices() == 0) {
             throw new IllegalArgumentException("One of the arguments must be indexed!");
         }
+
+        return predicate.streamA.isIndexed() ? predicate : predicate.swapLhsAndRhs();
+    }
+
+    public JoinIndexScan(JoinPredicate pred) {
+        super(fixAndCheckPredicate(pred));
+
+        ap = _predicate.streamA;
+        bp = _predicate.streamB;
+        relation = (HgRelation)_predicate.relation;
     }
 
     private void setup() {
@@ -58,10 +58,10 @@ public class JoinIndexScan extends HgPolyTupleStream {
             while (bInstances.hasNext()) {
                 currB = bInstances.next();
                 Object currKey = bp.extractField(currB);
-                Iterable<Object> aIterable = ap.getIndex().get(currKey);
+                Iterable<Object> aIterable = relation.getFromIndex(ap.getIndex(), currKey);
                 if (aIterable != null) {
                     aInstances = aIterable.iterator();
-                    return true;
+                    return hasNext();
                 }
             }
         }

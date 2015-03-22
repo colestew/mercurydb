@@ -211,5 +211,9 @@ public abstract class HgTupleStream
         public Object extractJoinedEntry() {
             return get(_fwdFE.getTableId());
         }
+
+        public String toString() {
+            return _entries.toString();
+        }
     }
 }

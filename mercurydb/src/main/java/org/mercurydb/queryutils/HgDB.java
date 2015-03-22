@@ -197,17 +197,15 @@ public class HgDB {
     }
 
     public static final boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
-        if (o instanceof HgPolyTupleStream) {
-            return false;
-        } else {
+        if (o.isIndexed()) {
             return isIndexCompatible(o.getIndex(), pred);
         }
+
+        return false;
     }
 
     public static final boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
-        if (index == null) {
-            return false;
-        } else if (pred == HgRelation.EQ) {
+        if (pred == HgRelation.EQ) {
             return true;
         } else if (index instanceof TreeMap<?,?> && pred instanceof HgRelation) {
             return true;

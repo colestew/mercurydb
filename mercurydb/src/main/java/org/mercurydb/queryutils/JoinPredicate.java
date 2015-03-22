@@ -37,6 +37,17 @@ public class JoinPredicate {
         this.streamB = s2;
     }
 
+    public JoinPredicate swapLhsAndRhs() {
+        if (relation instanceof HgRelation) {
+            return new JoinPredicate(
+                    streamB,
+                    streamA,
+                    ((HgRelation) relation).reversedRelation());
+        }
+
+        throw new IllegalArgumentException("Cannot reverse relation for predicates that are not HgRelations.");
+    }
+
     /**
      * Counts the total number of indices available on this JoinPredicate's streams.
      *
