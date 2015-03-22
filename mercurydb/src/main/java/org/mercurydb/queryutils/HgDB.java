@@ -15,45 +15,55 @@ import java.util.*;
  * TODO UPDATE DOCUMENTATION
  */
 public class HgDB {
+
+    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR
+            = new Comparator<AbstractFieldExtractablePredicate<?, ?>>() {
+        @Override
+        public int compare(AbstractFieldExtractablePredicate<?, ?> a, AbstractFieldExtractablePredicate<?, ?> b) {
+            long aPriority = getPredicatePriority(a);
+            long bPriority = getPredicatePriority(b);
+            return (int)(aPriority - bPriority);
+        }
+    };
+
+    private static long getPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
+        if (predicate instanceof FieldExtractableRelation) {
+            FieldExtractableRelation<?, ?> fer = (FieldExtractableRelation<?, ?>)predicate;
+            if (fer.relation == HgRelation.EQ) {
+                return -(fer.getIndex().get(fer.value).size());
+            } else if (isIndexCompatible(fer.getIndex(), fer.relation)) {
+                return 2;
+            }
+        }
+        return 3;
+    }
+
     @SafeVarargs
     public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T,?>... extractableValues) {
         if (extractableValues.length == 0) {
-            throw new IllegalArgumentException("Must supply at least one argument to query");
+            return new Retrieval<T>(Collections.<T>emptyList(), 0);
         }
 
-        // find smallest applicable index
-        int smallestIndex = Integer.MAX_VALUE;
-        Set<Object> index = null;
-        FieldExtractable usedFE = null;
-        for (FieldExtractableSeed<T> fe : extractableValues) {
-            if (fe instanceof FieldExtractableRelation) {
-                FieldExtractableRelation<T,?> fer = (FieldExtractableRelation<T,?>) fe;
-                if (fer.isIndexed() && fer.relation == HgRelation.EQ) {
-                    Set<Object> newIndex = fe.getIndex().get(fer.value);
-                    int newSmallestIndex = newIndex.size();
-                    if (newSmallestIndex < smallestIndex) {
-                        smallestIndex = newSmallestIndex;
-                        index = newIndex;
-                        usedFE = fe;
-                    }
-                }
+        Arrays.sort(extractableValues, QUERY_COMPARATOR);
+
+        FieldExtractableSeed<T> fe = extractableValues[0];
+        HgStream<T> stream = fe.getDefaultStream();
+
+        int start = 0;
+        if (fe instanceof FieldExtractableRelation) {
+            FieldExtractableRelation<T, ?> fer = (FieldExtractableRelation<T,?>) fe;
+            if (isIndexCompatible(fer.getIndex(), fer.relation)) {
+                start = 1;
+                HgRelation hgRelation = (HgRelation)fer.relation;
+                stream = new Retrieval<>((Iterable<T>)hgRelation.getFromIndex(fer.getIndex(), fer.value), 0);
             }
         }
 
-        HgStream<T> seed;
-
-        if (index != null) {
-            seed = new Retrieval(index, index.size());
-        } else {
-            seed = extractableValues[0].getDefaultStream();
+        for (int i = start; i < extractableValues.length; ++i) {
+            stream = stream.filter(extractableValues[i]);
         }
 
-        for (AbstractFieldExtractablePredicate<T,?> fe : extractableValues) {
-            if (fe == usedFE) continue;
-            seed = seed.filter(fe);
-        }
-
-        return seed;
+        return stream;
     }
 
 
@@ -134,7 +144,8 @@ public class HgDB {
              * Filter operation
              */
             return new JoinFilter(predicate);
-        } else if ((a.isIndexed() || b.isIndexed()) && (predicate.relation instanceof HgRelation)) {
+        } else if (isIndexCompatible(a.getIndex(), predicate.relation) ||
+                isIndexCompatible(b.getIndex(), predicate.relation)) {
             if (a.isIndexed() && b.isIndexed()) {
 
                 /*
@@ -162,6 +173,18 @@ public class HgDB {
              * Time for some nested loops.
              */
             return new JoinNestedLoops(predicate);
+        }
+    }
+
+
+
+    public static final boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
+        if (pred == HgRelation.EQ) {
+            return true;
+        } else if (index instanceof TreeMap<?,?> && pred instanceof HgRelation) {
+            return true;
+        } else {
+            return false;
         }
     }
 

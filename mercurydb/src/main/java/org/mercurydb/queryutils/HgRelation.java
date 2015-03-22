@@ -147,15 +147,4 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
         }
     };
 
-    public static final boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
-        if (pred == EQ) {
-            return true;
-        } else if (index instanceof TreeMap<?,?> &&
-                pred == LT || pred == LE || pred == GT || pred == GE) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 }
