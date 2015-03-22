@@ -270,14 +270,14 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
-    public static Retrieval<{{sourceClass}}> stream() {
+    public static HgWrappedIterableStream<{{sourceClass}}> stream() {
         /*
          * Here we need to do a tree traversal such that
          * every possible subclass table is joined with
          * this classes table in the stream
          */
 
-        Retrieval<{{sourceClass}}> result = new Retrieval<{{sourceClass}}>(table, table.size());
+        HgWrappedIterableStream<{{sourceClass}}> result = new HgRetrievalStream<{{sourceClass}}>(table);
         {{#subClasses}}
         result = result.concat({{toString}}{{tableSuffix}}.stream());
         {{/subClasses}}

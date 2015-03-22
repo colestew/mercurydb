@@ -15,7 +15,6 @@ public abstract class HgTupleStream
     }
 
     public HgTupleStream() {
-        super(0);
         this._containedTypes = new HashMap<>();
     }
 
@@ -32,7 +31,6 @@ public abstract class HgTupleStream
     }
 
     public HgTupleStream(FieldExtractable fe, Set<TableID<?>> containedTypes) {
-        super(0);
         this._fwdFE = fe;
         this._containedTypes = new HashMap<>();
 
@@ -48,7 +46,6 @@ public abstract class HgTupleStream
     }
 
     public HgTupleStream(FieldExtractable fe) {
-        super(0);
         this._fwdFE = fe;
         this._containedTypes = new HashMap<>();
         addContainedType(fe.getTableId());
@@ -92,9 +89,7 @@ public abstract class HgTupleStream
     }
 
     @Override
-    public boolean isIndexed() {
-        return _fwdFE.isIndexed();
-    }
+    abstract public boolean isIndexed();
 
     @Override
     public Map<Object, Set<Object>> getIndex() {
@@ -123,8 +118,9 @@ public abstract class HgTupleStream
 
     @SuppressWarnings("unchecked")
     public static HgTupleStream createJoinInput(
-            FieldExtractable fe,
-            final HgStream<?> stream) {
+            final FieldExtractable fe,
+            final HgStream<?> stream,
+            final boolean streamIsFiltered) {
         return new HgTupleStream(fe) {
 
             @Override
@@ -140,6 +136,11 @@ public abstract class HgTupleStream
             @Override
             public void reset() {
                 stream.reset();
+            }
+
+            @Override
+            public boolean isIndexed() {
+                return !streamIsFiltered && fe.isIndexed();
             }
         };
     }

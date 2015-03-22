@@ -10,7 +10,7 @@ package org.mercurydb.queryutils;
  * new Predicate(TableB.joinC(), TableC.joinD()),
  * new Predicate(TableA.joinY(), TableD.joinF()));
  */
-public class JoinPredicate implements Comparable<JoinPredicate> {
+public class JoinPredicate {
     public final HgTupleStream streamA, streamB;
     public final HgBiPredicate relation;
 
@@ -42,45 +42,10 @@ public class JoinPredicate implements Comparable<JoinPredicate> {
      *
      * @return The number of indices.
      */
-    private int numIndices() {
+    public int numIndices() {
         int res = 0;
         if (streamA.isIndexed()) ++res;
         if (streamB.isIndexed()) ++res;
         return res;
-    }
-
-    /**
-     * Retrieve the total cardinality of the input streams.
-     * // TODO is this what we really want to do?
-     *
-     * @return The cardinality.
-     */
-    private int cardinality() {
-        return streamA.getCardinality() + streamB.getCardinality();
-    }
-
-    /**
-     * <p>
-     * This method compares JoinPredicates with the
-     * following ordering priority:
-     * </p>
-     * <p>
-     * <ol>
-     * <li>Number of indices (greater first, i.e. descending)</li>
-     * <li>Cardinality of its streams (smaller first, i.e. ascending [natural])</li>
-     * </ol>
-     * </p>
-     *
-     * @param o // TODO documentation
-     * @return // TODO documentation
-     */
-    @Override
-    public int compareTo(JoinPredicate o) {
-        int idxDiff = o.numIndices() - this.numIndices();
-        if (idxDiff == 0) {
-            return this.cardinality() - o.cardinality();
-        } else {
-            return idxDiff;
-        }
     }
 }

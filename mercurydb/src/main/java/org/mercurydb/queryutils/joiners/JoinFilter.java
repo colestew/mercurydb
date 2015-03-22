@@ -19,8 +19,6 @@ public class JoinFilter extends HgPolyTupleStream {
     public JoinFilter(JoinPredicate predicate) {
         super(predicate);
 
-        System.out.println("Performing Filter Join.");
-
         // Perform Filter operation on A
         if (predicate.streamA.getContainedIds().retainAll(predicate.streamB.getContainedIds())) {
             ap = predicate.streamA;

@@ -16,17 +16,18 @@ import java.util.*;
  */
 public class HgDB {
 
-    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR
-            = new Comparator<AbstractFieldExtractablePredicate<?, ?>>() {
-        @Override
-        public int compare(AbstractFieldExtractablePredicate<?, ?> a, AbstractFieldExtractablePredicate<?, ?> b) {
-            long aPriority = getPredicatePriority(a);
-            long bPriority = getPredicatePriority(b);
-            return (int)(aPriority - bPriority);
-        }
-    };
+    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR =
+            new Comparator<AbstractFieldExtractablePredicate<?, ?>>() {
+                @Override
+                public int compare(AbstractFieldExtractablePredicate<?, ?> a,
+                                   AbstractFieldExtractablePredicate<?, ?> b) {
+                    int aPriority = getQueryPredicatePriority(a);
+                    int bPriority = getQueryPredicatePriority(b);
+                    return aPriority - bPriority;
+                }
+            };
 
-    private static long getPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
+    private static int getQueryPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
         if (predicate instanceof FieldExtractableRelation) {
             FieldExtractableRelation<?, ?> fer = (FieldExtractableRelation<?, ?>)predicate;
             if (fer.relation == HgRelation.EQ) {
@@ -38,10 +39,29 @@ public class HgDB {
         return 3;
     }
 
+    private static final Comparator<JoinPredicate> JOIN_PREDICATE_COMPARATOR =
+            new Comparator<JoinPredicate>() {
+                @Override
+                public int compare(JoinPredicate a, JoinPredicate b) {
+                    int aPriority = getJoinPredicatePriority(a);
+                    int bPriority = getJoinPredicatePriority(b);
+                    return aPriority-bPriority;
+                }
+            };
+
+    private static int getJoinPredicatePriority(JoinPredicate predicate) {
+        if (isStreamAndIndexCompatible(predicate.streamA, predicate.relation) ||
+                isStreamAndIndexCompatible(predicate.streamB, predicate.relation)) {
+            return predicate.relation == HgRelation.EQ ? 1 : 2;
+        }
+
+        return predicate.relation == HgRelation.EQ ? 3 : 4;
+    }
+
     @SafeVarargs
     public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T,?>... extractableValues) {
         if (extractableValues.length == 0) {
-            return new Retrieval<T>(Collections.<T>emptyList(), 0);
+            return new HgRetrievalStream<T>(Collections.<T>emptyList());
         }
 
         Arrays.sort(extractableValues, QUERY_COMPARATOR);
@@ -55,7 +75,7 @@ public class HgDB {
             if (isIndexCompatible(fer.getIndex(), fer.relation)) {
                 start = 1;
                 HgRelation hgRelation = (HgRelation)fer.relation;
-                stream = new Retrieval<>((Iterable<T>)hgRelation.getFromIndex(fer.getIndex(), fer.value), 0);
+                stream = new HgQueryResultStream<>((Iterable<T>)hgRelation.getFromIndex(fer.getIndex(), fer.value));
             }
         }
 
@@ -77,29 +97,28 @@ public class HgDB {
      * @throws IllegalStateException if preds do not unify
      */
     public static HgPolyTupleStream join(JoinPredicate... preds) {
+        HgPolyTupleStream result = join(preds[0]);
+
         if (preds.length == 1) {
-            return join(preds[0]);
-        } else if (preds.length > 1) {
-            Arrays.sort(preds);
-            HgPolyTupleStream result = join(preds[0]);
+            return result;
+        }
 
-            for (int i = 1; i < preds.length; ++i) {
-                JoinPredicate p = preds[i];
-                if (result.containsId(p.streamA.getTableId())) {
-                    preds[i] = new JoinPredicate(result.joinOn(p.streamA), p.streamB, p.relation);
-                } else if (result.containsId(p.streamB.getTableId())) {
-                    preds[i] = new JoinPredicate(p.streamA, result.joinOn(p.streamB), p.relation);
-                } else {
-                    continue;
-                }
+        Arrays.sort(preds, JOIN_PREDICATE_COMPARATOR);
 
-                return join(Arrays.copyOfRange(preds, 1, preds.length));
+        for (int i = 1; i < preds.length; ++i) {
+            JoinPredicate p = preds[i];
+            if (result.containsId(p.streamA.getTableId())) {
+                preds[i] = new JoinPredicate(result.joinOn(p.streamA), p.streamB, p.relation);
+            } else if (result.containsId(p.streamB.getTableId())) {
+                preds[i] = new JoinPredicate(p.streamA, result.joinOn(p.streamB), p.relation);
+            } else {
+                continue;
             }
 
-            throw new IllegalStateException("Predicates do not unify!");
-        } else {
-            throw new IllegalArgumentException("Must supply at least one predicate to join.");
+            return join(Arrays.copyOfRange(preds, 1, preds.length));
         }
+
+        throw new IllegalStateException("Predicates do not unify!");
     }
 
     /**
@@ -144,8 +163,8 @@ public class HgDB {
              * Filter operation
              */
             return new JoinFilter(predicate);
-        } else if (isIndexCompatible(a.getIndex(), predicate.relation) ||
-                isIndexCompatible(b.getIndex(), predicate.relation)) {
+        } else if (isStreamAndIndexCompatible(a, predicate.relation) ||
+                isStreamAndIndexCompatible(b, predicate.relation)) {
             if (a.isIndexed() && b.isIndexed()) {
 
                 /*
@@ -161,7 +180,8 @@ public class HgDB {
                  */
                 return new JoinIndexScan(predicate);
             }
-        } else if (predicate.relation == HgRelation.EQ) {
+        } else if (predicate.relation == HgRelation.EQ &&
+                !(a instanceof HgPolyTupleStream || b instanceof HgPolyTupleStream)) {
             /*
              * Neither is indexed and relation is known to be equality
              * Do hash join
@@ -176,10 +196,18 @@ public class HgDB {
         }
     }
 
-
+    public static final boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
+        if (o instanceof HgPolyTupleStream) {
+            return false;
+        } else {
+            return isIndexCompatible(o.getIndex(), pred);
+        }
+    }
 
     public static final boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
-        if (pred == HgRelation.EQ) {
+        if (index == null) {
+            return false;
+        } else if (pred == HgRelation.EQ) {
             return true;
         } else if (index instanceof TreeMap<?,?> && pred instanceof HgRelation) {
             return true;
@@ -200,22 +228,10 @@ public class HgDB {
     public static HgPolyTupleStream joinHash(
             final HgTupleStream a,
             final HgTupleStream b) {
-
-        final HgTupleStream ap;
-        final HgTupleStream bp;
-
-        if (a.getCardinality() < b.getCardinality()) {
-            ap = a;
-            bp = b;
-        } else {
-            ap = b;
-            bp = a;
-        }
-
         final Map<Object, Set<Object>> aMap = new HashMap<>();
 
         // Inhale stream A into hash table
-        for (HgTupleStream.HgTuple aInstance : ap) {
+        for (HgTupleStream.HgTuple aInstance : a) {
             Object key = aInstance.extractJoinedField();
 
             Set<Object> l = aMap.get(key);
@@ -227,9 +243,18 @@ public class HgDB {
             aMap.put(key, l);
         }
 
-        FieldExtractableFakeIndex fei = new FieldExtractableFakeIndex(ap.getFieldExtractor(), aMap);
-        ap.setJoinKey(fei);
+        HgTupleStream aIndexed = new HgWrappedTupleStream(a) {
+            @Override
+            public boolean isIndexed() {
+                return true;
+            }
 
-        return new JoinIndexScan(new JoinPredicate(ap, bp));
+            @Override
+            public Map<Object, Set<Object>> getIndex() {
+                return aMap;
+            }
+        };
+
+        return new JoinIndexScan(new JoinPredicate(aIndexed, b));
     }
 }

@@ -12,8 +12,6 @@ public class JoinNestedLoops extends HgPolyTupleStream {
 
     public JoinNestedLoops(JoinPredicate predicate) {
         super(predicate);
-
-        System.out.println("Performing Nested Loops Join.");
     }
 
     @Override

@@ -28,8 +28,6 @@ public class JoinIndexScan extends HgPolyTupleStream {
     public JoinIndexScan(JoinPredicate pred) {
         super(pred);
 
-        System.out.println("Performing Index Scan.");
-
         if (pred.relation instanceof HgRelation) {
             this.relation = (HgRelation) pred.relation;
         } else {

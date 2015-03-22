@@ -25,8 +25,6 @@ public class JoinIndexIntersection extends HgPolyTupleStream {
     public JoinIndexIntersection(JoinPredicate pred) {
         super(pred);
 
-        System.out.println("Performing Index Intersection.");
-
         if (pred.relation instanceof HgRelation) {
             relation = (HgRelation)pred.relation;
         } else {

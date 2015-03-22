@@ -10,25 +10,12 @@ import java.util.Set;
  *
  * @param <T> // TODO documentation
  */
-public abstract class HgStream<T> implements Iterator<T>, Iterable<T> {
-    protected int cardinality;
-
+public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable {
     abstract public void reset();
 
-    public int getCardinality() {
-        return cardinality;
-    }
-
-    public HgStream(int cardinality) {
-        this.cardinality = cardinality;
-    }
-
-    public HgTupleStream joinOn(FieldExtractable fe) {
-        return HgTupleStream.createJoinInput(fe, this);
-    }
-
     public<F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T,F>... preds) {
-        return new HgStream<T>(this.cardinality) {
+        return new HgStream<T>() {
+
             private T next;
             private HgStream<T> stream = HgStream.this;
 
@@ -59,19 +46,19 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T> {
             }
 
             @Override
-            public int getCardinality() {
-                return cardinality;
+            public void reset() {
+                stream.reset();
             }
 
             @Override
-            public void reset() {
-                stream.reset();
+            public HgTupleStream joinOn(FieldExtractable fe) {
+                return HgTupleStream.createJoinInput(fe, this, true);
             }
         };
     }
 
     public HgStream<T> concat(final HgStream<? extends T> stream) {
-        return new HgStream<T>(cardinality + stream.cardinality) {
+        return new HgStream<T>() {
             HgStream<? extends T> a = HgStream.this;
             HgStream<? extends T> b = stream;
 
@@ -102,6 +89,11 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T> {
             @Override
             public T next() {
                 return a.next();
+            }
+
+            @Override
+            public HgTupleStream joinOn(FieldExtractable fe) {
+                return HgTupleStream.createJoinInput(fe, this, true);
             }
         };
     }

@@ -16,7 +16,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
 
         @Override
         public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
-            return index.get(value);
+            return noNull(index.get(value));
         }
     };
 
@@ -147,4 +147,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
         }
     };
 
+    private static Iterable<Object> noNull(Iterable<Object> result) {
+        return result == null ? Collections.emptyList() : result;
+    }
 }

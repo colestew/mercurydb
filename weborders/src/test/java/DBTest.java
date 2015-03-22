@@ -42,6 +42,23 @@ public class DBTest {
     }
 
     @Test
+    public void testFilter() {
+        for (Order o : HgDB.query(OrderTable.eq.ono(1025))) {
+            if (o.ono != 1025) fail();
+        }
+    }
+
+    @Test
+    public void testFilterJoin() {
+        HgTupleStream stream = HgDB.join(
+                HgDB.query(OrderTable.eq.ono(1023)).joinOn(OrderTable.on.ono()),
+                OdetailTable.on.ono());
+        for (HgTuple t : stream) {
+            if (t.get(OrderTable.ID).ono != 1023 || t.get(OdetailTable.ID).ono != 1023) fail();
+        }
+    }
+
+    @Test
     public void testQuery() {
         Set<Integer> seen = new HashSet<>();
         for (Order o : HgDB.query(OrderTable.eq.ono(1020))) {
@@ -168,16 +185,20 @@ public class DBTest {
     @Test
     public void testNestedLoops() {
         long count = 0;
+        long startTime = System.currentTimeMillis();
         for (HgTuple jr : new JoinNestedLoops(new JoinPredicate(
                 OrderTable.stream().joinOn(OrderTable.on.ono()),
                 OdetailTable.stream().joinOn(OdetailTable.on.ono())))) {
             ++count;
         }
+        long stopTime = System.currentTimeMillis();
+        System.out.println("Nested loops time for " + count + " elements: " + (stopTime-startTime)/1000.0);
         if (count != correctCount) fail();
     }
 
     @Test
     public void testIndexScan() {
+        long startTime = System.currentTimeMillis();
         // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
@@ -185,6 +206,9 @@ public class DBTest {
                 OdetailTable.on.ono())) {
             ++count;
         }
+        long stopTime = System.currentTimeMillis();
+
+        System.out.println("Index Scan Time for " + count + " elements: " + (stopTime-startTime)/1000.0);
 
         if (count != correctCount) fail();
     }
@@ -227,17 +251,14 @@ public class DBTest {
 
         long count = 0;
         for (HgTuple jr : c) ++count;
-        System.out.println("Reset Count: " + count);
+        if (count != correctCount) fail();
         c.reset();
         count = 0;
         for (HgTuple jr : c) ++count;
-        System.out.println("Reset Count: " + count);
+        if (count != correctCount) fail();
         c.reset();
         count = 0;
-        for (HgTuple jr : c) {
-            ++count;
-        }
-        System.out.println("Reset Count: " + count);
+        for (HgTuple jr : c) ++count;
         if (count != correctCount) fail();
     }
 
@@ -278,40 +299,6 @@ public class DBTest {
     }
 
     @Test
-    public void testMultiJoinReset() {
-        HgTupleStream result = HgDB.join(
-                new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
-                new JoinPredicate(OdetailTable.on.qty(), ZipcodeTable.on.zip(), HgRelation.LT));
-
-        boolean hasData = false;
-
-        for (HgTuple t : result) {
-            hasData = true;
-            Order o = t.get(OrderTable.ID);
-            Odetail od = t.get(OdetailTable.ID);
-            Zipcode z = t.get(ZipcodeTable.ID);
-
-            if (o.ono != od.ono || od.qty >= z.zip) fail();
-        }
-
-        if (!hasData) fail();
-
-        result.reset();
-        hasData = false;
-
-        for (HgTuple t : result) {
-            hasData = true;
-            Order o = t.get(OrderTable.ID);
-            Odetail od = t.get(OdetailTable.ID);
-            Zipcode z = t.get(ZipcodeTable.ID);
-
-            if (o.ono != od.ono || od.qty >= z.zip) fail();
-        }
-
-        if (!hasData) fail();
-    }
-
-    @Test
     public void testMultiJoin() {
         HgTupleStream result = HgDB.join(
                 new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
@@ -330,6 +317,42 @@ public class DBTest {
 
         if (!hasData) fail();
 
+    }
+
+    @Test
+    public void testMultiJoinReset() {
+        HgTupleStream result = HgDB.join(
+                new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
+                new JoinPredicate(OdetailTable.on.qty(), ZipcodeTable.on.zip(), HgRelation.LT));
+
+        long startTime = System.currentTimeMillis();
+        int count = 0;
+        for (HgTuple t : result) {
+            ++count;
+            Order o = t.get(OrderTable.ID);
+            Odetail od = t.get(OdetailTable.ID);
+            Zipcode z = t.get(ZipcodeTable.ID);
+
+            if (o.ono != od.ono || od.qty >= z.zip) fail();
+        }
+        long stopTime = System.currentTimeMillis();
+        long time1 = stopTime - startTime;
+        System.out.println(time1 / 1000.0 + " seconds to iterate over all " + count + " elements");
+
+        if (count == 0) fail();
+
+        result.reset();
+        count = 0;
+        startTime = System.currentTimeMillis();
+        for (HgTuple t : result) {
+            ++count;
+        }
+        stopTime = System.currentTimeMillis();
+        long time2 = stopTime - startTime;
+        System.out.println(time1 / 1000.0 + " seconds to iterate over all " + count + " elements");
+        System.out.println("Overhead of tuple retrievals: " + (time1-time2)/1000.0 + " seconds");
+        System.out.println("Overhead % : " + (time1-time2)/(double)time1);
+        if (count == 0) fail();
     }
 
     @BeforeClass

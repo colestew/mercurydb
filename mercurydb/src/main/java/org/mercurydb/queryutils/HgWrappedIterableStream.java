@@ -4,28 +4,19 @@ import com.google.common.collect.Iterables;
 
 import java.util.Iterator;
 
-/**
- * Table classes will define these. Each
- * instance has two possible implementations switched
- * by the isIndexed() method. If it is indexed, get(F i),
- * hasNextKey(), and nextKey() are defined.
- *
- * @param <T> The ClassType
- */
-public class Retrieval<T> extends HgStream<T> {
+abstract public class HgWrappedIterableStream<T> extends HgStream<T> {
+
     private Iterable<T> streamSeed;
     private Iterator<T> stream;
 
-    public Retrieval(Iterable<T> streamSeed, int cardinality) {
-        super(cardinality);
+    public HgWrappedIterableStream(Iterable<T> streamSeed) {
         this.streamSeed = streamSeed;
         stream = streamSeed.iterator();
     }
 
-    public Retrieval<T> concat(Retrieval<? extends T> or) {
+    public HgWrappedIterableStream<T> concat(HgWrappedIterableStream<? extends T> or) {
         streamSeed = Iterables.concat(streamSeed, or.streamSeed);
         stream = streamSeed.iterator();
-        super.cardinality += or.cardinality;
         return this;
     }
 
