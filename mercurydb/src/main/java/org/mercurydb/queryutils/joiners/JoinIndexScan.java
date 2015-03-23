@@ -18,12 +18,12 @@ public class JoinIndexScan extends HgPolyTupleStream {
 
     private final HgTupleStream ap;
     private final HgTupleStream bp;
+    private final HgRelation relation;
 
     private Object currB;
     private Iterator<Object> bInstances;
     private Iterator<Object> aInstances;
 
-    private final HgRelation relation;
 
     private static JoinPredicate fixAndCheckPredicate(JoinPredicate predicate) {
         if (!(predicate.relation instanceof HgRelation)) {

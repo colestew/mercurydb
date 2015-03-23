@@ -175,14 +175,30 @@ public class {{sourceClass}}{{tableSuffix}} {
         };
     }
 
-    public static class on {
-        {{#fields}}
-        public static HgTupleStream {{name}}() {
-            return stream().joinOn(field.{{name}}(ID));
+    public static final JoinField on = new JoinField(ID);
+
+    public static final JoinAsField as(TableID<{{sourceClass}}> id) {
+        return new JoinAsField(id);
+    }
+
+    public static class JoinAsField {
+        public final JoinField on;
+
+        public JoinAsField(TableID<{{sourceClass}}> aliasId) {
+            this.on = new JoinField(aliasId);
+        }
+    }
+
+    public static class JoinField {
+        private final TableID<{{sourceClass}}> ___id;
+
+        public JoinField(TableID<{{sourceClass}}> aliasId) {
+            this.___id = aliasId;
         }
 
-        public static HgTupleStream {{name}}(TableID<{{sourceClass}}> aliasId) {
-            return stream().joinOn(field.{{name}}(aliasId));
+        {{#fields}}
+        public HgTupleStream {{name}}() {
+            return stream().joinOn(field.{{name}}(___id));
         }
         {{/fields}}
     }
