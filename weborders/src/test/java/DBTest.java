@@ -303,8 +303,8 @@ public class DBTest {
     public void testSelfJoin() {
         TableID<Order> oid = OrderTable.createAlias();
         TableID<Odetail> odid = OdetailTable.createAlias();
-        HgTupleStream a = OrderTable.on.ono(oid);
-        HgTupleStream b = OdetailTable.on.ono(odid);
+        HgTupleStream a = OrderTable.as(oid).on.ono();
+        HgTupleStream b = OdetailTable.as(odid).on.ono();
 
         int count = 0;
         for (HgTuple t : HgDB.join(a, b)) {
@@ -319,7 +319,7 @@ public class DBTest {
     public void testSelfJoin2() {
         TableID<Part> partAlias = PartTable.createAlias();
 
-        for (HgTuple t : HgDB.join(PartTable.on.price(), PartTable.on.price(partAlias), HgRelation.LT)) {
+        for (HgTuple t : HgDB.join(PartTable.on.price(), PartTable.as(partAlias).on.price(), HgRelation.LT)) {
             if (t.get(PartTable.ID).price >= t.get(partAlias).price) fail();
         }
     }
