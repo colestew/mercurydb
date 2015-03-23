@@ -3,10 +3,9 @@ package {{packageName}};
 import org.mercurydb.queryutils.*;
 import java.util.*;
 
-import com.google.common.collect.MapMaker;
-
 import {{fullSourceClass}};
 
+@SuppressWarnings("unused")
 public class {{sourceClass}}{{tableSuffix}} {
 
     public static final TableID<{{sourceClass}}> ID = TableID.<{{sourceClass}}>createName();
@@ -47,8 +46,9 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/hasIndex}}
         {{/fields}}
         // Populate standard table if T(val) == {{sourceClass}}
-        if ({{sourceClass}}.class.equals(val.getClass()))
+        if ({{sourceClass}}.class.equals(val.getClass())) {
             table.add(val);
+        }
         {{#hasSuper}}
         // Populate super table indices
         {{cSuper}}{{tableSuffix}}.insert(val);
@@ -57,21 +57,16 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static void remove({{sourceClass}} val) {
         // Remove from table
-        if ({{sourceClass}}.class.equals(val.getClass()))
+        if ({{sourceClass}}.class.equals(val.getClass())) {
             table.remove(val);
+        }
         {{#fields}}
         {{#hasIndex}}
-        // TODO BUG 44 : https://github.com/colestew/mercurydb/issues/44
-        // TODO BUG 44 : values() -> Collection<Set<Customer>>, singleton(val) is a Collection<Customer>
-        // TODO BUG 44 : the way removeAll works is by removing any instances of any values inside of the
-        // TODO BUG 44 : collection which is passed into removeAll.
-        // TODO BUG 44 : The collection passed here will not remove anything from this collection.
         // Remove from {{name}} index
-        {{name}}Index.values().removeAll(Collections.singleton(val));
+        {{name}}Index.get(val.{{name}}).remove(val);
         {{/hasIndex}}
         {{/fields}}
         {{#hasSuper}}
-        // TODO BUG 44 : see above
         // Remove from {{cSuper}} indices (superclass)
         {{cSuper}}{{tableSuffix}}.remove(val);
         {{/hasSuper}}
@@ -151,7 +146,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/fields}}
     }
 
-    public static final FieldExtractableSeed<{{sourceClass}}> self(TableID<{{sourceClass}}> id) {
+    public static FieldExtractableSeed<{{sourceClass}}> self(TableID<{{sourceClass}}> id) {
         return new FieldExtractableSeed<{{sourceClass}}>(id) {
             @Override
             public Object extractField(Object instance) {
@@ -180,14 +175,13 @@ public class {{sourceClass}}{{tableSuffix}} {
         };
     }
 
-
     public static class on {
         {{#fields}}
-        public static final HgTupleStream {{name}}() {
+        public static HgTupleStream {{name}}() {
             return stream().joinOn(field.{{name}}(ID));
         }
 
-        public static final HgTupleStream {{name}}(TableID<{{sourceClass}}> aliasId) {
+        public static HgTupleStream {{name}}(TableID<{{sourceClass}}> aliasId) {
             return stream().joinOn(field.{{name}}(aliasId));
         }
         {{/fields}}
@@ -195,82 +189,75 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class eq {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.EQ, val);
         }
         {{/fields}}
     }
 
-
     public static class ne {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.NE, val);
         }
         {{/fields}}
     }
 
-
     public static class lt {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.LT, val);
         }
         {{/fields}}
     }
 
-
     public static class le {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.LE, val);
         }
         {{/fields}}
     }
 
-
     public static class gt {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.GT, val);
         }
         {{/fields}}
     }
 
-
     public static class ge {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.GE, val);
         }
         {{/fields}}
     }
 
-
     public static class in {
         {{#fields}}
-        public static final FieldExtractableRelation<{{sourceClass}}, {{type}}>
+        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
         {{name}}({{type}} val) {
             return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.IN, val);
         }
         {{/fields}}
     }
 
-
-    public static final FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
+    public static FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
     predicate (HgPredicate<{{sourceClass}}> predicate) {
         return new FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>(self(ID), predicate);
     }
 
     public static class predicates {
         {{#fields}}
-        public static final FieldExtractablePredicate<{{sourceClass}}, {{type}}>
+        public static FieldExtractablePredicate<{{sourceClass}}, {{type}}>
         {{name}}(HgPredicate<{{type}}> predicate) {
             return new FieldExtractablePredicate<{{sourceClass}}, {{type}}>(field.{{name}}(ID), predicate);
         }
