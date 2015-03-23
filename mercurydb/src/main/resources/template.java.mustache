@@ -177,7 +177,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static final JoinField on = new JoinField(ID);
 
-    public static final JoinAsField as(TableID<{{sourceClass}}> id) {
+    public static JoinAsField as(TableID<{{sourceClass}}> id) {
         return new JoinAsField(id);
     }
 
@@ -190,15 +190,15 @@ public class {{sourceClass}}{{tableSuffix}} {
     }
 
     public static class JoinField {
-        private final TableID<{{sourceClass}}> ___id;
+        private final TableID<{{sourceClass}}> id;
 
         public JoinField(TableID<{{sourceClass}}> aliasId) {
-            this.___id = aliasId;
+            this.id = aliasId;
         }
 
         {{#fields}}
         public HgTupleStream {{name}}() {
-            return stream().joinOn(field.{{name}}(___id));
+            return stream().joinOn(field.{{name}}(id));
         }
         {{/fields}}
     }

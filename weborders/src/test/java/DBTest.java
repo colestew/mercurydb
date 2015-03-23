@@ -9,7 +9,6 @@ import java.sql.Date;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 
@@ -31,7 +30,7 @@ public class DBTest {
     @Test
     public void testFilter1() {
         boolean hasData = false;
-        for (Order o: OrderTable
+        for (Order o : OrderTable
                 .stream() // don't use index
                 .filter(OrderTable.eq.ono(1020))) {
             hasData = true;

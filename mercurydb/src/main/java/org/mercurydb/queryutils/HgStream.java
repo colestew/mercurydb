@@ -1,9 +1,6 @@
 package org.mercurydb.queryutils;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * // TODO documentation
@@ -13,13 +10,15 @@ import java.util.Set;
 public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable {
     abstract public void reset();
 
-    public<F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T,F>... preds) {
+    @SafeVarargs
+    public final <F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T,F>... preds) {
         return new HgStream<T>() {
 
             private T next;
             private HgStream<T> stream = HgStream.this;
 
             @Override
+            @SuppressWarnings("unchecked") // for cast to (F)
             public boolean hasNext() {
                 while (stream.hasNext()) {
                     next = stream.next();
