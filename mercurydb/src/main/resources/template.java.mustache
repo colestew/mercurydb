@@ -61,11 +61,17 @@ public class {{sourceClass}}{{tableSuffix}} {
             table.remove(val);
         {{#fields}}
         {{#hasIndex}}
+        // TODO BUG 44 : https://github.com/colestew/mercurydb/issues/44
+        // TODO BUG 44 : values() -> Collection<Set<Customer>>, singleton(val) is a Collection<Customer>
+        // TODO BUG 44 : the way removeAll works is by removing any instances of any values inside of the
+        // TODO BUG 44 : collection which is passed into removeAll.
+        // TODO BUG 44 : The collection passed here will not remove anything from this collection.
         // Remove from {{name}} index
         {{name}}Index.values().removeAll(Collections.singleton(val));
         {{/hasIndex}}
         {{/fields}}
         {{#hasSuper}}
+        // TODO BUG 44 : see above
         // Remove from {{cSuper}} indices (superclass)
         {{cSuper}}{{tableSuffix}}.remove(val);
         {{/hasSuper}}
@@ -102,7 +108,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static final class field {
         {{#fields}}
-        public static final FieldExtractableSeed<{{sourceClass}}> {{name}}(TableID<{{sourceClass}}> id) {
+        public static FieldExtractableSeed<{{sourceClass}}> {{name}}(TableID<{{sourceClass}}> id) {
             return new FieldExtractableSeed<{{sourceClass}}>(id) {
                 @Override
                 public Object extractField(Object instance) {
@@ -125,6 +131,7 @@ public class {{sourceClass}}{{tableSuffix}} {
                 }
 
                 @Override
+                @SuppressWarnings("unchecked") // casting with (Map)
                 public Map<Object, Set<Object>> getIndex() {
                     {{#hasIndex}}
                     return (Map) {{name}}Index;
