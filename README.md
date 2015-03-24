@@ -12,7 +12,7 @@ Additionally, applications which are built using _MercuryDB_ are fully self-cont
 
 ## Building HgDB and the Weborders Example ##
 
-There is one example in the weborders folder with a set of small tests. This project is built using Gradle. You can build HgDB and the example project by running gradle build from the root. You can test the example project by running `gradle test` inside the weborders project folder. The `build.gradle` file for the weborders example project can serve as a template for building other projects.
+There is one example in the weborders folder with a set of small tests. This project is built using Gradle. You can build HgDB and the example project by running `gradle build` from the root. You can test the example project by running `gradle test` inside the weborders project folder. The `build.gradle` file for the weborders example project can serve as a template for building other projects.
 
 ## Integrating _MercuryDB_ into your application
 
