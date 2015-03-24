@@ -542,7 +542,7 @@ public class DBTest {
         }
         for (Odetail o : odetails) OdetailTable.insert(o);
 
-        correctResult = HgDB.joinHash(
+        correctResult = HgDB.join(
                 OrderTable.on.ono(),
                 OdetailTable.on.ono());
 
@@ -554,5 +554,9 @@ public class DBTest {
 
         System.out.println("Count is: " + count);
         correctCount = count;
+
+        if (count == 0) {
+            throw new IllegalStateException("Database has no elements!");
+        }
     }
 }
