@@ -1,12 +1,12 @@
-The Julia language is licensed under the MIT License. The "language" consists
+HgDBis licensed under the MIT License. The "language" consists
 of the compiler (the contents of src/), most of the standard library (base/),
 and some utilities (most of the rest of the files in this repository). See below
 for exceptions.
 
-> Copyright (c) 2009-2015: Jeff Bezanson, Stefan Karpinski, Viral B. Shah,
+> Copyright (c) 2009-2015: Doug Ilijev, Cole Stewart, Don Batory,
 > and other contributors:
 >
-> https://github.com/JuliaLang/julia/contributors
+> https://github.com/colestew/mercurydb/contributors
 >
 > Permission is hereby granted, free of charge, to any person obtaining
 > a copy of this software and associated documentation files (the
