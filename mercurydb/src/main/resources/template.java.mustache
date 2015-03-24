@@ -82,7 +82,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     // Set methods - make sure you use these on indexed fields for consistency!
     {{#fields}}
     {{^isFinal}}
-    public static void set{{CCname}}({{sourceClass}} instance, {{type}} val) {
+    public static void set{{CCname}}({{sourceClass}} instance, {{rawType}} val) {
         {{#hasIndex}}
         {{name}}Index.get(instance.{{name}}).remove(instance);
         instance.{{name}} = val;
