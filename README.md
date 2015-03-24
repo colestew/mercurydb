@@ -8,6 +8,10 @@ The goal is to provide a framework and interface for developers to interact with
 
 Additionally, applications which are built using _MercuryDB_ are fully self-contained and do not require a database deployment or any similar setup on the client-side, thus opening up a lot of possibilities for developers who are looking to do complicated operations on data within their applications which would normally require a database.
 
+## Building HgDB and the Weborders Example ##
+
+There is one example in the weborders folder with a set of small tests. This project is built using Gradle. You can build HgDB and the example project by running gradle build from the root. You can test the example project by running `gradle test` inside the weborders project folder. The `build.gradle` file for the weborders example project can serve as a template for building other projects.
+
 ## Integrating _MercuryDB_ into your application
 
 When developing Java applications, developers typically make use of a number of Java __packages__ which are developed and maintained by a third party (which may be the same as the application developer). These packages are called __dependencies__ of a Java application, and for the purposes of _MercuryDB_ will be referred to as __source packages__.
@@ -20,29 +24,15 @@ As part of the build process for an application using _MercuryDB_, `hgdb` produc
 
 A __schema__ is produced by _MercuryDB_ after running `hgdb` on a __package__ and producing a __mercury package__. In practice this __schema__ is a separate library which defines the API that can be used to interact with objects in the __mercury package__.
 
-### Namespaces
-
 #### Mercury Packages
 
-A library __source package__ is typically given a namespace like `com.developer.library`. When `hgdb` produces the __mercury package__ the namespace will be changed to:
-
-`mercury.package.<com.developer.library>`
-
-(with the part in angle brackets replaced by the actual __source package__ name).
+A library __source package__ is typically given a namespace like `com.developer.library`. `org.mercurydb.Main` is the executable Java file responsible for the creation of the files in an HgDB database. 
 
 #### Mercury Database API
 
 In order to interact with the database functionality provided by the modifications to the __packages__, we also provide an API in the namespace:
 
-`mercury.dbapi.<com.developer.library>`
-
-## Setup
-
-[coming soon]
-
-## Maven Integration
-
-[coming soon]
+`org.mercurydb.queryutils`
 
 ## Performance
 
