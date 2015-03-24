@@ -4,9 +4,9 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -79,6 +79,8 @@ public class ClassToTableExtractor {
 
     private static class ConstructorData {
         public ConstructorData(Constructor<?> con) {
+            // TODO implement
+            throw new NotImplementedException();
 //            for (Parameter p : con.getParameters()) {
 //                System.out.println(p.getParameterizedType().getTypeName() + " " + p.getName());
 //            }
@@ -135,28 +137,26 @@ public class ClassToTableExtractor {
         }
 
         Class<?> classType() {
-            switch (_type.getName()) {
-                case "boolean":
-                    return Boolean.class;
-                case "byte":
-                    return Byte.class;
-                case "char":
-                    return Character.class;
-                case "short":
-                    return Short.class;
-                case "int":
-                    return Integer.class;
-                case "long":
-                    return Long.class;
-                case "float":
-                    return Float.class;
-                case "double":
-                    return Double.class;
-                default:
-                    return _type;
+            if (rawType.equals("boolean")) {
+                return Boolean.class;
+            } else if (rawType.equals("byte")) {
+                return Byte.class;
+            } else if (rawType.equals("char")) {
+                return Character.class;
+            } else if (rawType.equals("short")) {
+                return Short.class;
+            } else if (rawType.equals("int")) {
+                return Integer.class;
+            } else if (rawType.equals("long")) {
+                return Long.class;
+            } else if (rawType.equals("float")) {
+                return Float.class;
+            } else if (rawType.equals("double")) {
+                return Double.class;
+            } else {
+                return _type;
             }
         }
-
 
         String type() {
             return classType().getName();
@@ -168,6 +168,10 @@ public class ClassToTableExtractor {
 
         @Override
         public int compareTo(FieldData o) {
+            if (o == null) {
+                return 1; // sort nulls last
+            }
+
             return name.compareTo(o.name);
         }
     }
@@ -182,7 +186,11 @@ public class ClassToTableExtractor {
 
     public void extract(String outPath, String packageName) throws IOException {
         File outFile = new File(outPath);
+
+        //ignore return value because true or false are both success AFAIC
+        //noinspection ResultOfMethodCallIgnored
         outFile.getParentFile().mkdirs();
+
         PrintWriter w = new PrintWriter(new BufferedWriter(new FileWriter(outFile)));
         this.packageName = packageName;
         extract(w);
