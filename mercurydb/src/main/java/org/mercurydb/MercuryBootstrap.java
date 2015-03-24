@@ -4,10 +4,10 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
+import org.mercurydb.queryutils.HgPredicate;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class MercuryBootstrap {
@@ -15,9 +15,14 @@ public class MercuryBootstrap {
      * Predicate for classes which can be properly
      * mapped to output tables.
      */
-    private static Predicate<Class<?>> supportedClassCheck = cls -> !cls.isMemberClass()
-            && !cls.isLocalClass()
-            && !cls.isAnonymousClass();
+    private static HgPredicate<Class<?>> supportedClassCheck = new HgPredicate<Class<?>>() {
+        @Override
+        public boolean test(Class<?> cls) {
+            return !cls.isMemberClass()
+                    && !cls.isLocalClass()
+                    && !cls.isAnonymousClass();
+        }
+    };
     // TODO remove use of lambdas above so we're compatible with 1.7
 
     /**
@@ -88,11 +93,14 @@ public class MercuryBootstrap {
         }
 
         // filter classes so we only have supported class files
-        classes = classes.stream()
-                .filter(c -> c != null && supportedClassCheck.test(c))
-                .collect(Collectors.toList());
+        Collection<Class<?>> filteredClasses = new ArrayList<Class<?>>(classes.size());
+        for (Class<?> c : classes) {
+            if (c != null && supportedClassCheck.test(c)) {
+                filteredClasses.add(c);
+            }
+        }
 
-        return classes;
+        return filteredClasses;
     }
 
     /**
@@ -124,11 +132,11 @@ public class MercuryBootstrap {
         for (Class<?> cls : classes) {
 
             // fetch the subclass table names
-            Collection<String> subTables = Collections.emptyList();
+            Collection<String> subTables = new ArrayList<String>();
             if (subClassMap.containsKey(cls)) {
-                subTables = subClassMap.get(cls).stream()
-                        .map(c -> toOutPackage(c.getName()))
-                        .collect(Collectors.<String>toList());
+                for (Class<?> subclass : subClassMap.get(cls)) {
+                    subTables.add(toOutPackage(subclass.getName()));
+                }
             }
 
             // calculate required paths and packages for the new table
