@@ -1,9 +1,10 @@
 MercuryDB (HgDB) is licensed under the MIT License. 
 
-> Copyright (c) 2009-2015: Doug Ilijev, Cole Stewart, Don Batory,
+> Copyright (c) 2014-2015: Doug Ilijev, Cole Stewart, Don Batory,
 > and other contributors:
 >
 > https://github.com/colestew/mercurydb/contributors
+> https://github.com/colestew/mercurydb/blob/master/CONTRIBUTORS.md
 >
 > Permission is hereby granted, free of charge, to any person obtaining
 > a copy of this software and associated documentation files (the
