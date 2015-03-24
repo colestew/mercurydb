@@ -4,6 +4,8 @@
 
 A non-persistent single-schema main-memory database, written in Java.
 
+For the most up-to-date documentation, see [the MercuryDB Wiki](https://github.com/colestew/mercurydb/wiki/).
+
 The goal is to provide a framework and interface for developers to interact with objects in their program through concepts and vocabulary inspired by a traditional, persistent NoSQL database, without having to configure and maintain a database solution, which is typically heavy-weight and difficult to deploy and maintain. With _MercuryDB_, a developer gains all the benefits of interacting with data in their programs without any of the complexity of maintaining a persistent datastore. 
 
 Additionally, applications which are built using _MercuryDB_ are fully self-contained and do not require a database deployment or any similar setup on the client-side, thus opening up a lot of possibilities for developers who are looking to do complicated operations on data within their applications which would normally require a database.
