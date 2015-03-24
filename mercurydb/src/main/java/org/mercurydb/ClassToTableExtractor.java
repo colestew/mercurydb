@@ -112,6 +112,7 @@ public class ClassToTableExtractor {
     @SuppressWarnings("unused")
     private static class FieldData implements Comparable<FieldData> {
         Class<?> _type;
+        String rawType;
         String name;
         boolean hasIndex;
         boolean isOrdered;
@@ -119,6 +120,7 @@ public class ClassToTableExtractor {
 
         FieldData(Field f) {
             _type = f.getType();
+            rawType = _type.getName();
             name = f.getName();
 
             // fetch index annotation
