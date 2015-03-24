@@ -4,8 +4,8 @@ import com.google.common.collect.Iterables;
 
 import java.util.Iterator;
 
+@SuppressWarnings("unused")
 abstract public class HgWrappedIterableStream<T> extends HgStream<T> {
-
     private Iterable<T> streamSeed;
     private Iterator<T> stream;
 

@@ -8,7 +8,6 @@ import org.mercurydb.queryutils.HgPredicate;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class MercuryBootstrap {
     /**
@@ -121,7 +120,6 @@ public class MercuryBootstrap {
         String basePath = _srcJavaDir + '/' + _outPackage.replace('.', '/');
 
         // startup a collection of table files we generate
-        Collection<String> tableFiles = new ArrayList<String>(); // TODO warning: never queried - is this a mistake?
         // and create a map of input package classes to their subclasses
         Map<Class<?>, List<Class<?>>> subClassMap = getSubclasses(classes);
 
@@ -143,7 +141,6 @@ public class MercuryBootstrap {
             String genTablePrefix = basePath + cls.getName().replace(_srcPackage, "").replace('.', '/');
             String tablePath = genTablePrefix + tableSuffix + ".java";
             String tablePackage = _outPackage + cls.getPackage().getName().replace(_srcPackage, "");
-            tableFiles.add(genTablePrefix + tableSuffix + ".java");
 
             System.out.println("Extracting " + cls + " to " + tablePath + " in " + tablePackage);
 

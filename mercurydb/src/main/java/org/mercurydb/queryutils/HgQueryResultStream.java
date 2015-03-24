@@ -1,7 +1,6 @@
 package org.mercurydb.queryutils;
 
 public class HgQueryResultStream<T> extends HgWrappedIterableStream<T> {
-
     public HgQueryResultStream(Iterable<T> streamSeed) {
         super(streamSeed);
     }

@@ -6,7 +6,7 @@ public class FieldExtractableRelation<T, F> extends AbstractFieldExtractablePred
 
     public final F value;
 
-    public FieldExtractableRelation(FieldExtractableSeed fe, HgBiPredicate<?,?> rel, F value) {
+    public FieldExtractableRelation(FieldExtractableSeed fe, HgBiPredicate<?, ?> rel, F value) {
         super(fe);
         this.relation = rel;
         this.value = value;

@@ -9,7 +9,6 @@ import java.util.Set;
  * JoinField. It provides a way for JoinStreams to
  * ask other JoinStreams how to extract a join key given
  * an instance of their class owner.
- *
  */
 public interface FieldExtractable {
     /**

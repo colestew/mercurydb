@@ -184,6 +184,7 @@ public abstract class HgTupleStream
                 insertRecord(id, t.get(id));
             }
         }
+
         private void insertRecord(TableID<?> s, Object o) {
             // fetch the tuple index from the contained types with the given id
             int tupleIndex = _containedTypes.get(s);

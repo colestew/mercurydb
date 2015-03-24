@@ -7,7 +7,6 @@ import org.apache.commons.cli.*;
 import java.net.MalformedURLException;
 
 public class Main {
-
     public static void main(String[] args)
             throws NotFoundException, CannotCompileException, MalformedURLException {
 

@@ -1,7 +1,6 @@
 package org.mercurydb.queryutils;
 
 abstract public class HgWrappedTupleStream extends HgTupleStream {
-
     private final HgTupleStream _stream;
 
     public HgWrappedTupleStream(HgTupleStream stream) {

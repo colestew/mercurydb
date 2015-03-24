@@ -3,13 +3,14 @@ package org.mercurydb.queryutils;
 /**
  * Simple class for JoinPredicates. This is used
  * for Joins like in the following statement:
- * <p>
+ * <p/>
  * * For >1 predicates -- A.X=B.Y and B.C=C.D and A.Y=D.F
  * JoinDriver.join(
  * new Predicate(TableA.joinX(), TableB.joinY()),
  * new Predicate(TableB.joinC(), TableC.joinD()),
  * new Predicate(TableA.joinY(), TableD.joinF()));
  */
+@SuppressWarnings("unused")
 public class JoinPredicate {
     public final HgTupleStream streamA, streamB;
     public final HgBiPredicate relation;
@@ -27,11 +28,11 @@ public class JoinPredicate {
     /**
      * Construct a JoinPredicate from two HgMonoStreams with a memo about what the predicate represents.
      *
-     * @param s1        The first stream to join on.
-     * @param s2        The second stream to join on.
-     * @param relation  A short memo about the relation represented by this JoinPredicate.
+     * @param s1       The first stream to join on.
+     * @param s2       The second stream to join on.
+     * @param relation A short memo about the relation represented by this JoinPredicate.
      */
-    public JoinPredicate(HgTupleStream s1, HgTupleStream s2, HgBiPredicate<?,?> relation) {
+    public JoinPredicate(HgTupleStream s1, HgTupleStream s2, HgBiPredicate<?, ?> relation) {
         this.relation = relation;
         this.streamA = s1;
         this.streamB = s2;

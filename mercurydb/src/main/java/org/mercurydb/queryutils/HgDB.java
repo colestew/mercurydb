@@ -8,14 +8,13 @@ import org.mercurydb.queryutils.joiners.JoinNestedLoops;
 import java.util.*;
 
 /**
- * <p/>
+ * <p>
  * This class is the main class used for queries and join operations
  * on a hgdb instance. It can be used like the following:
- * <p/>
+ * </p>
  * TODO UPDATE DOCUMENTATION
  */
 public class HgDB {
-
     private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR =
             new Comparator<AbstractFieldExtractablePredicate<?, ?>>() {
                 @Override
@@ -36,6 +35,7 @@ public class HgDB {
                 return 2;
             }
         }
+
         return 3;
     }
 
@@ -58,7 +58,6 @@ public class HgDB {
         return predicate.relation == HgRelation.EQ ? 3 : 4;
     }
 
-    @SafeVarargs // TODO remove this when we're sure that this is already safe, using this is a warning right now
     @SuppressWarnings("unchecked") // cast from Iterable<Object> to Iterable<T>
     public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T, ?>... extractableValues) {
         if (extractableValues.length == 0) {

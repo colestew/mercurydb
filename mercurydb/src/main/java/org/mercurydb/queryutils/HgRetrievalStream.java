@@ -1,9 +1,5 @@
 package org.mercurydb.queryutils;
 
-import com.google.common.collect.Iterables;
-
-import java.util.Iterator;
-
 /**
  * Table classes will define these. Each
  * instance has two possible implementations switched
@@ -13,7 +9,6 @@ import java.util.Iterator;
  * @param <T> The ClassType
  */
 public class HgRetrievalStream<T> extends HgWrappedIterableStream<T> {
-
     public HgRetrievalStream(Iterable<T> streamSeed) {
         super(streamSeed);
     }

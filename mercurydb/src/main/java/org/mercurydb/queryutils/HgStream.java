@@ -11,7 +11,7 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable 
     abstract public void reset();
 
     @SafeVarargs
-    public final <F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T,F>... preds) {
+    public final <F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T, F>... preds) {
         return new HgStream<T>() {
 
             private T next;
@@ -24,7 +24,7 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable 
                     next = stream.next();
                     boolean pass = true;
 
-                    for (AbstractFieldExtractablePredicate<T,F> pred : preds) {
+                    for (AbstractFieldExtractablePredicate<T, F> pred : preds) {
                         if (!pred.test((F) pred.extractField(next))) {
                             pass = false;
                             break;
@@ -74,8 +74,7 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable 
                 // when a is out of elements.
                 if (a.hasNext()) {
                     return true;
-                }
-                else if (b.hasNext()) {
+                } else if (b.hasNext()) {
                     HgStream<? extends T> tmpA = a;
                     a = b;
                     b = tmpA;

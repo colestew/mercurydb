@@ -4,7 +4,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -49,7 +48,7 @@ public class ClassToTableExtractor {
         this.subClasses = subClassTables;
         populateFieldsList();
         populateQueriesList(queries, fields);
-        populateConstructorsList();
+        //populateConstructorsList();
     }
 
     private void populateFieldsList() {
