@@ -29,7 +29,7 @@ public class HgDB {
 
     private static int getQueryPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
         if (predicate instanceof FieldExtractableRelation) {
-            FieldExtractableRelation<?, ?> fer = (FieldExtractableRelation<?, ?>)predicate;
+            FieldExtractableRelation<?, ?> fer = (FieldExtractableRelation<?, ?>) predicate;
             if (fer.relation == HgRelation.EQ) {
                 return -(fer.getIndex().get(fer.value).size());
             } else if (isIndexCompatible(fer.getIndex(), fer.relation)) {
@@ -45,7 +45,7 @@ public class HgDB {
                 public int compare(JoinPredicate a, JoinPredicate b) {
                     int aPriority = getJoinPredicatePriority(a);
                     int bPriority = getJoinPredicatePriority(b);
-                    return aPriority-bPriority;
+                    return aPriority - bPriority;
                 }
             };
 
@@ -58,8 +58,9 @@ public class HgDB {
         return predicate.relation == HgRelation.EQ ? 3 : 4;
     }
 
-    @SafeVarargs
-    public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T,?>... extractableValues) {
+    @SafeVarargs // TODO remove this when we're sure that this is already safe, using this is a warning right now
+    @SuppressWarnings("unchecked") // cast from Iterable<Object> to Iterable<T>
+    public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T, ?>... extractableValues) {
         if (extractableValues.length == 0) {
             return new HgRetrievalStream<T>(Collections.<T>emptyList());
         }
@@ -71,11 +72,12 @@ public class HgDB {
 
         int start = 0;
         if (fe instanceof FieldExtractableRelation) {
-            FieldExtractableRelation<T, ?> fer = (FieldExtractableRelation<T,?>) fe;
+            FieldExtractableRelation<T, ?> fer = (FieldExtractableRelation<T, ?>) fe;
             if (isIndexCompatible(fer.getIndex(), fer.relation)) {
                 start = 1;
-                HgRelation hgRelation = (HgRelation)fer.relation;
-                stream = new HgQueryResultStream<>((Iterable<T>)hgRelation.getFromIndex(fer.getIndex(), fer.value));
+                HgRelation hgRelation = (HgRelation) fer.relation;
+                Iterable<Object> iter = hgRelation.getFromIndex(fer.getIndex(), fer.value);
+                stream = new HgQueryResultStream<T>((Iterable<T>) iter);
             }
         }
 
@@ -85,7 +87,6 @@ public class HgDB {
 
         return stream;
     }
-
 
     /**
      * Joins a set of Predicates. Creates optimal
@@ -150,7 +151,7 @@ public class HgDB {
     public static HgPolyTupleStream join(
             HgTupleStream a,
             HgTupleStream b,
-            HgBiPredicate<?,?> relation) {
+            HgBiPredicate<?, ?> relation) {
         return join(new JoinPredicate(a, b, relation));
     }
 
@@ -196,22 +197,15 @@ public class HgDB {
         }
     }
 
-    public static final boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
-        if (o.isIndexed()) {
-            return isIndexCompatible(o.getIndex(), pred);
-        }
-
-        return false;
+    public static boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
+        return o.isIndexed() && isIndexCompatible(o.getIndex(), pred);
     }
 
-    public static final boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
-        if (pred == HgRelation.EQ) {
-            return true;
-        } else if (index instanceof TreeMap<?,?> && pred instanceof HgRelation) {
-            return true;
-        } else {
-            return false;
-        }
+    public static boolean isIndexCompatible(Map<?, ?> index, HgBiPredicate<?, ?> pred) {
+        boolean indexIsTreeMap = index instanceof TreeMap<?, ?>;
+        boolean predIsHgRelation = pred instanceof HgRelation;
+
+        return (pred == HgRelation.EQ) || (indexIsTreeMap && predIsHgRelation);
     }
 
     /**
@@ -226,7 +220,7 @@ public class HgDB {
     public static HgPolyTupleStream joinHash(
             final HgTupleStream a,
             final HgTupleStream b) {
-        final Map<Object, Set<Object>> aMap = new HashMap<>();
+        final Map<Object, Set<Object>> aMap = new HashMap<Object, Set<Object>>();
 
         // Inhale stream A into hash table
         for (HgTupleStream.HgTuple aInstance : a) {
@@ -234,7 +228,7 @@ public class HgDB {
 
             Set<Object> l = aMap.get(key);
             if (l == null) {
-                l = new HashSet<>();
+                l = new HashSet<Object>();
             }
 
             l.add(aInstance);

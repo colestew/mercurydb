@@ -166,9 +166,8 @@ public class MercuryBootstrap {
     public void insertBytecodeHooks() {
         Collection<Class<?>> classes = getSupportedClasses();
         ClassPool cp = ClassPool.getDefault();
-        /*
-         *  Modify original bytecode with the insert hooks
-         */
+
+        // Modify original bytecode with the insert hooks
         for (Class<?> cls : classes) {
             System.out.println("Adding insert hook to " + cls);
             try {
@@ -176,10 +175,13 @@ public class MercuryBootstrap {
                 BytecodeModifier modifier = new BytecodeModifier(ctCls, toOutPackage(cls.getName()) + tableSuffix);
                 modifier.modify();
             } catch (NotFoundException e) {
+                System.err.println("NotFoundException in MercuryBootstrap.insertBytecodeHooks()");
                 e.printStackTrace();
             } catch (CannotCompileException e) {
+                System.err.println("CannotCompileException in MercuryBootstrap.insertBytecodeHooks()");
                 e.printStackTrace();
             } catch (IOException e) {
+                System.err.println("IOException in MercuryBootstrap.insertBytecodeHooks()");
                 e.printStackTrace();
             }
         }

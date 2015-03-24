@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+@SuppressWarnings("unused")
 public final class Utils {
     public static String upperFirst(String str) {
         char upperFirst = Character.toUpperCase(str.charAt(0));
@@ -63,7 +64,7 @@ public final class Utils {
             dirs.add(new File(resource.getFile()));
         }
 
-        ArrayList<Class<?>> classes = new ArrayList<>();
+        ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
         for (File directory : dirs) {
             classes.addAll(findClasses(directory, packageName));
         }
@@ -80,7 +81,7 @@ public final class Utils {
      * @throws ClassNotFoundException
      */
     public static List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
-        List<Class<?>> classes = new ArrayList<>();
+        List<Class<?>> classes = new ArrayList<Class<?>>();
         if (!directory.exists()) {
             return classes;
         }

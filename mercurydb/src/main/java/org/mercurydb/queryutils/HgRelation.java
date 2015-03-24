@@ -9,7 +9,6 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     abstract public HgRelation reversedRelation();
 
     public static final HgRelation EQ = new HgRelation() {
-
         @Override
         public boolean test(Object o1, Object o2) {
             return o1.equals(o2);
@@ -27,10 +26,9 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     };
 
     public static final HgRelation NE = new HgRelation() {
-
         @Override
         public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
-            Collection<Collection<Object>> iterables = new ArrayList<>(index.keySet().size()-1);
+            Collection<Collection<Object>> iterables = new ArrayList<Collection<Object>>(index.keySet().size()-1);
 
             for (Object key : index.keySet()) {
                 if (!key.equals(value)) {
@@ -53,8 +51,8 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     };
 
     public static final HgRelation LT = new HgRelation() {
-
         @Override
+        @SuppressWarnings("unchecked") // cast to TreeMap
         public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
             if (index instanceof TreeMap) {
                 TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
@@ -65,6 +63,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
         }
 
         @Override
+        @SuppressWarnings("unchecked") // cast to Comparable
         public boolean test(Object o1, Object o2) {
             if (o1 instanceof Comparable) {
                 return ((Comparable)o1).compareTo(o2) < 0;
@@ -81,8 +80,8 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
 
 
     public static final HgRelation LE = new HgRelation() {
-
         @Override
+        @SuppressWarnings("unchecked") // cast to TreeMap
         public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
             if (index instanceof TreeMap) {
                 TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
@@ -93,6 +92,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
         }
 
         @Override
+        @SuppressWarnings("unchecked") // cast to Comparable
         public boolean test(Object o1, Object o2) {
             if (o1 instanceof Comparable) {
                 return ((Comparable)o1).compareTo(o2) <= 0;
@@ -108,8 +108,8 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     };
 
     public static final HgRelation GT = new HgRelation() {
-
         @Override
+        @SuppressWarnings("unchecked") // cast to TreeMap
         public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
             if (index instanceof TreeMap) {
                 TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
@@ -120,6 +120,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
         }
 
         @Override
+        @SuppressWarnings("unchecked") // cast to Comparable
         public boolean test(Object o1, Object o2) {
             if (o1 instanceof Comparable) {
                 return ((Comparable)o1).compareTo(o2) > 0;
@@ -135,8 +136,8 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     };
 
     public static final HgRelation GE = new HgRelation() {
-
         @Override
+        @SuppressWarnings("unchecked") // cast to TreeMap
         public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
             if (index instanceof TreeMap) {
                 TreeMap<Object, Set<Object>> tIndex = (TreeMap)index;
@@ -147,6 +148,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
         }
 
         @Override
+        @SuppressWarnings("unchecked") // cast to Comparable
         public boolean test(Object o1, Object o2) {
             if (o1 instanceof Comparable) {
                 return ((Comparable)o1).compareTo(o2) >= 0;
@@ -160,8 +162,6 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
             return LE;
         }
     };
-
-
 
     // TODO figure out if this should be templated as <?,? extends Collection<?>> instead
     public static final HgBiPredicate<?, ?> IN = new HgBiPredicate<Object, Object>() {
