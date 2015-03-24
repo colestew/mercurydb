@@ -14,8 +14,13 @@ import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 
 import static org.junit.Assert.fail;
 
+/**
+ * These tests are in limbo. They are not fully comprehensive. We will
+ * continue to add to these tests to get full coverage of HgDB for
+ * this example.
+ */
 public class DBTest {
-    public static final int TEST_SIZE = 500;
+    public static final int TEST_SIZE = 1000;
 
     static Zipcode[] zips;
     static Employee[] emps;
@@ -480,6 +485,14 @@ public class DBTest {
                 new Zipcode(66002, "Liberal"),
                 new Zipcode(61111, "Fort Hays")
         };
+
+        /*
+         * NOTE: The for loops inserting into the tables are only necessary
+         * when the bytecode hooks are not used to insert into the tables. They
+         * simply serve the purpose of adding more data into the database when hooks
+         * are present.
+         */
+
         for (Zipcode z : zips) ZipcodeTable.insert(z);
 
         emps = new Employee[]{

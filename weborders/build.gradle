@@ -44,10 +44,6 @@ task newJar(type: Jar) {
     from sourceSets.main.output
 }
 
-test {
-    jvmArgs('-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005')
-}
-
 clean.dependsOn clearDB
 
 classes.dependsOn clearDB
