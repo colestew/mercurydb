@@ -147,43 +147,43 @@ public abstract class HgTupleStream
 
 
     public class HgTuple {
-        private ArrayList<Object> _entries;
-
-        public HgTuple() {
-            _entries = new ArrayList<>();
-        }
+        private ArrayList<Object> _entries = new ArrayList<Object>();
 
         public HgTuple(Object o) {
-            this();
             _entries.add(o);
         }
 
         public HgTuple(TableID<?> aid, Object a, TableID<?> bid, Object b) {
-            this();
             insertRecord(aid, a);
             insertRecord(bid, b);
         }
 
-        public HgTuple(HgTuple a, HgTuple b) {
-            this();
+        public HgTuple(TableID<?> aid, Object a, HgTuple b) {
+            insertRecord(aid, a);
+            insertRecords(b);
+        }
 
+        public HgTuple(HgTuple a, HgTuple b) {
             for (TableID<?> id : a.getStream()._containedTypes.keySet()) {
                 insertRecord(id, a.get(id));
             }
 
-            for (TableID<?> id : b.getStream()._containedTypes.keySet()) {
-                int index = _containedTypes.get(id);
-                if (index < _entries.size() && _entries.get(index) != null) {
-                    throw new IllegalArgumentException("Cannot merge tuples which contain the same ids");
-                }
-                insertRecord(id, b.get(id));
-            }
+            insertRecords(b);
         }
 
         public HgTupleStream getStream() {
             return HgTupleStream.this;
         }
 
+        private void insertRecords(HgTuple t) {
+            for (TableID<?> id : t.getStream()._containedTypes.keySet()) {
+                int index = _containedTypes.get(id);
+                if (index < _entries.size() && _entries.get(index) != null) {
+                    throw new IllegalArgumentException("Cannot merge tuples which contain the same ids");
+                }
+                insertRecord(id, t.get(id));
+            }
+        }
         private void insertRecord(TableID<?> s, Object o) {
             // fetch the tuple index from the contained types with the given id
             int tupleIndex = _containedTypes.get(s);

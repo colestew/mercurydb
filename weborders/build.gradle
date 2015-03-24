@@ -29,6 +29,7 @@ task compileTables(type: JavaCompile) {
     destinationDir = sourceSets.main.output.classesDir 
 }
 
+/**
 task insertHooks(type: JavaExec) { 
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.mercurydb.Main'
@@ -38,7 +39,7 @@ task insertHooks(type: JavaExec) {
         '-root', 'src/main/java',
         '-ih', sourceSets.main.output]
 }
-
+*/
 
 task newJar(type: Jar) {
     from sourceSets.main.output
@@ -49,6 +50,6 @@ clean.dependsOn clearDB
 classes.dependsOn clearDB
 generateTables.dependsOn classes
 compileTables.dependsOn generateTables
-insertHooks.dependsOn compileTables
-assemble.dependsOn insertHooks
+//insertHooks.dependsOn compileTables
+//assemble.dependsOn insertHooks
 compileTestJava.dependsOn compileTables

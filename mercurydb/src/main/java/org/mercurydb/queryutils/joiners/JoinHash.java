@@ -11,7 +11,7 @@ import java.util.Iterator;
  * be indexed. Scans over the non-indexed stream
  * and uses the index on the indexed stream.
  */
-public class JoinIndexScan extends HgPolyTupleStream {
+public class JoinHash extends HgPolyTupleStream {
 
     private final HgTupleStream ap;
     private final HgTupleStream bp;
@@ -32,7 +32,7 @@ public class JoinIndexScan extends HgPolyTupleStream {
                 predicate : predicate.swapLhsAndRhs();
     }
 
-    public JoinIndexScan(JoinPredicate pred) {
+    public JoinHash(JoinPredicate pred) {
         super(fixAndCheckPredicate(pred));
 
         ap = _predicate.streamA;

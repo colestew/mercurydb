@@ -196,24 +196,6 @@ public class HgDB {
         }
     }
 
-    public static final boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
-        if (o.isIndexed()) {
-            return isIndexCompatible(o.getIndex(), pred);
-        }
-
-        return false;
-    }
-
-    public static final boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
-        if (pred == HgRelation.EQ) {
-            return true;
-        } else if (index instanceof TreeMap<?,?> && pred instanceof HgRelation) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     /**
      * Simple hash join algorithm. Inhales the results
      * into a // TODO finish documentation
@@ -254,5 +236,23 @@ public class HgDB {
         };
 
         return new JoinIndexScan(new JoinPredicate(aIndexed, b));
+    }
+
+    public static boolean isIndexCompatible(Map<?,?> index, HgBiPredicate<?,?> pred) {
+        if (pred == HgRelation.EQ) {
+            return true;
+        } else if (index instanceof TreeMap<?,?> && pred instanceof HgRelation) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
+        if (o.isIndexed()) {
+            return isIndexCompatible(o.getIndex(), pred);
+        }
+
+        return false;
     }
 }
