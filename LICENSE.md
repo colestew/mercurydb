@@ -4,6 +4,7 @@ MercuryDB (HgDB) is licensed under the MIT License.
 > and other contributors:
 >
 > https://github.com/colestew/mercurydb/contributors
+> https://github.com/colestew/mercurydb/blob/master/CONTRIBUTORS.md
 >
 > Permission is hereby granted, free of charge, to any person obtaining
 > a copy of this software and associated documentation files (the
