@@ -77,7 +77,12 @@ public class MercuryBootstrap {
         Collection<Class<?>> classes = Collections.emptyList();
         try {
             classes = Arrays.asList(Utils.getClasses(_srcPackage));
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (ClassNotFoundException e) {
+            System.err.println("ClassNotFoundException in getSupportedClasses()");
+            e.printStackTrace();
+            System.exit(1);
+        } catch (IOException e) {
+            System.err.println("IOException in getSupportedClasses()");
             e.printStackTrace();
             System.exit(1);
         }
@@ -96,7 +101,6 @@ public class MercuryBootstrap {
      * source directory and converts them into class objects. Then
      */
     public void generateTables() {
-
         // Fetch appropriate class files
         Collection<Class<?>> classes = getSupportedClasses();
 
@@ -109,7 +113,7 @@ public class MercuryBootstrap {
         String basePath = _srcJavaDir + '/' + _outPackage.replace('.', '/');
 
         // startup a collection of table files we generate
-        Collection<String> tableFiles = new ArrayList<>(); // TODO warning: never queried - is this a mistake?
+        Collection<String> tableFiles = new ArrayList<String>(); // TODO warning: never queried - is this a mistake?
         // and create a map of input package classes to their subclasses
         Map<Class<?>, List<Class<?>>> subClassMap = getSubclasses(classes);
 
@@ -146,18 +150,7 @@ public class MercuryBootstrap {
                 System.err.println(e.getMessage());
             }
         }
-
-//        if (!classes.isEmpty()) {
-//            // Generate Tables.java
-//            try {
-//                TableEnumGenerator teGen = new TableEnumGenerator(classes);
-//                teGen.extract(basePath + "/Tables.java", _outPackage);
-//            } catch (IOException e) {
-//                System.err.println(e.getMessage());
-//            }
-//        }
     }
-
 
     /**
      * Inserts bytecode hooks in the classes found in the input package
@@ -207,27 +200,24 @@ public class MercuryBootstrap {
      * @return map of each class to its immediate subclasses
      */
     private Map<Class<?>, List<Class<?>>> getSubclasses(Collection<Class<?>> classes) {
+        Map<Class<?>, List<Class<?>>> subclassMap = new HashMap<Class<?>, List<Class<?>>>();
 
-        Map<Class<?>, List<Class<?>>> subclassMap = new HashMap<>();
         for (Class<?> c : classes) {
-
             // Determine if superclass has a mapped table class
             Class<?> currC = c;
-            if (classes.contains(currC.getSuperclass())) {
 
+            if (classes.contains(currC.getSuperclass())) {
                 // Now if this subclass is supported put it in the map
                 List<Class<?>> subClasses = subclassMap.get(currC.getSuperclass());
                 if (subClasses == null) {
-                    subClasses = new ArrayList<>();
+                    subClasses = new ArrayList<Class<?>>();
                     subclassMap.put(currC.getSuperclass(), subClasses);
                 }
-                subClasses.add(c);
 
-                currC = c.getSuperclass();
+                subClasses.add(c);
             }
         }
 
         return subclassMap;
     }
 }
-

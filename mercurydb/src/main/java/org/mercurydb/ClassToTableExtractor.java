@@ -42,9 +42,9 @@ public class ClassToTableExtractor {
         this.tableSuffix = tableSuffix;
         this.joinId = joinId;
 
-        this.fields = new ArrayList<>();
-        this.queries = new ArrayList<>();
-        this.constructors = new ArrayList<>();
+        this.fields = new ArrayList<FieldData>();
+        this.queries = new ArrayList<QueryData>();
+        this.constructors = new ArrayList<ConstructorData>();
 
         this.subClasses = subClassTables;
         populateFieldsList();
@@ -61,7 +61,7 @@ public class ClassToTableExtractor {
     }
 
     private static void populateQueriesList(List<QueryData> queries, List<FieldData> fields) {
-        Set<FieldData> fieldSet = new HashSet<>(fields);
+        Set<FieldData> fieldSet = new HashSet<FieldData>(fields);
         Set<Set<FieldData>> powerset = Sets.powerSet(fieldSet);
         for (Set<FieldData> querySet : powerset) {
             // TODO: don't calculate all sets and allow 5 to be a runtime parameter

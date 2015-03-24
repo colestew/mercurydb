@@ -25,10 +25,10 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{#fields}}
     {{#hasIndex}}
     {{#isOrdered}}
-    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<>();
+    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<{{type}}, Set<{{sourceClass}}>>();
     {{/isOrdered}}
     {{^isOrdered}}
-    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<>();
+    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<{{type}}, Set<{{sourceClass}}>>();
     {{/isOrdered}}
 
     {{/hasIndex}}
