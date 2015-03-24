@@ -29,7 +29,7 @@ HgDB uses the following Java libraries from the following projects, which have t
 - [mustache] (http://www.netbsd.org/about/redistribution.html) (for Java table templates)
 - [javassist] (http://www.csg.ci.i.u-tokyo.ac.jp/~chiba/javassist) (for bytecode modification)
 - [gradle](https://www.gradle.org/) (for gradle build process)
-- [Guava](https://github.com/google/guava) (for general functions)
+- [guava](https://github.com/google/guava) (for general functions)
 - [commons-io](http://commons.apache.org/proper/commons-io) (for utility functions)
 - [commons-cli](http://commons.apache.org/proper/commons-cli) (for command line parsing)
 
