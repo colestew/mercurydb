@@ -4,6 +4,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
+import org.mercurydb.annotations.HgGeneric;
 import org.mercurydb.annotations.HgIndex;
 
 import java.io.*;
@@ -121,20 +122,31 @@ public class ClassToTableExtractor {
         Class<?> _type;
         String rawType;
         String name;
+
         boolean hasIndex;
         boolean isOrdered;
         boolean isFinal;
+
+        boolean hasGeneric;
+        String genericType;
 
         FieldData(Field f) {
             _type = f.getType();
             rawType = _type.getName();
             name = f.getName();
 
-            // fetch index annotation
+            // fetch HgIndex annotation
             HgIndex indexAnnotation = getIndexAnnotation(f);
             if (indexAnnotation != null) {
                 hasIndex = true;
                 isOrdered = indexAnnotation.ordered() && Comparable.class.isAssignableFrom(classType());
+            }
+
+            // fetch HgGeneric annotation
+            HgGeneric genericAnnotation = getGenericAnnotation(f);
+            if (genericAnnotation != null) {
+                hasGeneric = true;
+                genericType = genericAnnotation.value().getName();
             }
 
             hasIndex = indexAnnotation != null;
@@ -215,5 +227,9 @@ public class ClassToTableExtractor {
 
     private static HgIndex getIndexAnnotation(Field f) {
         return f.getAnnotation(HgIndex.class);
+    }
+
+    private static HgGeneric getGenericAnnotation(Field f) {
+        return f.getAnnotation(HgGeneric.class);
     }
 }

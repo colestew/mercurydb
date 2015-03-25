@@ -8,6 +8,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 
-public @interface HgGenericCollection {
+/**
+ * Mark a class as generic by recording the type of the generic parameter
+ * to be recalled at runtime.
+ *
+ * TODO This is not sufficient to capture generics with multiple arguments or nested generic types.
+ */
+public @interface HgGeneric {
     Class<?> value();
 }
