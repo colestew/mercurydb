@@ -7,6 +7,7 @@ package weborders.source;
 /**
  * @author dsb
  */
+@SuppressWarnings("unused")
 public class Part extends Common {
     public int pno;
     public String pname;

@@ -12,10 +12,11 @@ import java.util.List;
 /**
  * @author dsb
  */
+@SuppressWarnings("unused")
 public class Odetail extends Common {
     @HgIndex
     public int ono;
-    public List<Part> pnos = new ArrayList<>();
+    public List<Part> pnos = new ArrayList<Part>();
     public int qty;
 
     private Odetail() {

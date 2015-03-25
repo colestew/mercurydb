@@ -9,6 +9,7 @@ import org.mercurydb.HgIndex;
 /**
  * @author dsb
  */
+@SuppressWarnings("unused")
 public class Order extends Common {
     @HgIndex
     public int ono;

@@ -9,6 +9,7 @@ import org.mercurydb.HgIndex;
 /**
  * @author dsb
  */
+@SuppressWarnings("unused")
 public class Customer extends Common {
     public int cno;
     @HgIndex

@@ -7,6 +7,7 @@ package weborders.source;
 /**
  * @author dsb
  */
+@SuppressWarnings("unused")
 public class Zipcode extends Common {
     public int zip;
     public String city;

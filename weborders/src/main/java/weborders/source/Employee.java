@@ -7,6 +7,7 @@ package weborders.source;
 /**
  * @author dsb
  */
+@SuppressWarnings("unused")
 public class Employee extends Common {
     public int eno;
     public String ename;
