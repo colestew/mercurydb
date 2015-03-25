@@ -1,6 +1,7 @@
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mercurydb.queryutils.*;
+import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 import org.mercurydb.queryutils.joiners.JoinNestedLoops;
 import weborders.db.*;
 import weborders.source.*;
@@ -10,8 +11,6 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import org.mercurydb.queryutils.HgTupleStream.HgTuple;
-
 import static org.junit.Assert.fail;
 
 /**
@@ -19,6 +18,7 @@ import static org.junit.Assert.fail;
  * continue to add to these tests to get full coverage of HgDB for
  * this example.
  */
+@SuppressWarnings("unused") // loop variables
 public class DBTest {
     public static final int TEST_SIZE = 1000;
 
@@ -64,7 +64,7 @@ public class DBTest {
 
     @Test
     public void testQuery() {
-        Set<Integer> seen = new HashSet<>();
+        Set<Integer> seen = new HashSet<Integer>();
         for (Order o : HgDB.query(OrderTable.eq.ono(1020))) {
             seen.add(o.ono);
         }
@@ -74,7 +74,7 @@ public class DBTest {
 
     @Test
     public void testQueryPredicate() {
-        Set<Integer> seen = new HashSet<>();
+        Set<Integer> seen = new HashSet<Integer>();
 
         for (Order o : HgDB.query(OrderTable.predicate(new HgPredicate<Order>() {
             @Override
@@ -90,7 +90,7 @@ public class DBTest {
 
     @Test
     public void testQueryPredicate2() {
-        Set<Integer> seen = new HashSet<>();
+        Set<Integer> seen = new HashSet<Integer>();
 
         for (Order o : HgDB.query(OrderTable.predicates.ono(new HgPredicate<Integer>() {
             @Override
@@ -106,7 +106,7 @@ public class DBTest {
 
     @Test
     public void testFilterOr() {
-        Set<Integer> seen = new HashSet<>();
+        Set<Integer> seen = new HashSet<Integer>();
         for (Order o : HgDB.query(OrderTable.eq.ono(1020))
                 .concat(HgDB.query(OrderTable.eq.ono(1021)))) {
             seen.add(o.ono);
@@ -118,7 +118,7 @@ public class DBTest {
     @Test
     public void testSelfPredicate() {
         boolean hasData = false;
-        for (Order o: HgDB.query(
+        for (Order o : HgDB.query(
                 OrderTable.predicate(new HgPredicate<Order>() {
                     @Override
                     public boolean test(Order value) {
@@ -170,7 +170,6 @@ public class DBTest {
             hasData = true;
             if (!(t.get(OdetailTable.ID).pnos.contains(t.get(PartTable.ID)))) fail();
         }
-
     }
 
     @Test
@@ -195,8 +194,10 @@ public class DBTest {
                 noIndexStream(OdetailTable.on.ono())))) {
             ++count;
         }
+
         long stopTime = System.currentTimeMillis();
-        System.out.println("Nested loops time for " + count + " elements: " + (stopTime-startTime)/1000.0);
+        System.out.println("Nested loops time for " + count + " elements: " + (stopTime - startTime) / 1000.0);
+
         if (count != correctCount) fail();
     }
 
@@ -210,9 +211,10 @@ public class DBTest {
                 OdetailTable.on.ono())) {
             ++count;
         }
+
         long stopTime = System.currentTimeMillis();
 
-        System.out.println("Index Scan Time for " + count + " elements: " + (stopTime-startTime)/1000.0);
+        System.out.println("Index Scan Time for " + count + " elements: " + (stopTime - startTime) / 1000.0);
 
         if (count != correctCount) fail();
     }
@@ -232,7 +234,7 @@ public class DBTest {
         }
         long stopTime = System.currentTimeMillis();
 
-        System.out.println("Index Scan Lt Time for " + count + " elements: " + (stopTime-startTime)/1000.0);
+        System.out.println("Index Scan Lt Time for " + count + " elements: " + (stopTime - startTime) / 1000.0);
 
     }
 
@@ -250,13 +252,12 @@ public class DBTest {
         }
         long stopTime = System.currentTimeMillis();
 
-        System.out.println("Nested Loops Lt Time for " + count + " elements: " + (stopTime-startTime)/1000.0);
+        System.out.println("Nested Loops Lt Time for " + count + " elements: " + (stopTime - startTime) / 1000.0);
 
     }
 
     @Test
     public void testIndexScan3() {
-
         // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
@@ -462,8 +463,8 @@ public class DBTest {
         stopTime = System.currentTimeMillis();
         long time2 = stopTime - startTime;
         System.out.println(time1 / 1000.0 + " seconds to iterate over all " + count + " elements");
-        System.out.println("Overhead of tuple retrievals: " + (time1-time2)/1000.0 + " seconds");
-        System.out.println("Overhead % : " + (time1-time2)/(double)time1);
+        System.out.println("Overhead of tuple retrievals: " + (time1 - time2) / 1000.0 + " seconds");
+        System.out.println("Overhead % : " + (time1 - time2) / (double) time1);
         if (count == 0) fail();
     }
 
