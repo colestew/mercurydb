@@ -1,4 +1,4 @@
-package org.mercurydb;
+package org.mercurydb.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

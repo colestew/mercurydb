@@ -4,6 +4,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
+import org.mercurydb.annotations.HgIndex;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -24,6 +25,7 @@ public class ClassToTableExtractor {
 
     public String packageName;
 
+    // TODO this field may be unnecessary
     public List<QueryData> queries;
 
     public String tableSuffix;
@@ -59,6 +61,7 @@ public class ClassToTableExtractor {
         }
     }
 
+    // TODO this function may be unneccesary
     private static void populateQueriesList(List<QueryData> queries, List<FieldData> fields) {
         Set<FieldData> fieldSet = new HashSet<FieldData>(fields);
         Set<Set<FieldData>> powerset = Sets.powerSet(fieldSet);
@@ -70,6 +73,8 @@ public class ClassToTableExtractor {
         }
     }
 
+    // TODO unused for now, but should be used later in conjunction with ConstructorData
+    @SuppressWarnings("unused")
     private void populateConstructorsList() {
         for (Constructor<?> con : c.getConstructors()) {
             constructors.add(new ConstructorData(con));
@@ -86,7 +91,7 @@ public class ClassToTableExtractor {
         }
     }
 
-    @SuppressWarnings("unused")
+    // TODO if the `queries` field is unnecessary, then this class may be unnecessary as well
     private static class QueryData {
         TreeSet<FieldData> qFields;
 
@@ -94,6 +99,7 @@ public class ClassToTableExtractor {
             this.qFields = new TreeSet<FieldData>(fields);
         }
 
+        @SuppressWarnings("unused") // used in template
         String prototype() {
             StringBuilder result = new StringBuilder();
             for (FieldData fd : qFields) {
@@ -102,6 +108,7 @@ public class ClassToTableExtractor {
             return result.substring(0, result.length() - 2);
         }
 
+        @SuppressWarnings("unused") // used in template
         boolean hasIndex() {
             for (FieldData fd : qFields) {
                 if (fd.hasIndex) return true;
@@ -110,7 +117,6 @@ public class ClassToTableExtractor {
         }
     }
 
-    @SuppressWarnings("unused")
     private static class FieldData implements Comparable<FieldData> {
         Class<?> _type;
         String rawType;
@@ -161,11 +167,13 @@ public class ClassToTableExtractor {
             return classType().getName();
         }
 
+        @SuppressWarnings("unused") // used in template.java.mustache
         String CCname() {
             return Utils.upperFirst(name);
         }
 
         @Override
+        @SuppressWarnings("NullableProblems") // parameter "o" can be null or non-null
         public int compareTo(FieldData o) {
             if (o == null) {
                 return 1; // sort nulls last
@@ -206,6 +214,6 @@ public class ClassToTableExtractor {
     }
 
     private static HgIndex getIndexAnnotation(Field f) {
-        return f.getAnnotation(org.mercurydb.HgIndex.class);
+        return f.getAnnotation(HgIndex.class);
     }
 }

@@ -4,7 +4,7 @@
  */
 package weborders.source;
 
-import org.mercurydb.HgIndex;
+import org.mercurydb.annotations.HgIndex;
 
 /**
  * @author dsb

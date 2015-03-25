@@ -4,7 +4,8 @@
  */
 package weborders.source;
 
-import org.mercurydb.HgIndex;
+import org.mercurydb.annotations.HgGenericCollection;
+import org.mercurydb.annotations.HgIndex;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 public class Odetail extends Common {
     @HgIndex
     public int ono;
+    @HgGenericCollection(Part.class)
     public List<Part> pnos = new ArrayList<Part>();
     public int qty;
 

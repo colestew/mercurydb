@@ -1,6 +1,7 @@
 package org.mercurydb;
 
 import javassist.*;
+import org.mercurydb.annotations.HgIndex;
 
 import java.io.IOException;
 
@@ -20,7 +21,7 @@ public class BytecodeModifier {
         }
 
         for (CtField cf : _srcClass.getFields()) {
-            if (!cf.hasAnnotation(org.mercurydb.HgIndex.class)) continue;
+            if (!cf.hasAnnotation(HgIndex.class)) continue;
 
             String methodName = "set" + Utils.upperFirst(cf.getName());
             try {
