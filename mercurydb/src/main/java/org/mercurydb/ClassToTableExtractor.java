@@ -140,7 +140,7 @@ public class ClassToTableExtractor {
             HgIndex indexAnnotation = getIndexAnnotation(f);
             if (indexAnnotation != null) {
                 hasIndex = true;
-                isOrdered = indexAnnotation.ordered() && Comparable.class.isAssignableFrom(normalizeType());
+                isOrdered = indexAnnotation.ordered() && Comparable.class.isAssignableFrom(f.getType());
             }
 
             hasIndex = indexAnnotation != null;
@@ -148,51 +148,25 @@ public class ClassToTableExtractor {
         }
 
         String type() {
-            if (isPrimitiveType(rawType)) {
-                return normalizeType().getName();
-            } else {
-                return rawType;
-            }
-        }
-
-        /**
-         * @return true if type is a String representing a primitive type.
-         */
-        boolean isPrimitiveType(String type) {
-            switch (type) {
+            switch (rawType) {
                 case "boolean":
+                    return Boolean.class.getName();
                 case "byte":
+                    return Byte.class.getName();
                 case "char":
+                    return Character.class.getName();
                 case "short":
+                    return Short.class.getName();
                 case "int":
+                    return Integer.class.getName();
                 case "long":
+                    return Long.class.getName();
                 case "float":
+                    return Float.class.getName();
                 case "double":
-                    return true;
+                    return Double.class.getName();
                 default:
-                    return false; // it's an object
-            }
-        }
-
-        Class<?> normalizeType() {
-            if (rawType.equals("boolean")) {
-                return Boolean.class;
-            } else if (rawType.equals("byte")) {
-                return Byte.class;
-            } else if (rawType.equals("char")) {
-                return Character.class;
-            } else if (rawType.equals("short")) {
-                return Short.class;
-            } else if (rawType.equals("int")) {
-                return Integer.class;
-            } else if (rawType.equals("long")) {
-                return Long.class;
-            } else if (rawType.equals("float")) {
-                return Float.class;
-            } else if (rawType.equals("double")) {
-                return Double.class;
-            } else {
-                return field.getType();
+                    return rawType;
             }
         }
 
