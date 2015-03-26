@@ -494,21 +494,21 @@ public class DBTest {
          * are present.
          */
 
-        for (Zipcode z : zips) ZipcodeTable.insert(z);
+        //for (Zipcode z : zips) ZipcodeTable.insert(z);
 
         emps = new Employee[]{
                 new Employee(1000, "Jones", zips[0], "12-DEC-95"),
                 new Employee(1001, "Smith", zips[1], "01-JAN-92"),
                 new Employee(1002, "Brown", zips[2], "01-SEP-94"),
         };
-        for (Employee e : emps) EmployeeTable.insert(e);
+        //for (Employee e : emps) EmployeeTable.insert(e);
 
         customers = new Customer[]{
                 new Customer(1111, "Charles", "123 Main St.", zips[0], "316-636-5555"),
                 new Customer(2222, "Bertram", "237 Ash Avenue", zips[0], "316-689-5555"),
                 new Customer(3333, "Barbara", "111 Inwood St.", zips[1], "316-111-1234")
         };
-        for (Customer c : customers) CustomerTable.insert(c);
+        //for (Customer c : customers) CustomerTable.insert(c);
 
         parts = new Part[]{
                 new Part(10506, "Land Before Time I", 200, 19.99, 20),
@@ -520,7 +520,7 @@ public class DBTest {
                 new Part(10800, "Dirty Harry", 140, 14.99, 30),
                 new Part(10900, "Dr. Zhivago", 100, 24.99, 30),
         };
-        for (Part p : parts) PartTable.insert(p);
+        //for (Part p : parts) PartTable.insert(p);
 
         Random rn = new Random();
         orders = new Order[TEST_SIZE];
@@ -532,7 +532,7 @@ public class DBTest {
                     new Date(rn.nextInt(Integer.MAX_VALUE)).toString(),
                     new Date(rn.nextInt(Integer.MAX_VALUE)).toString());
         }
-        for (Order o : orders) OrderTable.insert(o);
+        //for (Order o : orders) OrderTable.insert(o);
 
         odetails = new Odetail[orders.length];
         for (int i = 0; i < odetails.length; ++i) {
@@ -541,7 +541,7 @@ public class DBTest {
                     parts[rn.nextInt(parts.length)],
                     rn.nextInt(10));
         }
-        for (Odetail o : odetails) OdetailTable.insert(o);
+        //for (Odetail o : odetails) OdetailTable.insert(o);
 
         correctResult = HgDB.join(
                 OrderTable.on.ono(),

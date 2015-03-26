@@ -23,7 +23,7 @@ public class BytecodeModifier {
         for (CtField cf : _srcClass.getFields()) {
             if (!cf.hasAnnotation(HgIndex.class)) continue;
 
-            String methodName = "set" + Utils.upperFirst(cf.getName());
+            String methodName = "update" + Utils.upperFirst(cf.getName());
             try {
                 // If method does not exist. This statement will throw an exception
                 CtMethod cm = _srcClass.getDeclaredMethod(methodName);
