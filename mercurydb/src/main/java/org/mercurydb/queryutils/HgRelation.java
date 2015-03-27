@@ -5,7 +5,8 @@ import com.google.common.collect.Iterables;
 import java.util.*;
 
 public abstract class HgRelation implements HgBiPredicate<Object, Object> {
-    abstract public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value);
+    abstract public Iterable<Object> getFromIndex(Map<Object, ? extends Collection<Object>> index, Object value);
+
 
     abstract public HgRelation reversedRelation();
 
@@ -16,7 +17,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
         }
 
         @Override
-        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+        public Iterable<Object> getFromIndex(Map<Object, ? extends Collection<Object>> index, Object value) {
             return noNull(index.get(value));
         }
 
@@ -28,10 +29,11 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
 
     public static final HgRelation NE = new HgRelation() {
         @Override
-        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
-            Collection<Collection<Object>> iterables = new ArrayList<Collection<Object>>(index.keySet().size() - 1);
+        public Iterable<Object> getFromIndex(Map<Object, ? extends Collection<Object>> index, Object value) {
+            Set<Object> keySet = index.keySet();
+            Collection<Collection<Object>> iterables = new ArrayList<>(keySet.size() - 1);
 
-            for (Object key : index.keySet()) {
+            for (Object key : keySet) {
                 if (!key.equals(value)) {
                     iterables.add(index.get(key));
                 }
@@ -54,9 +56,9 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     public static final HgRelation LT = new HgRelation() {
         @Override
         @SuppressWarnings("unchecked") // cast to TreeMap
-        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+        public Iterable<Object> getFromIndex(Map<Object, ? extends Collection<Object>> index, Object value) {
             if (index instanceof TreeMap) {
-                TreeMap<Object, Set<Object>> tIndex = (TreeMap) index;
+                TreeMap<Object, ? extends Collection<Object>> tIndex = (TreeMap) index;
                 return Iterables.concat(tIndex.headMap(value, false).values());
             }
 
@@ -83,9 +85,9 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     public static final HgRelation LE = new HgRelation() {
         @Override
         @SuppressWarnings("unchecked") // cast to TreeMap
-        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+        public Iterable<Object> getFromIndex(Map<Object, ? extends Collection<Object>> index, Object value) {
             if (index instanceof TreeMap) {
-                TreeMap<Object, Set<Object>> tIndex = (TreeMap) index;
+                TreeMap<Object, ? extends Collection<Object>> tIndex = (TreeMap) index;
                 return Iterables.concat(tIndex.headMap(value, true).values());
             }
 
@@ -111,9 +113,9 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     public static final HgRelation GT = new HgRelation() {
         @Override
         @SuppressWarnings("unchecked") // cast to TreeMap
-        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+        public Iterable<Object> getFromIndex(Map<Object, ? extends Collection<Object>> index, Object value) {
             if (index instanceof TreeMap) {
-                TreeMap<Object, Set<Object>> tIndex = (TreeMap) index;
+                TreeMap<Object, ? extends Collection<Object>> tIndex = (TreeMap) index;
                 return Iterables.concat(tIndex.tailMap(value, false).values());
             }
 
@@ -139,9 +141,9 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     public static final HgRelation GE = new HgRelation() {
         @Override
         @SuppressWarnings("unchecked") // cast to TreeMap
-        public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
+        public Iterable<Object> getFromIndex(Map<Object, ? extends Collection<Object>> index, Object value) {
             if (index instanceof TreeMap) {
-                TreeMap<Object, Set<Object>> tIndex = (TreeMap) index;
+                TreeMap<Object, ? extends Collection<Object>> tIndex = (TreeMap) index;
                 return Iterables.concat(tIndex.tailMap(value, true).values());
             }
 

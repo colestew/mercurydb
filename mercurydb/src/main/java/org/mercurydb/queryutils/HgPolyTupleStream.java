@@ -8,6 +8,7 @@ public abstract class HgPolyTupleStream extends HgTupleStream {
 
     public HgPolyTupleStream(JoinPredicate predicate) {
         super(predicate.streamA.getContainedIds(), predicate.streamB.getContainedIds());
+        System.out.println(predicate.streamA.getContainedIds() + " - " + predicate.streamB.getContainedIds());
         this._predicate = predicate;
     }
 

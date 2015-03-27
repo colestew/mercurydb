@@ -46,7 +46,7 @@ public class TableID<T> {
      * until you have Long.MAX_VALUE entries the HgTuple, and this assumes that
      * you have used all Long.MAX_VALUE names, so it may be even less restrictive.
      */
-    private long id;
+    public final long id;
 
     /**
      * Create a new TableID with the current value of the static counter, and
@@ -63,8 +63,12 @@ public class TableID<T> {
      * @param other A generic TableID against which to compare.
      * @return Whether the id values are equal.
      */
-    public boolean equals(TableID other) {
-        return this.id == other.id;
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof TableID) {
+            return this.id == ((TableID)other).id;
+        }
+        return false;
     }
 
     /**
@@ -170,7 +174,7 @@ public class TableID<T> {
 
     @Override
     public String toString() {
-        return String.format("TableID<%s>:%d", this.getClass().getName(), id);
+        return String.format("id: %d", id);
     }
 }
 

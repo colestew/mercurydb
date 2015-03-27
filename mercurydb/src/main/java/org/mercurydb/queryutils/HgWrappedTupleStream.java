@@ -1,25 +1,33 @@
 package org.mercurydb.queryutils;
 
-abstract public class HgWrappedTupleStream extends HgTupleStream {
-    private final HgTupleStream _stream;
+import org.mercurydb.queryutils.HgTupleStream;
+
+public class HgWrappedTupleStream extends HgTupleStream {
+
+    private final HgTupleStream _fwdStream;
 
     public HgWrappedTupleStream(HgTupleStream stream) {
-        super(stream._fwdFE);
-        _stream = stream;
+        super(stream, stream.getContainedIds());
+        this._fwdStream = stream;
+    }
+
+    @Override
+    public boolean isIndexed() {
+        return _fwdStream.isIndexed();
     }
 
     @Override
     public void reset() {
-        _stream.reset();
+        _fwdStream.reset();
     }
 
     @Override
     public boolean hasNext() {
-        return _stream.hasNext();
+        return _fwdStream.hasNext();
     }
 
     @Override
     public HgTuple next() {
-        return _stream.next();
+        return _fwdStream.next();
     }
 }

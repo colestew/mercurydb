@@ -175,6 +175,23 @@ public abstract class HgTupleStream
             return HgTupleStream.this;
         }
 
+//        @Override
+//        public boolean equals(Object o) {
+//            if (o instanceof HgTuple) {
+//                HgTuple ot = (HgTuple)o;
+//                if (ot._entries.size() == _entries.size() &&
+//                        _containedTypes.keySet().containsAll(ot.getStream()._containedTypes.keySet())) {
+//                    for (TableID<?> myType: _containedTypes.keySet()) {
+//                        if (!get(myType).equals(ot.get(myType))) {
+//                           return false;
+//                        }
+//                    }
+//                    return true;
+//                }
+//            }
+//            return false;
+//        }
+
         private void insertRecords(HgTuple t) {
             for (TableID<?> id : t.getStream()._containedTypes.keySet()) {
                 int index = _containedTypes.get(id);

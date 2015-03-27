@@ -13,13 +13,13 @@ import java.util.Iterator;
  */
 public class JoinIndexScan extends HgPolyTupleStream {
 
-    private final HgTupleStream ap;
-    private final HgTupleStream bp;
-    private final HgRelation relation;
+    protected final HgTupleStream ap;
+    protected final HgTupleStream bp;
+    protected final HgRelation relation;
 
-    private HgTuple currB;
+    protected HgTuple currB;
     private Iterator<HgTuple> bInstances;
-    private Iterator<Object> aInstances;
+    protected Iterator<Object> aInstances;
 
 
     private static JoinPredicate fixAndCheckPredicate(JoinPredicate predicate) {

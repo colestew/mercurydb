@@ -7,9 +7,7 @@ import weborders.db.*;
 import weborders.source.*;
 
 import java.sql.Date;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.fail;
 
@@ -20,7 +18,7 @@ import static org.junit.Assert.fail;
  */
 @SuppressWarnings("unused") // loop variables
 public class DBTest {
-    public static final int TEST_SIZE = 1000;
+    public static final int TEST_SIZE = 50;
 
     static Zipcode[] zips;
     static Employee[] emps;
@@ -32,8 +30,10 @@ public class DBTest {
     static HgStream<HgTupleStream.HgTuple> correctResult;
     static long correctCount;
 
+
+
     @Test
-    public void testFilter1() {
+    public void testStreamFilter() {
         boolean hasData = false;
         for (Order o : OrderTable
                 .stream() // don't use index
@@ -44,6 +44,8 @@ public class DBTest {
 
         if (!hasData) fail();
     }
+
+    @Test
 
     @Test
     public void testFilter() {
@@ -176,12 +178,13 @@ public class DBTest {
     public void testHashJoin() {
         // Hash Join
         long count = 0;
-        HgTupleStream result = HgDB.joinHash(
-                OrderTable.on.ono(),
+        HgTupleStream result = HgDB.join(
+                noIndexStream(OrderTable.on.ono()),
                 noIndexStream(OdetailTable.on.ono()));
 
         for (HgTupleStream.HgTuple t : result) ++count;
 
+        System.out.println(count + " hash joined elements.");
         if (count != correctCount) fail();
     }
 
@@ -248,6 +251,7 @@ public class DBTest {
                 noIndexStream(OdetailTable.on.ono()),
                 HgRelation.LT)) {
             ++count;
+            //System.out.println(jr.get(OrderTable.ID) + " | " + jr.get(OdetailTable.ID));
             if (jr.get(OrderTable.ID).ono >= jr.get(OdetailTable.ID).ono) fail();
         }
         long stopTime = System.currentTimeMillis();
@@ -433,6 +437,28 @@ public class DBTest {
     }
 
     @Test
+    public void testMultiJoinManual() {
+        HgTupleStream result = HgDB.join(
+                OrderTable.on.ono(), OdetailTable.on.ono()
+        );
+        result = result.joinOn(OdetailTable.on.qty());
+        result = HgDB.join(result, ZipcodeTable.on.zip(), HgRelation.LT);
+        boolean hasData = false;
+
+        for (HgTuple t : result) {
+            hasData = true;
+            Order o = t.get(OrderTable.ID);
+            Odetail od = t.get(OdetailTable.ID);
+            Zipcode z = t.get(ZipcodeTable.ID);
+
+            if (o.ono != od.ono || od.qty >= z.zip) fail();
+        }
+
+        if (!hasData) fail();
+
+    }
+
+    @Test
     public void testMultiJoinReset() {
         HgTupleStream result = HgDB.join(
                 new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
@@ -553,7 +579,7 @@ public class DBTest {
             ++count;
         }
 
-        System.out.println("Count is: " + count);
+        System.out.println("Ono join count is: " + count);
         correctCount = count;
 
         if (count == 0) {

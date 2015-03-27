@@ -1,9 +1,6 @@
 package org.mercurydb.queryutils;
 
-import org.mercurydb.queryutils.joiners.JoinFilter;
-import org.mercurydb.queryutils.joiners.JoinIndexIntersection;
-import org.mercurydb.queryutils.joiners.JoinIndexScan;
-import org.mercurydb.queryutils.joiners.JoinNestedLoops;
+import org.mercurydb.queryutils.joiners.*;
 
 import java.util.*;
 
@@ -15,16 +12,12 @@ import java.util.*;
  * TODO UPDATE DOCUMENTATION
  */
 public class HgDB {
-    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR =
-            new Comparator<AbstractFieldExtractablePredicate<?, ?>>() {
-                @Override
-                public int compare(AbstractFieldExtractablePredicate<?, ?> a,
-                                   AbstractFieldExtractablePredicate<?, ?> b) {
-                    int aPriority = getQueryPredicatePriority(a);
-                    int bPriority = getQueryPredicatePriority(b);
-                    return aPriority - bPriority;
-                }
-            };
+    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR = (a, b) -> {
+        int aPriority = getQueryPredicatePriority(a);
+        int bPriority = getQueryPredicatePriority(b);
+        return aPriority - bPriority;
+
+    };
 
     private static int getQueryPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
         if (predicate instanceof FieldExtractableRelation) {
@@ -39,15 +32,11 @@ public class HgDB {
         return 3;
     }
 
-    private static final Comparator<JoinPredicate> JOIN_PREDICATE_COMPARATOR =
-            new Comparator<JoinPredicate>() {
-                @Override
-                public int compare(JoinPredicate a, JoinPredicate b) {
-                    int aPriority = getJoinPredicatePriority(a);
-                    int bPriority = getJoinPredicatePriority(b);
-                    return aPriority - bPriority;
-                }
-            };
+    private static final Comparator<JoinPredicate> JOIN_PREDICATE_COMPARATOR = (a, b) -> {
+        int aPriority = getJoinPredicatePriority(a);
+        int bPriority = getJoinPredicatePriority(b);
+        return aPriority - bPriority;
+    };
 
     private static int getJoinPredicatePriority(JoinPredicate predicate) {
         if (isStreamAndIndexCompatible(predicate.streamA, predicate.relation) ||
@@ -165,32 +154,34 @@ public class HgDB {
             return new JoinFilter(predicate);
         } else if (isStreamAndIndexCompatible(a, predicate.relation) ||
                 isStreamAndIndexCompatible(b, predicate.relation)) {
-            if (a.isIndexed() && b.isIndexed()) {
 
-                /*
-                 * Both A and B indexed
-                 * Do index intersection A, B
-                 */
-                return new JoinIndexIntersection(predicate);
-            } else {
+            // TODO decide if IndexIntersection is actually more efficient in any case!
+//            if (a.isIndexed() && b.isIndexed()) {
+//
+//                /*
+//                 * Both A and B indexed
+//                 * Do index intersection A, B
+//                 */
+//                return new JoinIndexIntersection(predicate);
+//            } else {
 
                 /*
                  * Only A indexed
                  * Scan B, use A index
                  */
                 return new JoinIndexScan(predicate);
-            }
-        } else if (predicate.relation == HgRelation.EQ &&
-                !(a instanceof HgPolyTupleStream || b instanceof HgPolyTupleStream)) {
+        } else if (predicate.relation instanceof HgRelation) {
             /*
-             * Neither is indexed and relation is known to be equality
+             * Neither is indexed and relation is known
              * Do hash join
              */
-            return joinHash(a, b);
+            return new JoinTempIndexScan(predicate);
         } else {
             /*
              * Neither is indexed and relation is unknown.
              * Time for some nested loops.
+             *
+             * ¯\_(ツ)_/¯
              */
             return new JoinNestedLoops(predicate);
         }
@@ -205,47 +196,5 @@ public class HgDB {
         boolean predIsHgRelation = pred instanceof HgRelation;
 
         return (pred == HgRelation.EQ) || (indexIsTreeMap && predIsHgRelation);
-    }
-
-    /**
-     * Simple hash join algorithm. Inhales the results
-     * into a // TODO finish documentation
-     *
-     * @param a // TODO documentation
-     * @param b // TODO documentation
-     * @return // TODO documentation
-     */
-    @SuppressWarnings("unchecked")
-    public static HgPolyTupleStream joinHash(
-            final HgTupleStream a,
-            final HgTupleStream b) {
-        final Map<Object, Set<Object>> aMap = new HashMap<Object, Set<Object>>();
-
-        // Inhale stream A into hash table
-        for (HgTupleStream.HgTuple aInstance : a) {
-            Object key = aInstance.extractJoinedField();
-
-            Set<Object> l = aMap.get(key);
-            if (l == null) {
-                l = new HashSet<Object>();
-            }
-
-            l.add(aInstance);
-            aMap.put(key, l);
-        }
-
-        HgTupleStream aIndexed = new HgWrappedTupleStream(a) {
-            @Override
-            public boolean isIndexed() {
-                return true;
-            }
-
-            @Override
-            public Map<Object, Set<Object>> getIndex() {
-                return aMap;
-            }
-        };
-
-        return new JoinIndexScan(new JoinPredicate(aIndexed, b));
     }
 }
