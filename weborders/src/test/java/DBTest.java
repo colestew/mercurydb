@@ -1,3 +1,4 @@
+import com.google.common.collect.Lists;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mercurydb.queryutils.*;
@@ -11,12 +12,7 @@ import java.util.*;
 
 import static org.junit.Assert.fail;
 
-/**
- * These tests are in limbo. They are not fully comprehensive. We will
- * continue to add to these tests to get full coverage of HgDB for
- * this example.
- */
-@SuppressWarnings("unused") // loop variables
+@SuppressWarnings("unused")
 public class DBTest {
     public static final int TEST_SIZE = 50;
 
@@ -30,28 +26,108 @@ public class DBTest {
     static HgStream<HgTupleStream.HgTuple> correctResult;
     static long correctCount;
 
-
-
-    @Test
-    public void testStreamFilter() {
-        boolean hasData = false;
-        for (Order o : OrderTable
-                .stream() // don't use index
-                .filter(OrderTable.eq.ono(1020))) {
-            hasData = true;
-            if (o.ono != 1020) fail();
+    private static<T> void checkCorrectQueryResult(HgStream<T> test, HgStream<T> src, HgPredicate<T> pred) {
+        List<T> correct = Lists.newArrayList();
+        for (T e : src) {
+            if (pred.test(e)) {
+                correct.add(e);
+            }
+        }
+        for (T e : test) {
+            if (!correct.remove(e)) fail();
         }
 
-        if (!hasData) fail();
+        if (!correct.isEmpty()) fail();
+    }
+
+    private static<T1, T2> void compareIterators(Iterator<T1> a, Iterator<T2> b) {
+        while (a.hasNext() && b.hasNext()) {
+            T1 t1 = a.next();
+            T2 t2 = b.next();
+            if (!t1.equals(t2)) {
+                fail("Wrong iterator comparison: " + t1 + " \\ " + t2);
+            }
+        }
+        if (a.hasNext() || b.hasNext()) fail();
     }
 
     @Test
+    public void testStreamFilter() {
+        HgStream<Order> test = OrderTable
+                .stream()
+                .filter(OrderTable.eq.ono(1020));
+        checkCorrectQueryResult(
+                test,
+                OrderTable.stream(),
+                o -> o.ono == 1020);
+    }
 
     @Test
-    public void testFilter() {
-        for (Order o : HgDB.query(OrderTable.eq.ono(1025))) {
-            if (o.ono != 1025) fail();
-        }
+    public void testQueryLt() {
+        HgStream<Order> test = HgDB.query(OrderTable.lt.ono(1020));
+        checkCorrectQueryResult(
+                test,
+                OrderTable.stream(),
+                o -> o.ono < 1020);
+    }
+
+    @Test
+    public void testQueryLe() {
+        HgStream<Order> test = HgDB.query(OrderTable.le.ono(1020));
+        checkCorrectQueryResult(
+                test,
+                OrderTable.stream(),
+                o -> o.ono <= 1020);
+    }
+
+    @Test
+    public void testQueryGt() {
+        HgStream<Order> test = HgDB.query(OrderTable.gt.ono(1020));
+        checkCorrectQueryResult(
+                test,
+                OrderTable.stream(),
+                o -> o.ono > 1020);
+    }
+
+
+    @Test
+    public void testQueryGe() {
+        HgStream<Order> test = HgDB.query(OrderTable.ge.ono(1020));
+        checkCorrectQueryResult(
+                test,
+                OrderTable.stream(),
+                o -> o.ono >= 1020);
+    }
+
+    @Test
+    public void testQueryCustom() {
+        Collection<Integer> set = Lists.newArrayList(1020, 1021, 1025);
+        HgStream<Order> test = HgDB.query(OrderTable.predicates.ono(o -> set.contains(o)));
+        checkCorrectQueryResult(
+                test,
+                OrderTable.stream(),
+                o -> set.contains(o.ono));
+    }
+
+    @Test
+    public void testQueryMulti() {
+        HgStream<Part> test = HgDB.query(
+                PartTable.lt.pname("L"),
+                PartTable.le.price(19.99));
+        checkCorrectQueryResult(
+                test,
+                PartTable.stream(),
+                p -> p.pname.compareTo("L") < 0 && p.price <= 19.99);
+    }
+
+    @Test
+    public void testStreamConcat() {
+        HgStream<Order> test = HgDB.query(OrderTable.eq.ono(1020))
+                .concat(HgDB.query(OrderTable.eq.ono(1021)));
+        checkCorrectQueryResult(
+                test,
+                OrderTable.stream(),
+                o -> o.ono == 1020 || o.ono == 1021);
     }
 
     @Test
@@ -65,79 +141,7 @@ public class DBTest {
     }
 
     @Test
-    public void testQuery() {
-        Set<Integer> seen = new HashSet<Integer>();
-        for (Order o : HgDB.query(OrderTable.eq.ono(1020))) {
-            seen.add(o.ono);
-        }
-
-        if (seen.size() != 1 || !seen.contains(1020)) fail();
-    }
-
-    @Test
-    public void testQueryPredicate() {
-        Set<Integer> seen = new HashSet<Integer>();
-
-        for (Order o : HgDB.query(OrderTable.predicate(new HgPredicate<Order>() {
-            @Override
-            public boolean test(Order value) {
-                return value.ono == 1020;
-            }
-        }))) {
-            seen.add(o.ono);
-        }
-
-        if (seen.size() != 1 || !seen.contains(1020)) fail();
-    }
-
-    @Test
-    public void testQueryPredicate2() {
-        Set<Integer> seen = new HashSet<Integer>();
-
-        for (Order o : HgDB.query(OrderTable.predicates.ono(new HgPredicate<Integer>() {
-            @Override
-            public boolean test(Integer value) {
-                return value == 1020;
-            }
-        }))) {
-            seen.add(o.ono);
-        }
-
-        if (seen.size() != 1 || !seen.contains(1020)) fail();
-    }
-
-    @Test
-    public void testFilterOr() {
-        Set<Integer> seen = new HashSet<Integer>();
-        for (Order o : HgDB.query(OrderTable.eq.ono(1020))
-                .concat(HgDB.query(OrderTable.eq.ono(1021)))) {
-            seen.add(o.ono);
-        }
-
-        if (seen.size() != 2 || !seen.contains(1020) || !seen.contains(1021)) fail();
-    }
-
-    @Test
-    public void testSelfPredicate() {
-        boolean hasData = false;
-        for (Order o : HgDB.query(
-                OrderTable.predicate(new HgPredicate<Order>() {
-                    @Override
-                    public boolean test(Order value) {
-                        return value.ono == 1020;
-                    }
-                }))) {
-            if (o.ono != 1020) fail();
-            hasData = true;
-        }
-
-        if (!hasData) fail();
-    }
-
-    @Test
     public void testJoinPredicate() {
-        boolean hasData = false;
-
         HgTupleStream stream = HgDB.join(
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
@@ -150,18 +154,13 @@ public class DBTest {
         );
 
         for (HgTuple t : stream) {
-            hasData = true;
             if (t.get(OrderTable.ID).ono != t.get(OdetailTable.ID).ono &&
                     t.get(OrderTable.ID).ono != 1020) fail();
         }
-
-        if (!hasData) fail();
     }
 
     @Test
     public void testJoinCollection() {
-        boolean hasData = false;
-
         HgTupleStream stream = HgDB.join(
                 PartTable.stream().joinOn(PartTable.self(PartTable.ID)),
                 OdetailTable.on.pnos(),
@@ -169,13 +168,12 @@ public class DBTest {
         );
 
         for (HgTuple t : stream) {
-            hasData = true;
             if (!(t.get(OdetailTable.ID).pnos.contains(t.get(PartTable.ID)))) fail();
         }
     }
 
     @Test
-    public void testHashJoin() {
+    public void testTemporaryIndexJoinEq() {
         // Hash Join
         long count = 0;
         HgTupleStream result = HgDB.join(
@@ -184,7 +182,6 @@ public class DBTest {
 
         for (HgTupleStream.HgTuple t : result) ++count;
 
-        System.out.println(count + " hash joined elements.");
         if (count != correctCount) fail();
     }
 
@@ -232,7 +229,6 @@ public class DBTest {
                 OdetailTable.on.ono(),
                 HgRelation.LT)) {
             ++count;
-
             if (jr.get(OrderTable.ID).ono >= jr.get(OdetailTable.ID).ono) fail();
         }
         long stopTime = System.currentTimeMillis();
@@ -242,7 +238,7 @@ public class DBTest {
     }
 
     @Test
-    public void testNestedLoopsLt() {
+    public void testTempIndexLt() {
         long startTime = System.currentTimeMillis();
         // Index Scan
         long count = 0;
@@ -251,18 +247,16 @@ public class DBTest {
                 noIndexStream(OdetailTable.on.ono()),
                 HgRelation.LT)) {
             ++count;
-            //System.out.println(jr.get(OrderTable.ID) + " | " + jr.get(OdetailTable.ID));
             if (jr.get(OrderTable.ID).ono >= jr.get(OdetailTable.ID).ono) fail();
         }
         long stopTime = System.currentTimeMillis();
 
-        System.out.println("Nested Loops Lt Time for " + count + " elements: " + (stopTime - startTime) / 1000.0);
+        System.out.println("Temp Index Lt Time for " + count + " elements: " + (stopTime - startTime) / 1000.0);
 
     }
 
     @Test
     public void testIndexScan3() {
-        // Index Scan
         long count = 0;
         for (HgTuple jr : HgDB.join(
                 OrderTable.on.ono(),
@@ -275,7 +269,6 @@ public class DBTest {
 
     @Test
     public void testIndexIntersection() {
-        System.out.println("Test Index Intersection.");
         // Index Intersection
         long count = 0;
         HgTupleStream order = OrderTable.on.ono();
@@ -346,7 +339,6 @@ public class DBTest {
 
     @Test
     public void testJoinLtIntersection() {
-        System.out.println("Testing Join Lt Intersection");
         for (HgTuple t : HgDB.join(
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
@@ -358,7 +350,6 @@ public class DBTest {
 
     @Test
     public void testJoinLtScan1() {
-        System.out.println("Testing Join Lt Scan using index A");
         for (HgTuple t : HgDB.join(
                 noIndexStream(OrderTable.on.ono()),
                 OdetailTable.on.ono(),
@@ -370,7 +361,6 @@ public class DBTest {
 
     @Test
     public void testJoinLtScan2() {
-        System.out.println("Test Join Lt Scan using index B");
         for (HgTuple t : HgDB.join(
                 OrderTable.on.ono(),
                 noIndexStream(OdetailTable.on.ono()),
@@ -464,7 +454,6 @@ public class DBTest {
                 new JoinPredicate(OrderTable.on.ono(), OdetailTable.on.ono()),
                 new JoinPredicate(OdetailTable.on.qty(), ZipcodeTable.on.zip(), HgRelation.LT));
 
-        long startTime = System.currentTimeMillis();
         int count = 0;
         for (HgTuple t : result) {
             ++count;
@@ -474,23 +463,14 @@ public class DBTest {
 
             if (o.ono != od.ono || od.qty >= z.zip) fail();
         }
-        long stopTime = System.currentTimeMillis();
-        long time1 = stopTime - startTime;
-        System.out.println(time1 / 1000.0 + " seconds to iterate over all " + count + " elements");
 
         if (count == 0) fail();
 
         result.reset();
         count = 0;
-        startTime = System.currentTimeMillis();
         for (HgTuple t : result) {
             ++count;
         }
-        stopTime = System.currentTimeMillis();
-        long time2 = stopTime - startTime;
-        System.out.println(time1 / 1000.0 + " seconds to iterate over all " + count + " elements");
-        System.out.println("Overhead of tuple retrievals: " + (time1 - time2) / 1000.0 + " seconds");
-        System.out.println("Overhead % : " + (time1 - time2) / (double) time1);
         if (count == 0) fail();
     }
 
@@ -579,7 +559,6 @@ public class DBTest {
             ++count;
         }
 
-        System.out.println("Ono join count is: " + count);
         correctCount = count;
 
         if (count == 0) {

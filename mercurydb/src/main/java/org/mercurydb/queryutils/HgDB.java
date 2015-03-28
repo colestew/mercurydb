@@ -22,7 +22,7 @@ public class HgDB {
     private static int getQueryPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
         if (predicate instanceof FieldExtractableRelation) {
             FieldExtractableRelation<?, ?> fer = (FieldExtractableRelation<?, ?>) predicate;
-            if (fer.relation == HgRelation.EQ) {
+            if (fer.isIndexed() && fer.relation == HgRelation.EQ) {
                 return -(fer.getIndex().get(fer.value).size());
             } else if (isIndexCompatible(fer.getIndex(), fer.relation)) {
                 return 2;
@@ -195,6 +195,6 @@ public class HgDB {
         boolean indexIsTreeMap = index instanceof TreeMap<?, ?>;
         boolean predIsHgRelation = pred instanceof HgRelation;
 
-        return (pred == HgRelation.EQ) || (indexIsTreeMap && predIsHgRelation);
+        return index != null && (pred == HgRelation.EQ || (indexIsTreeMap && predIsHgRelation));
     }
 }

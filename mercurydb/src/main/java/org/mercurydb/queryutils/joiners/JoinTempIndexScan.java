@@ -23,7 +23,7 @@ public class JoinTempIndexScan extends JoinIndexScan {
 
             Set<Object> l = aMap.get(key);
             if (l == null) {
-                l = new HashSet<Object>();
+                l = new HashSet<>();
             }
 
             l.add(aInstance);
