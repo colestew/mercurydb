@@ -4,13 +4,13 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.google.common.collect.Sets;
-import org.mercurydb.annotations.HgGeneric;
 import org.mercurydb.annotations.HgIndex;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.*;
 
 public class ClassToTableExtractor {
@@ -119,64 +119,55 @@ public class ClassToTableExtractor {
     }
 
     private static class FieldData implements Comparable<FieldData> {
-        Class<?> _type;
+        Field field;
+
         String rawType;
         String name;
+        Type fieldType;
 
         boolean hasIndex;
         boolean isOrdered;
         boolean isFinal;
 
-        boolean hasGeneric;
-        String genericType;
-
         FieldData(Field f) {
-            _type = f.getType();
-            rawType = _type.getName();
+            field = f;
+
+            fieldType = f.getGenericType();
+            rawType = fieldType.getTypeName();
             name = f.getName();
 
             // fetch HgIndex annotation
             HgIndex indexAnnotation = getIndexAnnotation(f);
             if (indexAnnotation != null) {
                 hasIndex = true;
-                isOrdered = indexAnnotation.ordered() && Comparable.class.isAssignableFrom(classType());
-            }
-
-            // fetch HgGeneric annotation
-            HgGeneric genericAnnotation = getGenericAnnotation(f);
-            if (genericAnnotation != null) {
-                hasGeneric = true;
-                genericType = genericAnnotation.value().getName();
+                isOrdered = indexAnnotation.ordered() && Comparable.class.isAssignableFrom(f.getType());
             }
 
             hasIndex = indexAnnotation != null;
             isFinal = Modifier.isFinal(f.getModifiers());
         }
 
-        Class<?> classType() {
-            if (rawType.equals("boolean")) {
-                return Boolean.class;
-            } else if (rawType.equals("byte")) {
-                return Byte.class;
-            } else if (rawType.equals("char")) {
-                return Character.class;
-            } else if (rawType.equals("short")) {
-                return Short.class;
-            } else if (rawType.equals("int")) {
-                return Integer.class;
-            } else if (rawType.equals("long")) {
-                return Long.class;
-            } else if (rawType.equals("float")) {
-                return Float.class;
-            } else if (rawType.equals("double")) {
-                return Double.class;
-            } else {
-                return _type;
-            }
-        }
-
         String type() {
-            return classType().getName();
+            switch (rawType) {
+                case "boolean":
+                    return Boolean.class.getName();
+                case "byte":
+                    return Byte.class.getName();
+                case "char":
+                    return Character.class.getName();
+                case "short":
+                    return Short.class.getName();
+                case "int":
+                    return Integer.class.getName();
+                case "long":
+                    return Long.class.getName();
+                case "float":
+                    return Float.class.getName();
+                case "double":
+                    return Double.class.getName();
+                default:
+                    return rawType;
+            }
         }
 
         @SuppressWarnings("unused") // used in template.java.mustache
@@ -227,9 +218,5 @@ public class ClassToTableExtractor {
 
     private static HgIndex getIndexAnnotation(Field f) {
         return f.getAnnotation(HgIndex.class);
-    }
-
-    private static HgGeneric getGenericAnnotation(Field f) {
-        return f.getAnnotation(HgGeneric.class);
     }
 }

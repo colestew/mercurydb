@@ -24,10 +24,10 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{#fields}}
     {{#hasIndex}}
     {{#isOrdered}}
-    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<{{type}}, Set<{{sourceClass}}>>();
+    private static Map<{{{type}}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<{{{type}}}, Set<{{sourceClass}}>>();
     {{/isOrdered}}
     {{^isOrdered}}
-    private static Map<{{type}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<{{type}}, Set<{{sourceClass}}>>();
+    private static Map<{{{type}}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<{{{type}}}, Set<{{sourceClass}}>>();
     {{/isOrdered}}
 
     {{/hasIndex}}
@@ -81,7 +81,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     // Set methods - make sure you use these on indexed fields for consistency!
     {{#fields}}
     {{^isFinal}}
-    public static void set{{CCname}}({{sourceClass}} instance, {{rawType}}{{#hasGeneric}}<{{genericType}}>{{/hasGeneric}} val) {
+    public static void set{{CCname}}({{sourceClass}} instance, {{{rawType}}} val) {
         {{#hasIndex}}
         {{name}}Index.get(instance.{{name}}).remove(instance);
         instance.{{name}} = val;
@@ -204,63 +204,63 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class eq {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
-        {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.EQ, val);
+        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        {{name}}({{{type}}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.EQ, val);
         }
         {{/fields}}
     }
 
     public static class ne {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
-        {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.NE, val);
+        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        {{name}}({{{type}}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.NE, val);
         }
         {{/fields}}
     }
 
     public static class lt {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
-        {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.LT, val);
+        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        {{name}}({{{type}}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.LT, val);
         }
         {{/fields}}
     }
 
     public static class le {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
-        {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.LE, val);
+        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        {{name}}({{{type}}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.LE, val);
         }
         {{/fields}}
     }
 
     public static class gt {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
-        {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.GT, val);
+        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        {{name}}({{{type}}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.GT, val);
         }
         {{/fields}}
     }
 
     public static class ge {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
-        {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.GE, val);
+        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        {{name}}({{{type}}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.GE, val);
         }
         {{/fields}}
     }
 
     public static class in {
         {{#fields}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{type}}>
-        {{name}}({{type}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{type}}>(field.{{name}}(ID), HgRelation.IN, val);
+        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        {{name}}({{{type}}} val) {
+            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.IN, val);
         }
         {{/fields}}
     }
@@ -272,9 +272,9 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static class predicates {
         {{#fields}}
-        public static FieldExtractablePredicate<{{sourceClass}}, {{type}}>
-        {{name}}(HgPredicate<{{type}}> predicate) {
-            return new FieldExtractablePredicate<{{sourceClass}}, {{type}}>(field.{{name}}(ID), predicate);
+        public static FieldExtractablePredicate<{{sourceClass}}, {{{type}}}>
+        {{name}}(HgPredicate<{{{type}}}> predicate) {
+            return new FieldExtractablePredicate<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), predicate);
         }
         {{/fields}}
     }
