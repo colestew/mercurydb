@@ -16,14 +16,10 @@ import java.util.*;
  */
 public class HgDB {
     private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR =
-            new Comparator<AbstractFieldExtractablePredicate<?, ?>>() {
-                @Override
-                public int compare(AbstractFieldExtractablePredicate<?, ?> a,
-                                   AbstractFieldExtractablePredicate<?, ?> b) {
-                    int aPriority = getQueryPredicatePriority(a);
-                    int bPriority = getQueryPredicatePriority(b);
-                    return aPriority - bPriority;
-                }
+            (a, b) -> {
+                int aPriority = getQueryPredicatePriority(a);
+                int bPriority = getQueryPredicatePriority(b);
+                return aPriority - bPriority;
             };
 
     private static int getQueryPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
@@ -40,13 +36,10 @@ public class HgDB {
     }
 
     private static final Comparator<JoinPredicate> JOIN_PREDICATE_COMPARATOR =
-            new Comparator<JoinPredicate>() {
-                @Override
-                public int compare(JoinPredicate a, JoinPredicate b) {
-                    int aPriority = getJoinPredicatePriority(a);
-                    int bPriority = getJoinPredicatePriority(b);
-                    return aPriority - bPriority;
-                }
+            (a, b) -> {
+                int aPriority = getJoinPredicatePriority(a);
+                int bPriority = getJoinPredicatePriority(b);
+                return aPriority - bPriority;
             };
 
     private static int getJoinPredicatePriority(JoinPredicate predicate) {
@@ -61,7 +54,7 @@ public class HgDB {
     @SuppressWarnings("unchecked") // cast from Iterable<Object> to Iterable<T>
     public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T, ?>... extractableValues) {
         if (extractableValues.length == 0) {
-            return new HgRetrievalStream<T>(Collections.<T>emptyList());
+            return new HgRetrievalStream<>(Collections.<T>emptyList());
         }
 
         Arrays.sort(extractableValues, QUERY_COMPARATOR);
@@ -76,7 +69,7 @@ public class HgDB {
                 start = 1;
                 HgRelation hgRelation = (HgRelation) fer.relation;
                 Iterable<Object> iter = hgRelation.getFromIndex(fer.getIndex(), fer.value);
-                stream = new HgQueryResultStream<T>((Iterable<T>) iter);
+                stream = new HgQueryResultStream<>((Iterable<T>) iter);
             }
         }
 
@@ -219,7 +212,7 @@ public class HgDB {
     public static HgPolyTupleStream joinHash(
             final HgTupleStream a,
             final HgTupleStream b) {
-        final Map<Object, Set<Object>> aMap = new HashMap<Object, Set<Object>>();
+        final Map<Object, Set<Object>> aMap = new HashMap<>();
 
         // Inhale stream A into hash table
         for (HgTupleStream.HgTuple aInstance : a) {
@@ -227,7 +220,7 @@ public class HgDB {
 
             Set<Object> l = aMap.get(key);
             if (l == null) {
-                l = new HashSet<Object>();
+                l = new HashSet<>();
             }
 
             l.add(aInstance);

@@ -16,28 +16,21 @@ public abstract class HgTupleStream
     }
 
     public HgTupleStream() {
-        this._containedTypes = new HashMap<TableID<?>, Integer>();
+        this._containedTypes = new HashMap<>();
     }
 
     public HgTupleStream(Collection<TableID<?>> aids, Collection<TableID<?>> bids) {
         this();
 
-        for (TableID<?> tid : aids) {
-            addContainedType(tid);
-        }
-
-        for (TableID<?> tid : bids) {
-            addContainedType(tid);
-        }
+        aids.forEach(this::addContainedType);
+        bids.forEach(this::addContainedType);
     }
 
     public HgTupleStream(FieldExtractable fe, Set<TableID<?>> containedTypes) {
         this._fwdFE = fe;
-        this._containedTypes = new HashMap<TableID<?>, Integer>();
+        this._containedTypes = new HashMap<>();
 
-        for (TableID<?> id : containedTypes) {
-            addContainedType(id);
-        }
+        containedTypes.forEach(this::addContainedType);
     }
 
     @Override
@@ -48,7 +41,7 @@ public abstract class HgTupleStream
 
     public HgTupleStream(FieldExtractable fe) {
         this._fwdFE = fe;
-        this._containedTypes = new HashMap<TableID<?>, Integer>();
+        this._containedTypes = new HashMap<>();
         addContainedType(fe.getTableId());
     }
 
@@ -68,7 +61,7 @@ public abstract class HgTupleStream
     }
 
     public Set<TableID<?>> getContainedIds() {
-        return new HashSet<TableID<?>>(_containedTypes.keySet());
+        return new HashSet<>(_containedTypes.keySet());
     }
 
     public boolean containsId(TableID<?> id) {
@@ -147,7 +140,7 @@ public abstract class HgTupleStream
     }
 
     public class HgTuple {
-        private ArrayList<Object> _entries = new ArrayList<Object>();
+        private ArrayList<Object> _entries = new ArrayList<>();
 
         public HgTuple(Object o) {
             _entries.add(o);

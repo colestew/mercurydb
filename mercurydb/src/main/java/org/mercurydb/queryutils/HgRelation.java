@@ -3,6 +3,7 @@ package org.mercurydb.queryutils;
 import com.google.common.collect.Iterables;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     abstract public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value);
@@ -29,13 +30,12 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
     public static final HgRelation NE = new HgRelation() {
         @Override
         public Iterable<Object> getFromIndex(Map<Object, Set<Object>> index, Object value) {
-            Collection<Collection<Object>> iterables = new ArrayList<Collection<Object>>(index.keySet().size() - 1);
+            Collection<Collection<Object>> iterables = new ArrayList<>(index.keySet().size() - 1);
 
-            for (Object key : index.keySet()) {
-                if (!key.equals(value)) {
-                    iterables.add(index.get(key));
-                }
-            }
+            iterables.addAll(index.keySet().stream()
+                    .filter(key -> !key.equals(value))
+                    .map(index::get)
+                    .collect(Collectors.toList()));
 
             return Iterables.concat(iterables);
         }

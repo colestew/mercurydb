@@ -111,7 +111,7 @@ public class TableID<T> {
             throw new OutOfNamesException();
         }
 
-        return new TableID<T>();
+        return new TableID<>();
     }
 
     /**
@@ -130,7 +130,7 @@ public class TableID<T> {
             counter = firstAliasID;
         }
 
-        return new TableID<T>();
+        return new TableID<>();
     }
 
     /**
