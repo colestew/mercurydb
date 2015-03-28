@@ -115,7 +115,7 @@ public class TableID<T> {
             throw new OutOfNamesException();
         }
 
-        return new TableID<T>();
+        return new TableID<>();
     }
 
     /**
@@ -134,7 +134,7 @@ public class TableID<T> {
             counter = firstAliasID;
         }
 
-        return new TableID<T>();
+        return new TableID<>();
     }
 
     /**
@@ -187,7 +187,7 @@ class TableIdTestX {
 class TableIdTestCase {
     void foo() {
         try {
-            TableID<TableIdTestX> xName = TableID.<TableIdTestX>createName();
+            TableID<TableIdTestX> xName = TableID.createName();
             TableIdTestX x = new TableIdTestX();
             Object o = x;
             TableIdTestX xx = xName.castObject(o); // castObject MIGHT not be necessary but lets keep it around just in case.

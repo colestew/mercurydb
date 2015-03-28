@@ -1,6 +1,9 @@
 package org.mercurydb.queryutils;
 
-import org.mercurydb.queryutils.joiners.*;
+import org.mercurydb.queryutils.joiners.JoinFilter;
+import org.mercurydb.queryutils.joiners.JoinIndexScan;
+import org.mercurydb.queryutils.joiners.JoinNestedLoops;
+import org.mercurydb.queryutils.joiners.JoinTempIndexScan;
 
 import java.util.*;
 
@@ -12,12 +15,12 @@ import java.util.*;
  * TODO UPDATE DOCUMENTATION
  */
 public class HgDB {
-    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR = (a, b) -> {
-        int aPriority = getQueryPredicatePriority(a);
-        int bPriority = getQueryPredicatePriority(b);
-        return aPriority - bPriority;
-
-    };
+    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR =
+            (a, b) -> {
+                int aPriority = getQueryPredicatePriority(a);
+                int bPriority = getQueryPredicatePriority(b);
+                return aPriority - bPriority;
+            };
 
     private static int getQueryPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
         if (predicate instanceof FieldExtractableRelation) {
@@ -32,11 +35,12 @@ public class HgDB {
         return 3;
     }
 
-    private static final Comparator<JoinPredicate> JOIN_PREDICATE_COMPARATOR = (a, b) -> {
-        int aPriority = getJoinPredicatePriority(a);
-        int bPriority = getJoinPredicatePriority(b);
-        return aPriority - bPriority;
-    };
+    private static final Comparator<JoinPredicate> JOIN_PREDICATE_COMPARATOR =
+            (a, b) -> {
+                int aPriority = getJoinPredicatePriority(a);
+                int bPriority = getJoinPredicatePriority(b);
+                return aPriority - bPriority;
+            };
 
     private static int getJoinPredicatePriority(JoinPredicate predicate) {
         if (isStreamAndIndexCompatible(predicate.streamA, predicate.relation) ||
@@ -50,7 +54,7 @@ public class HgDB {
     @SuppressWarnings("unchecked") // cast from Iterable<Object> to Iterable<T>
     public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T, ?>... extractableValues) {
         if (extractableValues.length == 0) {
-            return new HgRetrievalStream<T>(Collections.<T>emptyList());
+            return new HgRetrievalStream<>(Collections.<T>emptyList());
         }
 
         Arrays.sort(extractableValues, QUERY_COMPARATOR);
@@ -65,7 +69,7 @@ public class HgDB {
                 start = 1;
                 HgRelation hgRelation = (HgRelation) fer.relation;
                 Iterable<Object> iter = hgRelation.getFromIndex(fer.getIndex(), fer.value);
-                stream = new HgQueryResultStream<T>((Iterable<T>) iter);
+                stream = new HgQueryResultStream<>((Iterable<T>) iter);
             }
         }
 
@@ -169,7 +173,7 @@ public class HgDB {
                  * Only A indexed
                  * Scan B, use A index
                  */
-                return new JoinIndexScan(predicate);
+            return new JoinIndexScan(predicate);
         } else if (predicate.relation instanceof HgRelation) {
             /*
              * Neither is indexed and relation is known

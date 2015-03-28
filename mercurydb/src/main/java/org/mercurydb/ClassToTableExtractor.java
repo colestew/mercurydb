@@ -12,6 +12,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClassToTableExtractor {
     public final Class<?> c;
@@ -44,9 +45,9 @@ public class ClassToTableExtractor {
         this.tableSuffix = tableSuffix;
         this.joinId = joinId;
 
-        this.fields = new ArrayList<FieldData>();
-        this.queries = new ArrayList<QueryData>();
-        this.constructors = new ArrayList<ConstructorData>();
+        this.fields = new ArrayList<>();
+        this.queries = new ArrayList<>();
+        this.constructors = new ArrayList<>();
 
         this.subClasses = subClassTables;
         populateFieldsList();
@@ -64,14 +65,13 @@ public class ClassToTableExtractor {
 
     // TODO this function may be unneccesary
     private static void populateQueriesList(List<QueryData> queries, List<FieldData> fields) {
-        Set<FieldData> fieldSet = new HashSet<FieldData>(fields);
+        Set<FieldData> fieldSet = new HashSet<>(fields);
         Set<Set<FieldData>> powerset = Sets.powerSet(fieldSet);
-        for (Set<FieldData> querySet : powerset) {
-            // TODO: don't calculate all sets and allow 5 to be a runtime parameter
-            if (querySet.size() > 1 && querySet.size() <= 5) {
-                queries.add(new QueryData(querySet));
-            }
-        }
+
+        // TODO: don't calculate all sets and allow 5 to be a runtime parameter
+        queries.addAll(powerset.stream()
+                .filter(querySet -> querySet.size() > 1 && querySet.size() <= 5)
+                .map(QueryData::new).collect(Collectors.toList()));
     }
 
     // TODO unused for now, but should be used later in conjunction with ConstructorData
@@ -97,7 +97,7 @@ public class ClassToTableExtractor {
         TreeSet<FieldData> qFields;
 
         QueryData(Collection<FieldData> fields) {
-            this.qFields = new TreeSet<FieldData>(fields);
+            this.qFields = new TreeSet<>(fields);
         }
 
         @SuppressWarnings("unused") // used in template

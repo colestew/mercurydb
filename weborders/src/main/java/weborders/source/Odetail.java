@@ -16,7 +16,7 @@ import java.util.List;
 public class Odetail extends Common {
     @HgIndex
     public int ono;
-    public List<Part> pnos = new ArrayList<Part>();
+    public List<Part> pnos = new ArrayList<>();
     public int qty;
 
     private Odetail() {

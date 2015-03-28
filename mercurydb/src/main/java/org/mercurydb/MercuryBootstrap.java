@@ -14,15 +14,10 @@ public class MercuryBootstrap {
      * Predicate for classes which can be properly
      * mapped to output tables.
      */
-    private static HgPredicate<Class<?>> supportedClassCheck = new HgPredicate<Class<?>>() {
-        @Override
-        public boolean test(Class<?> cls) {
-            return !cls.isMemberClass()
+    private static HgPredicate<Class<?>> supportedClassCheck =
+            cls -> !cls.isMemberClass()
                     && !cls.isLocalClass()
                     && !cls.isAnonymousClass();
-        }
-    };
-    // TODO remove use of lambdas above so we're compatible with 1.7
 
     /**
      * source directory for classes
@@ -92,7 +87,7 @@ public class MercuryBootstrap {
         }
 
         // filter classes so we only have supported class files
-        Collection<Class<?>> filteredClasses = new ArrayList<Class<?>>(classes.size());
+        Collection<Class<?>> filteredClasses = new ArrayList<>(classes.size());
         for (Class<?> c : classes) {
             if (c != null && supportedClassCheck.test(c)) {
                 filteredClasses.add(c);
@@ -130,7 +125,7 @@ public class MercuryBootstrap {
         for (Class<?> cls : classes) {
 
             // fetch the subclass table names
-            Collection<String> subTables = new ArrayList<String>();
+            Collection<String> subTables = new ArrayList<>();
             if (subClassMap.containsKey(cls)) {
                 for (Class<?> subclass : subClassMap.get(cls)) {
                     subTables.add(toOutPackage(subclass.getName()));
@@ -195,8 +190,7 @@ public class MercuryBootstrap {
      * @return output package name
      */
     private String toOutPackage(String c) {
-        String filePrefix = _outPackage + c.replace(_srcPackage, "");
-        return filePrefix;
+        return _outPackage + c.replace(_srcPackage, "");
     }
 
     /**
@@ -207,18 +201,16 @@ public class MercuryBootstrap {
      * @return map of each class to its immediate subclasses
      */
     private Map<Class<?>, List<Class<?>>> getSubclasses(Collection<Class<?>> classes) {
-        Map<Class<?>, List<Class<?>>> subclassMap = new HashMap<Class<?>, List<Class<?>>>();
+        Map<Class<?>, List<Class<?>>> subclassMap = new HashMap<>();
 
         for (Class<?> c : classes) {
             // Determine if superclass has a mapped table class
-            Class<?> currC = c;
-
-            if (classes.contains(currC.getSuperclass())) {
+            if (classes.contains(c.getSuperclass())) {
                 // Now if this subclass is supported put it in the map
-                List<Class<?>> subClasses = subclassMap.get(currC.getSuperclass());
+                List<Class<?>> subClasses = subclassMap.get(c.getSuperclass());
                 if (subClasses == null) {
-                    subClasses = new ArrayList<Class<?>>();
-                    subclassMap.put(currC.getSuperclass(), subClasses);
+                    subClasses = new ArrayList<>();
+                    subclassMap.put(c.getSuperclass(), subClasses);
                 }
 
                 subClasses.add(c);
