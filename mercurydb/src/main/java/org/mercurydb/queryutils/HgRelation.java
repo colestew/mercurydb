@@ -33,6 +33,7 @@ public abstract class HgRelation implements HgBiPredicate<Object, Object> {
             Set<Object> keySet = index.keySet();
             Collection<Collection<Object>> iterables = new ArrayList<>(keySet.size() - 1);
 
+            // TODO convert this to stream and collect but the given refactoring gives errors
             for (Object key : keySet) {
                 if (!key.equals(value)) {
                     iterables.add(index.get(key));

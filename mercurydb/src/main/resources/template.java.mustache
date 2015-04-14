@@ -7,7 +7,7 @@ import {{fullSourceClass}};
 
 @SuppressWarnings("unused")
 public class {{sourceClass}}{{tableSuffix}} {
-    public static final TableID<{{sourceClass}}> ID = TableID.<{{sourceClass}}>createName();
+    public static final TableID<{{sourceClass}}> ID = TableID.createName();
 
     /**
      * Create a temporary alias for this table, for joins.
@@ -16,7 +16,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         return TableID.<{{sourceClass}}>createAlias();
     }
 
-    public static final List<{{sourceClass}}> table = new ArrayList<{{sourceClass}}>();
+    public static final List<{{sourceClass}}> table = new ArrayList<>();
 
     public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
 
@@ -24,10 +24,10 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{#fields}}
     {{#hasIndex}}
     {{#isOrdered}}
-    private static Map<{{{type}}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<{{{type}}}, Set<{{sourceClass}}>>();
+    private static Map<{{{type}}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<>();
     {{/isOrdered}}
     {{^isOrdered}}
-    private static Map<{{{type}}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<{{{type}}}, Set<{{sourceClass}}>>();
+    private static Map<{{{type}}}, Set<{{sourceClass}}>> {{name}}Index = new HashMap<>();
     {{/isOrdered}}
 
     {{/hasIndex}}
@@ -38,7 +38,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         // Populate {{name}} index
         Set<{{sourceClass}}> {{name}}Set = {{name}}Index.get(val.{{name}});
         if ({{name}}Set == null) {
-            {{name}}Set = new HashSet<{{sourceClass}}>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());
+            {{name}}Set = new HashSet<>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());
         }
         {{name}}Set.add(val);
         {{name}}Index.put(val.{{name}}, {{name}}Set);
@@ -87,7 +87,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         instance.{{name}} = val;
         Set<{{sourceClass}}> {{name}}Set = {{name}}Index.get(instance.{{name}});
         if ({{name}}Set == null) {
-            {{name}}Set = new HashSet<{{sourceClass}}>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());;
+            {{name}}Set = new HashSet<>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());;
             {{name}}Index.put(instance.{{name}}, {{name}}Set);
         }
         {{name}}Set.add(instance);
@@ -206,7 +206,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.EQ, val);
+            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.EQ, val);
         }
         {{/fields}}
     }
@@ -215,7 +215,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.NE, val);
+            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.NE, val);
         }
         {{/fields}}
     }
@@ -224,7 +224,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.LT, val);
+            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.LT, val);
         }
         {{/fields}}
     }
@@ -233,7 +233,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.LE, val);
+            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.LE, val);
         }
         {{/fields}}
     }
@@ -242,7 +242,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.GT, val);
+            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.GT, val);
         }
         {{/fields}}
     }
@@ -251,7 +251,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.GE, val);
+            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.GE, val);
         }
         {{/fields}}
     }
@@ -260,21 +260,21 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{#fields}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), HgRelation.IN, val);
+            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.IN, val);
         }
         {{/fields}}
     }
 
     public static FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
     predicate (HgPredicate<{{sourceClass}}> predicate) {
-        return new FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>(self(ID), predicate);
+        return new FieldExtractablePredicate<>(self(ID), predicate);
     }
 
     public static class predicates {
         {{#fields}}
         public static FieldExtractablePredicate<{{sourceClass}}, {{{type}}}>
         {{name}}(HgPredicate<{{{type}}}> predicate) {
-            return new FieldExtractablePredicate<{{sourceClass}}, {{{type}}}>(field.{{name}}(ID), predicate);
+            return new FieldExtractablePredicate<>(field.{{name}}(ID), predicate);
         }
         {{/fields}}
     }
@@ -286,7 +286,7 @@ public class {{sourceClass}}{{tableSuffix}} {
          * this classes table in the stream
          */
 
-        HgWrappedIterableStream<{{sourceClass}}> result = new HgRetrievalStream<{{sourceClass}}>(table);
+        HgWrappedIterableStream<{{sourceClass}}> result = new HgRetrievalStream<>(table);
         {{#subClasses}}
         result = result.concat({{toString}}{{tableSuffix}}.stream());
         {{/subClasses}}

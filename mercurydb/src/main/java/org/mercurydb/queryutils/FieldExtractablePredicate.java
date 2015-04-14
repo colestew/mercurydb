@@ -5,7 +5,6 @@ package org.mercurydb.queryutils;
  * You can instantiate one of these by using, e.g., CustomerTable.predicate.x(x -> x < 5)
  */
 public class FieldExtractablePredicate<T, F> extends AbstractFieldExtractablePredicate<T, F> {
-
     public final HgPredicate predicate;
 
     public FieldExtractablePredicate(FieldExtractableSeed fe, HgPredicate<F> predicate) {

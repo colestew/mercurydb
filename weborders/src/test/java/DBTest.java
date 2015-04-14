@@ -4,11 +4,17 @@ import org.junit.Test;
 import org.mercurydb.queryutils.*;
 import org.mercurydb.queryutils.HgTupleStream.HgTuple;
 import org.mercurydb.queryutils.joiners.JoinNestedLoops;
-import weborders.db.*;
+import weborders.db.OdetailTable;
+import weborders.db.OrderTable;
+import weborders.db.PartTable;
+import weborders.db.ZipcodeTable;
 import weborders.source.*;
 
 import java.sql.Date;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 import static org.junit.Assert.fail;
 
@@ -26,7 +32,7 @@ public class DBTest {
     static HgStream<HgTupleStream.HgTuple> correctResult;
     static long correctCount;
 
-    private static<T> void checkCorrectQueryResult(HgStream<T> test, HgStream<T> src, HgPredicate<T> pred) {
+    private static <T> void checkCorrectQueryResult(HgStream<T> test, HgStream<T> src, HgPredicate<T> pred) {
         List<T> correct = Lists.newArrayList();
         for (T e : src) {
             if (pred.test(e)) {
@@ -40,7 +46,7 @@ public class DBTest {
         if (!correct.isEmpty()) fail();
     }
 
-    private static<T1, T2> void compareIterators(Iterator<T1> a, Iterator<T2> b) {
+    private static <T1, T2> void compareIterators(Iterator<T1> a, Iterator<T2> b) {
         while (a.hasNext() && b.hasNext()) {
             T1 t1 = a.next();
             T2 t2 = b.next();
@@ -102,7 +108,7 @@ public class DBTest {
     @Test
     public void testQueryCustom() {
         Collection<Integer> set = Lists.newArrayList(1020, 1021, 1025);
-        HgStream<Order> test = HgDB.query(OrderTable.predicates.ono(o -> set.contains(o)));
+        HgStream<Order> test = HgDB.query(OrderTable.predicates.ono(set::contains));
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),

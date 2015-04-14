@@ -1,16 +1,16 @@
 package org.mercurydb.queryutils.joiners;
 
-import org.mercurydb.queryutils.HgWrappedTupleStream;
 import org.mercurydb.queryutils.HgRelation;
 import org.mercurydb.queryutils.HgTupleStream;
+import org.mercurydb.queryutils.HgWrappedTupleStream;
 import org.mercurydb.queryutils.JoinPredicate;
 
 import java.util.*;
 
 public class JoinTempIndexScan extends JoinIndexScan {
-
     private static JoinPredicate createIndexedPredicate(JoinPredicate predicate) {
         final Map<Object, Set<Object>> aMap;
+
         if (predicate.relation == HgRelation.EQ || predicate.relation == HgRelation.NE) {
             aMap = new HashMap<>();
         } else {
@@ -41,9 +41,9 @@ public class JoinTempIndexScan extends JoinIndexScan {
                 return aMap;
             }
         };
+
         return new JoinPredicate(aIndexed, predicate.streamB, predicate.relation);
     }
-
 
     public JoinTempIndexScan(JoinPredicate pred) {
         super(createIndexedPredicate(pred));
@@ -51,6 +51,6 @@ public class JoinTempIndexScan extends JoinIndexScan {
 
     @Override
     public HgTuple next() {
-       return new HgTuple((HgTuple)aInstances.next(), currB);
+        return new HgTuple((HgTuple) aInstances.next(), currB);
     }
 }
