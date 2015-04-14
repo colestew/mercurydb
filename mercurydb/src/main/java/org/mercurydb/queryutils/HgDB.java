@@ -195,6 +195,6 @@ public class HgDB {
         boolean indexIsTreeMap = index instanceof TreeMap<?, ?>;
         boolean predIsHgRelation = pred instanceof HgRelation;
 
-        return index != null && (pred == HgRelation.EQ || (indexIsTreeMap && predIsHgRelation));
+        return index != null && (pred == HgRelation.EQ || pred == HgRelation.NE || (indexIsTreeMap && predIsHgRelation));
     }
 }
