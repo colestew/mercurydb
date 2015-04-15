@@ -8,11 +8,31 @@ import org.mercurydb.queryutils.joiners.JoinTempIndexScan;
 import java.util.*;
 
 /**
- * <p>
- * This class is the main class used for queries and join operations
- * on a hgdb instance. It can be used like the following:
- * </p>
- * TODO UPDATE DOCUMENTATION
+ * This is the primary class in which all query functions for an HgDB instance
+ * are found. There are two primary types of queries:
+ *     * Single Table Queries
+ *     * Single-Table and Multi-Table joins
+ *
+ * Single Table Queries can be performed using the query method. It
+ * takes a varargs parameter of AbstractFieldExtractablePredicates.
+ *
+ * Multi Table Queries (joins) can be performed using the available join methods. The
+ * join methods in HgDB take the following forms:
+ * <code>
+ * public static HgPolyTupleStream join(
+ *     HgTupleStream a,
+ *     HgTupleStream b,
+ *     [HgBiPredicate<?, ?> relation]) // meaning the relation is optional
+ * </code>
+ * or
+ * <code>
+ * public static HgPolyTupleStream join(HgJoinPredicate... preds)
+ * </code>
+ * where an HgJoinPredicate is a wrapper for the objects required for the
+ * 2 table reference join method above.
+ *
+ * @see #query
+ * @see #join
  */
 public class HgDB {
     private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR =
@@ -51,6 +71,15 @@ public class HgDB {
         return predicate.relation == HgRelation.EQ ? 3 : 4;
     }
 
+    /**
+     * Performs a single table query. The stream with the largest index size will be fetched
+     * first, and then stream filters will be performed to retrieve the rest of the filtered
+     * results.
+     *
+     * @param extractableValues the field values to be extracted
+     * @param <T> the type of the contained class of the queries
+     * @return a stream of type T
+     */
     @SuppressWarnings("unchecked") // cast from Iterable<Object> to Iterable<T>
     public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T, ?>... extractableValues) {
         if (extractableValues.length == 0) {
@@ -81,13 +110,13 @@ public class HgDB {
     }
 
     /**
-     * Joins a set of Predicates. Creates optimal
-     * join operation according to those rules defined
-     * in JoinPredicate.
+     * Joins a set of JoinPredicates. It performs joins in the order
+     * defined by {@link #JOIN_PREDICATE_COMPARATOR}. If the predicates
+     * do not unify, an IllegalStateException is thrown.
      *
-     * @param preds One or more JoinPredicates
-     * @return a JoinResult of a join on preds
-     * @throws IllegalStateException if preds do not unify
+     * @param preds  One or more JoinPredicates
+     * @return  a JoinResult of a join on preds
+     * @throws IllegalStateException  if preds do not unify
      */
     public static HgPolyTupleStream join(JoinPredicate... preds) {
         HgPolyTupleStream result = join(preds[0]);
@@ -117,9 +146,9 @@ public class HgDB {
     /**
      * Returns a HgPolyTupleStream using an equality predicate.
      *
-     * @param a HgTupleStream // TODO documentation
-     * @param b HgTupleStream // TODO documentation
-     * @return The HgPolyTupleStream resulting from performing on a join on the inputs with the equality relation.
+     * @param a HgTupleStream  the first stream of tuples
+     * @param b HgTupleStream  the second stream of tuples
+     * @return The HgPolyTupleStream  resulting from performing on a join on the inputs with the equality relation.
      */
     public static HgPolyTupleStream join(
             final HgTupleStream a,
@@ -135,10 +164,10 @@ public class HgDB {
      * will select the correct join method based on the index status
      * of its arguments.
      *
-     * @param relation HgRelation // TODO documentation
-     * @param a        HgTupleStream // TODO documentation
-     * @param b        HgTupleStream // TODO documentation
-     * @return The HgPolyTupleStream resulting from performing on a join on the inputs with the given relation.
+     * @param relation  HgRelation
+     * @param a  HgTupleStream the first stream of tuples
+     * @param b  HgTupleStream the second stream of tuples
+     * @return  The HgPolyTupleStream resulting from performing on a join on the inputs with the given relation.
      */
     public static HgPolyTupleStream join(
             HgTupleStream a,
@@ -147,6 +176,17 @@ public class HgDB {
         return join(new JoinPredicate(a, b, relation));
     }
 
+    /**
+     * Performs a join on 2 streams. If one of the HgTupleStreams in
+     * the given predicate has an index and the relation is supported by
+     * the index, an index-scan is performed. Supported relations are
+     * those defined in HgRelation. Relations defined by an HgBiPredicate
+     * using a lambda are not supported by indexes, and as of right now
+     * a hash join will be used in this case.
+     *
+     * @param predicate  the given predicate consisting of 2 streams and a relation.
+     * @return
+     */
     public static HgPolyTupleStream join(JoinPredicate predicate) {
         HgTupleStream a = predicate.streamA, b = predicate.streamB;
 
@@ -191,11 +231,11 @@ public class HgDB {
         }
     }
 
-    public static boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
+    private static boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
         return o.isIndexed() && isIndexCompatible(o.getIndex(), pred);
     }
 
-    public static boolean isIndexCompatible(Map<?, ?> index, HgBiPredicate<?, ?> pred) {
+    private static boolean isIndexCompatible(Map<?, ?> index, HgBiPredicate<?, ?> pred) {
         boolean indexIsTreeMap = index instanceof TreeMap<?, ?>;
         boolean predIsHgRelation = pred instanceof HgRelation;
 
