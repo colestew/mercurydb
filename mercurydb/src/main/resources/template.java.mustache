@@ -21,7 +21,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
 
     // Maps for indexed fields
-    {{#fields}}
+    {{#values}}
     {{#hasIndex}}
     {{#isOrdered}}
     private static Map<{{{type}}}, Set<{{sourceClass}}>> {{name}}Index = new TreeMap<>();
@@ -31,9 +31,9 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{/isOrdered}}
 
     {{/hasIndex}}
-    {{/fields}}
+    {{/values}}
     public static void insert({{sourceClass}} val) {
-        {{#fields}}
+        {{#values}}
         {{#hasIndex}}
         // Populate {{name}} index
         Set<{{sourceClass}}> {{name}}Set = {{name}}Index.get(val.{{name}});
@@ -43,7 +43,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{name}}Set.add(val);
         {{name}}Index.put(val.{{name}}, {{name}}Set);
         {{/hasIndex}}
-        {{/fields}}
+        {{/values}}
         // Populate standard table if T(val) == {{sourceClass}}
         if ({{sourceClass}}.class.equals(val.getClass())) {
             table.add(val);
@@ -59,12 +59,12 @@ public class {{sourceClass}}{{tableSuffix}} {
         if ({{sourceClass}}.class.equals(val.getClass())) {
             table.remove(val);
         }
-        {{#fields}}
+        {{#values}}
         {{#hasIndex}}
         // Remove from {{name}} index
-        {{name}}Index.get(val.{{name}}).remove(val);
+        {{name}}Index.get(val.{{hgValueMethod}}).remove(val);
         {{/hasIndex}}
-        {{/fields}}
+        {{/values}}
         {{#hasSuper}}
         // Remove from {{cSuper}} indices (superclass)
         {{cSuper}}{{tableSuffix}}.remove(val);
@@ -79,34 +79,32 @@ public class {{sourceClass}}{{tableSuffix}} {
     }
 
     // Set methods - make sure you use these on indexed fields for consistency!
-    {{#fields}}
-    {{^isFinal}}
-    public static void set{{CCname}}({{sourceClass}} instance, {{{rawType}}} val) {
-        {{#hasIndex}}
-        {{name}}Index.get(instance.{{name}}).remove(instance);
-        instance.{{name}} = val;
-        Set<{{sourceClass}}> {{name}}Set = {{name}}Index.get(instance.{{name}});
-        if ({{name}}Set == null) {
-            {{name}}Set = new HashSet<>();//Collections.newSetFromMap(new WeakHashMap<{{sourceClass}}, Boolean>());;
-            {{name}}Index.put(instance.{{name}}, {{name}}Set);
+    {{#values}}
+    public static void remove{{name}}({{sourceClass}} instance) {
+        Set<{{sourceClass}}> value = {{name}}Index.get(instance.{{hgValueMethod}});
+        if (value != null) {
+            value.remove(instance);
         }
-        {{name}}Set.add(instance);
-        {{/hasIndex}}
-        {{^hasIndex}}
-        instance.{{name}} = val;
-        {{/hasIndex}}
     }
-
-    {{/isFinal}}
-    {{/fields}}
+    
+    public static void update{{name}}({{sourceClass}} instance) {
+        Set<{{sourceClass}}> values = {{name}}Index.get(instance.{{hgValueMethod}});
+        if (values == null) {
+            values = new HashSet<>();
+        }
+        values.put(instance.{{hgValueMethod}}, instance);
+    }
+    
+    {{/values}}
+    
 
     public static final class field {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableSeed<{{sourceClass}}> {{name}}(TableID<{{sourceClass}}> id) {
             return new FieldExtractableSeed<{{sourceClass}}>(id) {
                 @Override
                 public Object extractField(Object instance) {
-                    return (({{sourceClass}})instance).{{name}};
+                    return (({{sourceClass}})instance).{{hgValueMethod}};
                 }
 
                 @Override
@@ -142,7 +140,7 @@ public class {{sourceClass}}{{tableSuffix}} {
             };
         }
 
-        {{/fields}}
+        {{/values}}
     }
 
     public static FieldExtractableSeed<{{sourceClass}}> self(TableID<{{sourceClass}}> id) {
@@ -195,74 +193,74 @@ public class {{sourceClass}}{{tableSuffix}} {
             this.id = aliasId;
         }
 
-        {{#fields}}
+        {{#values}}
         public HgTupleStream {{name}}() {
-            return stream().joinOn(field.{{name}}(id));
+            return stream().joinOn(field.{{hgValueMethod}}(id));
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static class eq {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.EQ, val);
+            return new FieldExtractableRelation<>(field.{{hgValueMethod}}(ID), HgRelation.EQ, val);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static class ne {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.NE, val);
+            return new FieldExtractableRelation<>(field.{{hgValueMethod}}(ID), HgRelation.NE, val);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static class lt {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.LT, val);
+            return new FieldExtractableRelation<>(field.{{hgValueMethod}}(ID), HgRelation.LT, val);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static class le {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.LE, val);
+            return new FieldExtractableRelation<>(field.{{hgValueMethod}}(ID), HgRelation.LE, val);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static class gt {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.GT, val);
+            return new FieldExtractableRelation<>(field.{{hgValueMethod}}(ID), HgRelation.GT, val);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static class ge {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.GE, val);
+            return new FieldExtractableRelation<>(field.{{hgValueMethod}}(ID), HgRelation.GE, val);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static class in {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.IN, val);
+            return new FieldExtractableRelation<>(field.{{hgValueMethod}}(ID), HgRelation.IN, val);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
@@ -271,12 +269,12 @@ public class {{sourceClass}}{{tableSuffix}} {
     }
 
     public static class predicates {
-        {{#fields}}
+        {{#values}}
         public static FieldExtractablePredicate<{{sourceClass}}, {{{type}}}>
         {{name}}(HgPredicate<{{{type}}}> predicate) {
-            return new FieldExtractablePredicate<>(field.{{name}}(ID), predicate);
+            return new FieldExtractablePredicate<>(field.{{hgValueMethod}}(ID), predicate);
         }
-        {{/fields}}
+        {{/values}}
     }
 
     public static HgWrappedIterableStream<{{sourceClass}}> stream() {
