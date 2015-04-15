@@ -4,14 +4,24 @@
  */
 package weborders.source;
 
-import org.mercurydb.annotations.HgIndex;
+import org.mercurydb.annotations.HgValue;
 
 /**
  * @author dsb
  */
 public class Common {
-    @HgIndex
-    public int commonId;
+    private int commonId;
+    private static int nextId;
+
+    // don't need a value for common
+    public Common() {
+        commonId = nextId++;
+    }
+
+    @HgValue("commonId")
+    public int getCommon() {
+        return commonId;
+    }
 
     protected String print(String... item) {
         String result = "(";

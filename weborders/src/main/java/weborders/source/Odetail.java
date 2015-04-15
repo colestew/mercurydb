@@ -4,7 +4,9 @@
  */
 package weborders.source;
 
-import org.mercurydb.annotations.HgIndex;
+import org.mercurydb.annotations.HgIndexStyle;
+import org.mercurydb.annotations.HgUpdate;
+import org.mercurydb.annotations.HgValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,21 +16,38 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public class Odetail extends Common {
-    @HgIndex
-    public int ono;
-    public List<Part> pnos = new ArrayList<>();
-    public int qty;
+    private int ono;
+    private List<Part> pnos = new ArrayList<>();
+    private int qty;
 
-    private Odetail() {
-    }
-
+    // TODO add multiple part constructor
     public Odetail(Order o, Part p, int q) {
-        ono = o.ono;
+        ono = o.getOno();
         pnos.add(p);
         qty = q;
     }
 
+    @HgValue(value = "ono", index = HgIndexStyle.ORDERED)
+    public int getOno() {
+        return ono;
+    }
+
+    @HgValue("pnos")
+    public List<Part> getPnos() {
+        return pnos;
+    }
+
+    @HgUpdate("pnos")
+    public void addPart(Part p) {
+        pnos.add(p);
+    }
+
+    @HgValue("qty")
+    public int getQuantity() {
+        return qty;
+    }
+
     public String toString() {
-        return print("" + ono, "" + pnos.get(0).pno, "" + qty);
+        return print("" + ono, "" + pnos.get(0).getPno(), "" + qty);
     }
 }

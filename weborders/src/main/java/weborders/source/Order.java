@@ -4,31 +4,35 @@
  */
 package weborders.source;
 
-import org.mercurydb.annotations.HgIndex;
+import org.mercurydb.annotations.HgIndexStyle;
+import org.mercurydb.annotations.HgUpdate;
+import org.mercurydb.annotations.HgValue;
 
 /**
  * @author dsb
  */
 @SuppressWarnings("unused")
 public class Order extends Common {
-    @HgIndex
-    public int ono;
-    public Customer cno;
-    public Employee eno;
+    private int ono;
+    private Customer cno;
+    private Employee eno;
 
-    public String received;
-    public String shipped;
+    private String received;
+    private String shipped;
 
+    @HgValue(value = "ono", index = HgIndexStyle.ORDERED)
+    public int getOno() {
+        return ono;
+    }
+
+    @HgUpdate("ono")
     public void setOno(int o) {
         if (o < 0) {
             this.ono = -1; // detect bad order numbers with a single error number
             return;
         }
-        this.ono = o;
-        // implicit return
-    }
 
-    private Order() {
+        this.ono = o;
     }
 
     public Order(int o, Customer c, Employee e, String r, String s) {
@@ -40,6 +44,6 @@ public class Order extends Common {
     }
 
     public String toString() {
-        return print("" + ono, "" + cno.cno, "" + eno.eno, received, shipped);
+        return print("" + ono, "" + cno.getCno(), "" + eno.getEno(), received, shipped);
     }
 }
