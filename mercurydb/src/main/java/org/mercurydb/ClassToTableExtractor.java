@@ -4,6 +4,7 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import org.mercurydb.annotations.HgIndexStyle;
+import org.mercurydb.annotations.HgUpdate;
 import org.mercurydb.annotations.HgValue;
 
 import java.io.*;
@@ -30,8 +31,12 @@ public class ClassToTableExtractor {
     public int joinId;
 
     public ClassToTableExtractor(
-            Class<?> c, String superTable, Collection<String> subClassTables, String tableSuffix, int joinId)
-            throws IOException {
+            Class<?> c,
+            String superTable,
+            Collection<String> subClassTables,
+            String tableSuffix,
+            int joinId) throws IOException {
+
         this.c = c;
         this.hasSuper = superTable != null;
         this.cSuper = superTable;
@@ -47,26 +52,8 @@ public class ClassToTableExtractor {
     }
 
     private void populateValuesList() {
-        Set<String> seenValues = new HashSet<>();
-        for (Method m : c.getMethods())  {
-            HgValue value = getValueAnnotation(m);
-
-            if (value != null) {
-                if (seenValues.contains(value.value())) {
-                    throw new IllegalStateException(
-                            String.format("Cannot apply @HgValue(\"%s\") on more than one method.", value.value()));
-                }
-
-                if (m.getParameterCount() > 0) {
-                    throw new IllegalStateException(
-                            String.format("Cannot apply @HgValue(\"%s\") on method with non-zero number of parameters: %s",
-                                    value.value(), m.getName()));
-                }
-
-                seenValues.add(value.value());
-                values.add(new ValueData(value, m));
-            }
-        }
+        MercuryBootstrap.getHgValues(c).values().stream()
+                .forEach(hgV -> values.add(new ValueData(hgV.annotation, hgV.method)));
     }
 
     // TODO unused for now, but should be used later in conjunction with ConstructorData
@@ -205,9 +192,5 @@ public class ClassToTableExtractor {
         Mustache template = mf.compile(new InputStreamReader(templateStream), templateName);
         Writer execute = template.execute(w, this);
         execute.flush();
-    }
-
-    private static HgValue getValueAnnotation(Method m) {
-        return m.getAnnotation(HgValue.class);
     }
 }

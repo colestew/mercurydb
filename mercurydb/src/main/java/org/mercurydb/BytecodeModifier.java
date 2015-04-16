@@ -1,55 +1,72 @@
 package org.mercurydb;
 
 import javassist.*;
+import org.mercurydb.annotations.AnnotationPair;
 import org.mercurydb.annotations.HgUpdate;
+import org.mercurydb.annotations.HgValue;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class BytecodeModifier {
-    private CtClass _srcClass;
+    private CtClass _srcCtClass;
+    private Class<?> _srcClass;
     private String _tableClass;
 
-    public BytecodeModifier(CtClass srcClass, String tableClass) {
+    public BytecodeModifier(CtClass srcCtClass, Class<?> srcClass, String tableClass) {
+        _srcCtClass = srcCtClass;
         _srcClass = srcClass;
         _tableClass = tableClass;
     }
 
     public void modify() throws CannotCompileException, IOException, NotFoundException {
         String constructorHook = _tableClass + ".insert(this);";
-        for (CtConstructor con : _srcClass.getConstructors()) {
+        for (CtConstructor con : _srcCtClass.getConstructors()) {
             con.insertAfter(constructorHook);
         }
 
-        for (CtMethod cm : _srcClass.getMethods()) {
+        insertMethodHooks();
+
+        // TODO possible bug here! this needs to be a dynamically generated string!
+        _srcCtClass.writeFile("build/classes/main");
+    }
+
+    private void insertMethodHooks() throws CannotCompileException {
+        Map<String, AnnotationPair<HgValue>> valueMap = MercuryBootstrap.getHgValues(_srcClass);
+
+        for (CtMethod m : _srcCtClass.getMethods()) {
+            HgUpdate updateAnn = null;
+
             try {
-                // TODO this method needs access to the HgValue fields
-                // it either needs to be built here or needs to be precomputed
-                // and passed in here. My vote goes to precomputed because
-                // it has to be computed anyways in the classtotable process
-
-                HgUpdate update = (HgUpdate)cm.getAnnotation(HgUpdate.class);
-
+                updateAnn = (HgUpdate)m.getAnnotation(HgUpdate.class);
             } catch (ClassNotFoundException e) {
-
-                // Why would this ever be thrown??
                 e.printStackTrace();
             }
 
-            // TODO remove old code below
-//            if (!cm.hasAnnotation(HgUpdate.class)) continue;
-//
-//            String methodName = "update" + Utils.upperFirst(cf.getName());
-//            try {
-//                // If method does not exist. This statement will throw an exception
-//                CtMethod cm = _srcClass.getDeclaredMethod(methodName);
-//                // If we get this far, add the hook
-//                cm.insertAfter(_tableClass + "." + methodName + "(this, " + cf.getName() + ");");
-//            } catch (NotFoundException e) {
-//                System.err.println("Warning: No set method found for indexed field " + _srcClass.getName() + "." + cf.getName());
-//            } catch (SecurityException e) {
-//                System.err.println("Warning: " + e.getMessage());
-//            }
+            if (updateAnn == null) continue;
+
+            for (String value : updateAnn.value()) {
+                if (valueMap.containsKey(value)) {
+                    AnnotationPair<HgValue> pair = valueMap.get(value);
+
+                    String removeHook = String.format("%s.removeStaleValue%s(this);",
+                            _tableClass,
+                            Utils.upperFirst(value));
+                    String updateHook = String.format("%s.updateNewValue%s(this);",
+                            _tableClass,
+                            Utils.upperFirst(value));
+
+                    m.insertBefore(removeHook);
+                    m.insertAfter(updateHook);
+
+                } else {
+                    throw new IllegalStateException(
+                            String.format("Cannot apply @HgUpdate(\"%s\") when no @HgValue(\"%s\") exists!",
+                                    value, value));
+                }
+            }
         }
-        _srcClass.writeFile("build/classes/main");
     }
 }

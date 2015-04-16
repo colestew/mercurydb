@@ -32,7 +32,7 @@ public class Odetail extends Common {
         return ono;
     }
 
-    @HgValue("pnos")
+    @HgValue(value = "pnos", index = HgIndexStyle.UNORDERED)
     public List<Part> getPnos() {
         return pnos;
     }

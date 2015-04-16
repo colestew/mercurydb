@@ -4,9 +4,13 @@ import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
+import org.mercurydb.annotations.AnnotationPair;
+import org.mercurydb.annotations.HgUpdate;
+import org.mercurydb.annotations.HgValue;
 import org.mercurydb.queryutils.HgPredicate;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class MercuryBootstrap {
@@ -152,6 +156,30 @@ public class MercuryBootstrap {
         }
     }
 
+    public static Map<String, AnnotationPair<HgValue>> getHgValues(Class c) {
+        Map<String, AnnotationPair<HgValue>> valueMap = new HashMap<>();
+
+        for (Method m : c.getMethods()) {
+            HgValue valueAnn = m.getAnnotation(HgValue.class);
+            if (valueAnn == null) continue;
+
+            if (valueMap.containsKey(valueAnn.value())) {
+                throw new IllegalStateException(
+                        String.format("Cannot apply @HgValue(\"%s\") on more than one method.", valueAnn.value()));
+            }
+
+            if (m.getParameterCount() > 0) {
+                throw new IllegalStateException(
+                        String.format("Cannot apply @HgValue(\"%s\") on method with non-zero number of parameters: %s",
+                                valueAnn.value(), m.getName()));
+            }
+
+            valueMap.put(valueAnn.value(), new AnnotationPair<>(valueAnn, m));
+        }
+
+        return valueMap;
+    }
+
     /**
      * Inserts bytecode hooks in the classes found in the input package
      */
@@ -164,7 +192,7 @@ public class MercuryBootstrap {
             System.out.println("Adding insert hook to " + cls);
             try {
                 CtClass ctCls = cp.get(cls.getName());
-                BytecodeModifier modifier = new BytecodeModifier(ctCls, toOutPackage(cls.getName()) + tableSuffix);
+                BytecodeModifier modifier = new BytecodeModifier(ctCls, cls, toOutPackage(cls.getName()) + tableSuffix);
                 modifier.modify();
             } catch (NotFoundException e) {
                 System.err.println("NotFoundException in MercuryBootstrap.insertBytecodeHooks()");

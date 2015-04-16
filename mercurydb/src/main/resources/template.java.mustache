@@ -80,24 +80,27 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     // Set methods - make sure you use these on indexed fields for consistency!
     {{#values}}
-    {{#hasIndex}}
-    public static void removeStaleIndexValue{{CCname}}({{sourceClass}} instance) {
+    public static void removeStaleValue{{CCname}}({{sourceClass}} instance) {
+        {{#hasIndex}}
         Set<{{sourceClass}}> value = {{name}}Index.get(instance.{{hgValueMethod}});
         if (value != null) {
             value.remove(instance);
         }
+        {{/hasIndex}}
     }
     
-    public static void updateIndexValue{{CCname}}({{sourceClass}} instance) {
-        {{rawType}} key = instance.{{hgValueMethod}};
+    public static void updateNewValue{{CCname}}({{sourceClass}} instance) {
+        {{#hasIndex}}
+        {{{rawType}}} key = instance.{{hgValueMethod}};
         Set<{{sourceClass}}> values = {{name}}Index.get(key);
         if (values == null) {
             values = new HashSet<>();
         }
         values.add(instance);
         {{name}}Index.put(key, values);
+        {{/hasIndex}}
     }
-    {{/hasIndex}}
+
     {{/values}}
     
 
