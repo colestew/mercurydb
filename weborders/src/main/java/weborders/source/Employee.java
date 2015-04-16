@@ -44,6 +44,6 @@ public class Employee extends Common {
     }
 
     public String toString() {
-        return print("" + eno, ename, "" + zip.zip, date);
+        return print("" + eno, ename, "" + zip.getZip(), date);
     }
 }

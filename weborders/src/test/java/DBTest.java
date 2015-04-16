@@ -65,7 +65,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),
-                o -> o.ono == 1020);
+                o -> o.getOno() == 1020);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),
-                o -> o.ono < 1020);
+                o -> o.getOno() < 1020);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),
-                o -> o.ono <= 1020);
+                o -> o.getOno() <= 1020);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),
-                o -> o.ono > 1020);
+                o -> o.getOno() > 1020);
     }
 
 
@@ -102,7 +102,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),
-                o -> o.ono >= 1020);
+                o -> o.getOno() >= 1020);
     }
 
     @Test
@@ -112,7 +112,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),
-                o -> set.contains(o.ono));
+                o -> set.contains(o.getOno()));
     }
 
     @Test
@@ -123,7 +123,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 PartTable.stream(),
-                p -> p.pname.compareTo("L") < 0 && p.price <= 19.99);
+                p -> p.getPname().compareTo("L") < 0 && p.getPrice() <= 19.99);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class DBTest {
         checkCorrectQueryResult(
                 test,
                 OrderTable.stream(),
-                o -> o.ono == 1020 || o.ono == 1021);
+                o -> o.getOno() == 1020 || o.getOno() == 1021);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class DBTest {
                 HgDB.query(OrderTable.eq.ono(1023)).joinOn(OrderTable.on.ono()),
                 OdetailTable.on.ono());
         for (HgTuple t : stream) {
-            if (t.get(OrderTable.ID).ono != 1023 || t.get(OdetailTable.ID).ono != 1023) fail();
+            if (t.get(OrderTable.ID).getOno() != 1023 || t.get(OdetailTable.ID).getOno() != 1023) fail();
         }
     }
 
@@ -160,8 +160,8 @@ public class DBTest {
         );
 
         for (HgTuple t : stream) {
-            if (t.get(OrderTable.ID).ono != t.get(OdetailTable.ID).ono &&
-                    t.get(OrderTable.ID).ono != 1020) fail();
+            if (t.get(OrderTable.ID).getOno() != t.get(OdetailTable.ID).getOno() &&
+                    t.get(OrderTable.ID).getOno() != 1020) fail();
         }
     }
 
@@ -174,7 +174,7 @@ public class DBTest {
         );
 
         for (HgTuple t : stream) {
-            if (!(t.get(OdetailTable.ID).pnos.contains(t.get(PartTable.ID)))) fail();
+            if (!(t.get(OdetailTable.ID).getPnos().contains(t.get(PartTable.ID)))) fail();
         }
     }
 
@@ -235,7 +235,7 @@ public class DBTest {
                 OdetailTable.on.ono(),
                 HgRelation.LT)) {
             ++count;
-            if (jr.get(OrderTable.ID).ono >= jr.get(OdetailTable.ID).ono) fail();
+            if (jr.get(OrderTable.ID).getOno() >= jr.get(OdetailTable.ID).getOno()) fail();
         }
         long stopTime = System.currentTimeMillis();
 
@@ -253,7 +253,7 @@ public class DBTest {
                 noIndexStream(OdetailTable.on.ono()),
                 HgRelation.LT)) {
             ++count;
-            if (jr.get(OrderTable.ID).ono >= jr.get(OdetailTable.ID).ono) fail();
+            if (jr.get(OrderTable.ID).getOno() >= jr.get(OdetailTable.ID).getOno()) fail();
         }
         long stopTime = System.currentTimeMillis();
 
@@ -316,7 +316,7 @@ public class DBTest {
 
         int count = 0;
         for (HgTuple t : HgDB.join(a, b)) {
-            if (t.get(oid).ono != t.get(odid).ono) fail();
+            if (t.get(oid).getOno() != t.get(odid).getOno()) fail();
             ++count;
         }
 
@@ -328,7 +328,7 @@ public class DBTest {
         TableID<Part> partAlias = PartTable.createAlias();
 
         for (HgTuple t : HgDB.join(PartTable.on.price(), PartTable.as(partAlias).on.price(), HgRelation.LT)) {
-            if (t.get(PartTable.ID).price >= t.get(partAlias).price) fail();
+            if (t.get(PartTable.ID).getPrice() >= t.get(partAlias).getPrice()) fail();
         }
     }
 
@@ -338,7 +338,7 @@ public class DBTest {
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
                 HgRelation.NE)) {
-            if (t.get(OrderTable.ID).ono == t.get(OdetailTable.ID).ono)
+            if (t.get(OrderTable.ID).getOno() == t.get(OdetailTable.ID).getOno())
                 fail();
         }
     }
@@ -349,7 +349,7 @@ public class DBTest {
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
                 HgRelation.LT)) {
-            if (t.get(OrderTable.ID).ono >= t.get(OdetailTable.ID).ono)
+            if (t.get(OrderTable.ID).getOno() >= t.get(OdetailTable.ID).getOno())
                 fail();
         }
     }
@@ -360,7 +360,7 @@ public class DBTest {
                 noIndexStream(OrderTable.on.ono()),
                 OdetailTable.on.ono(),
                 HgRelation.LT)) {
-            if (t.get(OrderTable.ID).ono >= t.get(OdetailTable.ID).ono)
+            if (t.get(OrderTable.ID).getOno() >= t.get(OdetailTable.ID).getOno())
                 fail();
         }
     }
@@ -371,7 +371,7 @@ public class DBTest {
                 OrderTable.on.ono(),
                 noIndexStream(OdetailTable.on.ono()),
                 HgRelation.LT)) {
-            if (t.get(OrderTable.ID).ono >= t.get(OdetailTable.ID).ono)
+            if (t.get(OrderTable.ID).getOno() >= t.get(OdetailTable.ID).getOno())
                 fail();
         }
     }
@@ -382,7 +382,7 @@ public class DBTest {
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
                 HgRelation.LE)) {
-            if (t.get(OrderTable.ID).ono > t.get(OdetailTable.ID).ono)
+            if (t.get(OrderTable.ID).getOno() > t.get(OdetailTable.ID).getOno())
                 fail();
         }
     }
@@ -393,7 +393,7 @@ public class DBTest {
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
                 HgRelation.GT)) {
-            if (t.get(OrderTable.ID).ono <= t.get(OdetailTable.ID).ono)
+            if (t.get(OrderTable.ID).getOno() <= t.get(OdetailTable.ID).getOno())
                 fail();
         }
     }
@@ -405,7 +405,7 @@ public class DBTest {
                 OrderTable.on.ono(),
                 OdetailTable.on.ono(),
                 HgRelation.GE)) {
-            if (t.get(OrderTable.ID).ono < t.get(OdetailTable.ID).ono)
+            if (t.get(OrderTable.ID).getOno() < t.get(OdetailTable.ID).getOno())
                 fail();
         }
     }
@@ -425,7 +425,8 @@ public class DBTest {
             Odetail od = t.get(OdetailTable.ID);
             Zipcode z = t.get(ZipcodeTable.ID);
 
-            if (o.ono != od.ono || od.qty >= z.zip) fail();
+            if (o.getOno() != od.getOno() || od.getQuantity() >= z.getZip())
+                fail();
         }
 
         if (!hasData) fail();
@@ -447,7 +448,7 @@ public class DBTest {
             Odetail od = t.get(OdetailTable.ID);
             Zipcode z = t.get(ZipcodeTable.ID);
 
-            if (o.ono != od.ono || od.qty >= z.zip) fail();
+            if (o.getOno() != od.getOno() || od.getQuantity() >= z.getZip()) fail();
         }
 
         if (!hasData) fail();
@@ -467,7 +468,7 @@ public class DBTest {
             Odetail od = t.get(OdetailTable.ID);
             Zipcode z = t.get(ZipcodeTable.ID);
 
-            if (o.ono != od.ono || od.qty >= z.zip) fail();
+            if (o.getOno() != od.getOno() || od.getQuantity() >= z.getZip()) fail();
         }
 
         if (count == 0) fail();

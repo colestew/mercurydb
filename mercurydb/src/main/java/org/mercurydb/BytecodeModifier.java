@@ -1,7 +1,7 @@
 package org.mercurydb;
 
 import javassist.*;
-import org.mercurydb.annotations.HgIndex;
+import org.mercurydb.annotations.HgUpdate;
 
 import java.io.IOException;
 
@@ -20,23 +20,36 @@ public class BytecodeModifier {
             con.insertAfter(constructorHook);
         }
 
-        for (CtField cf : _srcClass.getFields()) {
-            if (!cf.hasAnnotation(HgIndex.class)) continue;
-
-            String methodName = "update" + Utils.upperFirst(cf.getName());
+        for (CtMethod cm : _srcClass.getMethods()) {
             try {
-                // If method does not exist. This statement will throw an exception
-                CtMethod cm = _srcClass.getDeclaredMethod(methodName);
-                // If we get this far, add the hook
-                cm.insertAfter(_tableClass + "." + methodName + "(this, " + cf.getName() + ");");
-            } catch (NotFoundException e) {
-                System.err.println("Warning: No set method found for indexed field " + _srcClass.getName() + "." + cf.getName());
-            } catch (SecurityException e) {
-                System.err.println("Warning: " + e.getMessage());
+                // TODO this method needs access to the HgValue fields
+                // it either needs to be built here or needs to be precomputed
+                // and passed in here. My vote goes to precomputed because
+                // it has to be computed anyways in the classtotable process
+
+                HgUpdate update = (HgUpdate)cm.getAnnotation(HgUpdate.class);
+
+            } catch (ClassNotFoundException e) {
+
+                // Why would this ever be thrown??
+                e.printStackTrace();
             }
+
+            // TODO remove old code below
+//            if (!cm.hasAnnotation(HgUpdate.class)) continue;
+//
+//            String methodName = "update" + Utils.upperFirst(cf.getName());
+//            try {
+//                // If method does not exist. This statement will throw an exception
+//                CtMethod cm = _srcClass.getDeclaredMethod(methodName);
+//                // If we get this far, add the hook
+//                cm.insertAfter(_tableClass + "." + methodName + "(this, " + cf.getName() + ");");
+//            } catch (NotFoundException e) {
+//                System.err.println("Warning: No set method found for indexed field " + _srcClass.getName() + "." + cf.getName());
+//            } catch (SecurityException e) {
+//                System.err.println("Warning: " + e.getMessage());
+//            }
         }
-        CtMethod method = CtNewMethod.make("public void fooey() {}", _srcClass);
-        _srcClass.addMethod(method);
         _srcClass.writeFile("build/classes/main");
     }
 }

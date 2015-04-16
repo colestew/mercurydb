@@ -3,16 +3,12 @@ package org.mercurydb;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import com.google.common.collect.Sets;
-import org.mercurydb.annotations.HgIndex;
+import org.mercurydb.annotations.HgIndexStyle;
+import org.mercurydb.annotations.HgValue;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ClassToTableExtractor {
     public final Class<?> c;
@@ -23,12 +19,9 @@ public class ClassToTableExtractor {
 
     public Collection<String> subClasses;
 
-    public List<FieldData> fields;
+    public List<ValueData> values;
 
     public String packageName;
-
-    // TODO this field may be unnecessary
-    public List<QueryData> queries;
 
     public String tableSuffix;
 
@@ -45,33 +38,35 @@ public class ClassToTableExtractor {
         this.tableSuffix = tableSuffix;
         this.joinId = joinId;
 
-        this.fields = new ArrayList<>();
-        this.queries = new ArrayList<>();
+        this.values = new ArrayList<>();
         this.constructors = new ArrayList<>();
 
         this.subClasses = subClassTables;
-        populateFieldsList();
-        populateQueriesList(queries, fields);
+        populateValuesList();
         //populateConstructorsList();
     }
 
-    private void populateFieldsList() {
-        for (Field f : c.getFields()) {
-            // Ignore fields belonging to superclasses
-            if (!f.getDeclaringClass().equals(c)) continue;
-            fields.add(new FieldData(f));
+    private void populateValuesList() {
+        Set<String> seenValues = new HashSet<>();
+        for (Method m : c.getMethods())  {
+            HgValue value = getValueAnnotation(m);
+
+            if (value != null) {
+                if (seenValues.contains(value.value())) {
+                    throw new IllegalStateException(
+                            String.format("Cannot apply @HgValue(\"%s\") on more than one method.", value.value()));
+                }
+
+                if (m.getParameterCount() > 0) {
+                    throw new IllegalStateException(
+                            String.format("Cannot apply @HgValue(\"%s\") on method with non-zero number of parameters: %s",
+                                    value.value(), m.getName()));
+                }
+
+                seenValues.add(value.value());
+                values.add(new ValueData(value, m));
+            }
         }
-    }
-
-    // TODO this function may be unneccesary
-    private static void populateQueriesList(List<QueryData> queries, List<FieldData> fields) {
-        Set<FieldData> fieldSet = new HashSet<>(fields);
-        Set<Set<FieldData>> powerset = Sets.powerSet(fieldSet);
-
-        // TODO: don't calculate all sets and allow 5 to be a runtime parameter
-        queries.addAll(powerset.stream()
-                .filter(querySet -> querySet.size() > 1 && querySet.size() <= 5)
-                .map(QueryData::new).collect(Collectors.toList()));
     }
 
     // TODO unused for now, but should be used later in conjunction with ConstructorData
@@ -94,16 +89,16 @@ public class ClassToTableExtractor {
 
     // TODO if the `queries` field is unnecessary, then this class may be unnecessary as well
     private static class QueryData {
-        TreeSet<FieldData> qFields;
+        TreeSet<ValueData> qFields;
 
-        QueryData(Collection<FieldData> fields) {
+        QueryData(Collection<ValueData> fields) {
             this.qFields = new TreeSet<>(fields);
         }
 
         @SuppressWarnings("unused") // used in template
         String prototype() {
             StringBuilder result = new StringBuilder();
-            for (FieldData fd : qFields) {
+            for (ValueData fd : qFields) {
                 result.append(String.format("%s %s, ", fd.type(), fd.name));
             }
             return result.substring(0, result.length() - 2);
@@ -111,40 +106,36 @@ public class ClassToTableExtractor {
 
         @SuppressWarnings("unused") // used in template
         boolean hasIndex() {
-            for (FieldData fd : qFields) {
+            for (ValueData fd : qFields) {
                 if (fd.hasIndex) return true;
             }
             return false;
         }
     }
 
-    private static class FieldData implements Comparable<FieldData> {
-        Field field;
-
+    private static class ValueData implements Comparable<ValueData> {
+        Method valueMethod;
+        String hgValueMethod;
         String rawType;
         String name;
-        Type fieldType;
+        Type valueType;
 
         boolean hasIndex;
         boolean isOrdered;
-        boolean isFinal;
 
-        FieldData(Field f) {
-            field = f;
-
-            fieldType = f.getGenericType();
-            rawType = fieldType.getTypeName();
-            name = f.getName();
+        ValueData(HgValue value, Method valueMethod) {
+            this.valueMethod = valueMethod;
+            hgValueMethod = valueMethod.getName() + "()";
+            valueType = valueMethod.getGenericReturnType();
+            rawType = valueType.getTypeName();
+            name = value.value();
 
             // fetch HgIndex annotation
-            HgIndex indexAnnotation = getIndexAnnotation(f);
-            if (indexAnnotation != null) {
+            if (value.index() != HgIndexStyle.UNINDEXED) {
                 hasIndex = true;
-                isOrdered = indexAnnotation.ordered() && Comparable.class.isAssignableFrom(f.getType());
+                isOrdered = value.index() == HgIndexStyle.ORDERED &&
+                        Comparable.class.isAssignableFrom(valueMethod.getReturnType());
             }
-
-            hasIndex = indexAnnotation != null;
-            isFinal = Modifier.isFinal(f.getModifiers());
         }
 
         String type() {
@@ -177,7 +168,7 @@ public class ClassToTableExtractor {
 
         @Override
         @SuppressWarnings("NullableProblems") // parameter "o" can be null or non-null
-        public int compareTo(FieldData o) {
+        public int compareTo(ValueData o) {
             if (o == null) {
                 return 1; // sort nulls last
             }
@@ -216,7 +207,7 @@ public class ClassToTableExtractor {
         execute.flush();
     }
 
-    private static HgIndex getIndexAnnotation(Field f) {
-        return f.getAnnotation(HgIndex.class);
+    private static HgValue getValueAnnotation(Method m) {
+        return m.getAnnotation(HgValue.class);
     }
 }

@@ -231,7 +231,7 @@ public class HgDB {
         }
     }
 
-    private static boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
+    public static boolean isStreamAndIndexCompatible(HgTupleStream o, HgBiPredicate<?, ?> pred) {
         return o.isIndexed() && isIndexCompatible(o.getIndex(), pred);
     }
 
