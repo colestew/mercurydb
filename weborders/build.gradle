@@ -20,7 +20,8 @@ task generateTables(type: JavaExec) {
     args = [
         '-src', project.mercurySrc,
         '-db', project.mercuryOut,
-        '-root', 'src/main/java']
+        '-root', 'src/main/java'
+    ]
 }
 
 task compileTables(type: JavaCompile) {
@@ -37,7 +38,8 @@ task insertHooks(type: JavaExec) {
         '-src', project.mercurySrc,
         '-db', project.mercuryOut,
         '-root', 'src/main/java',
-        '-ih', sourceSets.main.output]
+        '-ih', sourceSets.main.output
+    ]
 }
 
 

@@ -182,8 +182,9 @@ public class MercuryBootstrap {
 
     /**
      * Inserts bytecode hooks in the classes found in the input package
+     * @param hooksBaseDir
      */
-    public void insertBytecodeHooks() {
+    public void insertBytecodeHooks(String hooksBaseDir) {
         Collection<Class<?>> classes = getSupportedClasses();
         ClassPool cp = ClassPool.getDefault();
 
@@ -192,7 +193,7 @@ public class MercuryBootstrap {
             System.out.println("Adding insert hook to " + cls);
             try {
                 CtClass ctCls = cp.get(cls.getName());
-                BytecodeModifier modifier = new BytecodeModifier(ctCls, cls, toOutPackage(cls.getName()) + tableSuffix);
+                BytecodeModifier modifier = new BytecodeModifier(ctCls, cls, toOutPackage(cls.getName()) + tableSuffix, hooksBaseDir);
                 modifier.modify();
             } catch (NotFoundException e) {
                 System.err.println("NotFoundException in MercuryBootstrap.insertBytecodeHooks()");

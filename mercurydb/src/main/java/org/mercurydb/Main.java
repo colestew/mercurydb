@@ -40,6 +40,7 @@ public class Main {
         String dbPkg = cmd.getOptionValue("db");
         String srcDir = cmd.getOptionValue("root");
         String suffix = cmd.getOptionValue("sfx");
+        String hooksBaseDir = cmd.getOptionValue("ih", "build/classes/main");
 
         if (srcPkg != null && dbPkg != null && srcDir != null) {
             MercuryBootstrap bs = new MercuryBootstrap(srcPkg, dbPkg, srcDir);
@@ -47,7 +48,7 @@ public class Main {
                 bs.setTableSuffix(suffix);
             }
             if (cmd.hasOption("ih")) {
-                bs.insertBytecodeHooks();
+                bs.insertBytecodeHooks(hooksBaseDir);
             } else {
                 bs.generateTables();
             }

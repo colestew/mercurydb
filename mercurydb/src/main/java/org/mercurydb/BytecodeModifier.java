@@ -6,19 +6,19 @@ import org.mercurydb.annotations.HgUpdate;
 import org.mercurydb.annotations.HgValue;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 public class BytecodeModifier {
     private CtClass _srcCtClass;
     private Class<?> _srcClass;
     private String _tableClass;
+    private String _hooksBaseDir;
 
-    public BytecodeModifier(CtClass srcCtClass, Class<?> srcClass, String tableClass) {
+    public BytecodeModifier(CtClass srcCtClass, Class<?> srcClass, String tableClass, String hooksBaseDir) {
         _srcCtClass = srcCtClass;
         _srcClass = srcClass;
         _tableClass = tableClass;
+        _hooksBaseDir = hooksBaseDir;
     }
 
     public void modify() throws CannotCompileException, IOException, NotFoundException {
@@ -29,8 +29,8 @@ public class BytecodeModifier {
 
         insertMethodHooks();
 
-        // TODO possible bug here! this needs to be a dynamically generated string!
-        _srcCtClass.writeFile("build/classes/main");
+        // FIXME there might be a bug here with regard to the CLI options
+        _srcCtClass.writeFile(_hooksBaseDir);
     }
 
     private void insertMethodHooks() throws CannotCompileException {
@@ -40,7 +40,7 @@ public class BytecodeModifier {
             HgUpdate updateAnn = null;
 
             try {
-                updateAnn = (HgUpdate)m.getAnnotation(HgUpdate.class);
+                updateAnn = (HgUpdate) m.getAnnotation(HgUpdate.class);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
