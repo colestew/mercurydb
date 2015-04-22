@@ -10,7 +10,7 @@ import java.util.Set;
  * ask other JoinStreams how to extract a join key given
  * an instance of their class owner.
  */
-public interface FieldExtractable {
+public interface ValueExtractable {
     /**
      * <p>
      * Returns the name of the class owner. Note
@@ -31,7 +31,7 @@ public interface FieldExtractable {
      * @param o The object to extract a value from.
      * @return The value of the field being extracted.
      */
-    public Object extractField(Object o);
+    public Object extractValue(Object o);
 
     /**
      * @return true if field is indexed, false otherwise

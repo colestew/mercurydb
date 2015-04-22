@@ -4,10 +4,10 @@ import java.util.*;
 
 @SuppressWarnings("unused")
 public abstract class HgTupleStream
-        extends HgStream<HgTupleStream.HgTuple> implements FieldExtractable {
+        extends HgStream<HgTupleStream.HgTuple> implements ValueExtractable {
 
     // TODO document these fields
-    protected FieldExtractable _fwdFE;
+    protected ValueExtractable _fwdFE;
     protected final Map<TableID<?>, Integer> _containedTypes;
     private int tupleIndexCounter = 0;
 
@@ -26,7 +26,7 @@ public abstract class HgTupleStream
         bids.forEach(this::addContainedType);
     }
 
-    public HgTupleStream(FieldExtractable fe, Set<TableID<?>> containedTypes) {
+    public HgTupleStream(ValueExtractable fe, Set<TableID<?>> containedTypes) {
         this._fwdFE = fe;
         this._containedTypes = new HashMap<>();
 
@@ -34,12 +34,12 @@ public abstract class HgTupleStream
     }
 
     @Override
-    public HgTupleStream joinOn(FieldExtractable fe) {
+    public HgTupleStream joinOn(ValueExtractable fe) {
         this._fwdFE = fe;
         return this;
     }
 
-    public HgTupleStream(FieldExtractable fe) {
+    public HgTupleStream(ValueExtractable fe) {
         this._fwdFE = fe;
         this._containedTypes = new HashMap<>();
         addContainedType(fe.getTableId());
@@ -51,12 +51,12 @@ public abstract class HgTupleStream
         }
     }
 
-    public FieldExtractable getFieldExtractor() {
+    public ValueExtractable getFieldExtractor() {
         return _fwdFE;
     }
 
     @SuppressWarnings("unchecked")
-    public void setJoinKey(FieldExtractable fe) {
+    public void setJoinKey(ValueExtractable fe) {
         this._fwdFE = fe;
     }
 
@@ -74,12 +74,12 @@ public abstract class HgTupleStream
     }
 
     @Override
-    public Object extractField(Object instance) {
-        return _fwdFE.extractField(instance);
+    public Object extractValue(Object instance) {
+        return _fwdFE.extractValue(instance);
     }
 
     public Object extractFieldFromTuple(HgTuple t) {
-        return _fwdFE.extractField(t.get(_fwdFE.getTableId()));
+        return _fwdFE.extractValue(t.get(_fwdFE.getTableId()));
     }
 
     @Override
@@ -112,7 +112,7 @@ public abstract class HgTupleStream
 
     @SuppressWarnings("unchecked")
     public static HgTupleStream createJoinInput(
-            final FieldExtractable fe,
+            final ValueExtractable fe,
             final HgStream<?> stream,
             final boolean streamIsFiltered) {
         return new HgTupleStream(fe) {
@@ -217,7 +217,7 @@ public abstract class HgTupleStream
         }
 
         public Object extractJoinedField() {
-            return _fwdFE.extractField(this.get(_fwdFE.getTableId()));
+            return _fwdFE.extractValue(this.get(_fwdFE.getTableId()));
         }
 
         public Object extractJoinedEntry() {

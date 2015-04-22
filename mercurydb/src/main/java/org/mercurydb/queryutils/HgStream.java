@@ -11,7 +11,7 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable 
     abstract public void reset();
 
     @SafeVarargs
-    public final <F> HgStream<T> filter(final AbstractFieldExtractablePredicate<T, F>... preds) {
+    public final <F> HgStream<T> filter(final AbstractValueExtractablePredicate<T, F>... preds) {
         return new HgStream<T>() {
 
             private T next;
@@ -24,8 +24,8 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable 
                     next = stream.next();
                     boolean pass = true;
 
-                    for (AbstractFieldExtractablePredicate<T, F> pred : preds) {
-                        if (!pred.test((F) pred.extractField(next))) {
+                    for (AbstractValueExtractablePredicate<T, F> pred : preds) {
+                        if (!pred.test((F) pred.extractValue(next))) {
                             pass = false;
                             break;
                         }
@@ -50,7 +50,7 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable 
             }
 
             @Override
-            public HgTupleStream joinOn(FieldExtractable fe) {
+            public HgTupleStream joinOn(ValueExtractable fe) {
                 return HgTupleStream.createJoinInput(fe, this, true);
             }
         };
@@ -90,7 +90,7 @@ public abstract class HgStream<T> implements Iterator<T>, Iterable<T>, Joinable 
             }
 
             @Override
-            public HgTupleStream joinOn(FieldExtractable fe) {
+            public HgTupleStream joinOn(ValueExtractable fe) {
                 return HgTupleStream.createJoinInput(fe, this, true);
             }
         };

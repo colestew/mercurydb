@@ -8,11 +8,11 @@ import java.util.Set;
  *
  * @param <T> // TODO seriously this is confusing. what is T?
  */
-public abstract class AbstractFieldExtractablePredicate<T, F>
-        extends FieldExtractableSeed<T> implements HgPredicate<F> {
-    protected final FieldExtractableSeed<T> _fwdFE;
+public abstract class AbstractValueExtractablePredicate<T, F>
+        extends ValueExtractableSeed<T> implements HgPredicate<F> {
+    protected final ValueExtractableSeed<T> _fwdFE;
 
-    public AbstractFieldExtractablePredicate(FieldExtractableSeed<T> fe) {
+    public AbstractValueExtractablePredicate(ValueExtractableSeed<T> fe) {
         super(fe.getTableId());
         this._fwdFE = fe;
     }
@@ -23,8 +23,8 @@ public abstract class AbstractFieldExtractablePredicate<T, F>
     }
 
     @Override
-    public Object extractField(Object o) {
-        return _fwdFE.extractField(o);
+    public Object extractValue(Object o) {
+        return _fwdFE.extractValue(o);
     }
 
     @Override

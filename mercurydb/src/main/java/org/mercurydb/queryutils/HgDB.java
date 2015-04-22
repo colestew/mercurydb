@@ -35,16 +35,16 @@ import java.util.*;
  * @see #join
  */
 public class HgDB {
-    private static final Comparator<AbstractFieldExtractablePredicate<?, ?>> QUERY_COMPARATOR =
+    private static final Comparator<AbstractValueExtractablePredicate<?, ?>> QUERY_COMPARATOR =
             (a, b) -> {
                 int aPriority = getQueryPredicatePriority(a);
                 int bPriority = getQueryPredicatePriority(b);
                 return aPriority - bPriority;
             };
 
-    private static int getQueryPredicatePriority(AbstractFieldExtractablePredicate<?, ?> predicate) {
-        if (predicate instanceof FieldExtractableRelation) {
-            FieldExtractableRelation<?, ?> fer = (FieldExtractableRelation<?, ?>) predicate;
+    private static int getQueryPredicatePriority(AbstractValueExtractablePredicate<?, ?> predicate) {
+        if (predicate instanceof ValueExtractableRelation) {
+            ValueExtractableRelation<?, ?> fer = (ValueExtractableRelation<?, ?>) predicate;
             if (fer.isIndexed() && fer.relation == HgRelation.EQ) {
                 return -(fer.getIndex().get(fer.value).size());
             } else if (isIndexCompatible(fer.getIndex(), fer.relation)) {
@@ -81,19 +81,19 @@ public class HgDB {
      * @return a stream of type T
      */
     @SuppressWarnings("unchecked") // cast from Iterable<Object> to Iterable<T>
-    public static <T> HgStream<T> query(AbstractFieldExtractablePredicate<T, ?>... extractableValues) {
+    public static <T> HgStream<T> query(AbstractValueExtractablePredicate<T, ?>... extractableValues) {
         if (extractableValues.length == 0) {
             return new HgRetrievalStream<>(Collections.<T>emptyList());
         }
 
         Arrays.sort(extractableValues, QUERY_COMPARATOR);
 
-        FieldExtractableSeed<T> fe = extractableValues[0];
+        ValueExtractableSeed<T> fe = extractableValues[0];
         HgStream<T> stream = fe.getDefaultStream();
 
         int start = 0;
-        if (fe instanceof FieldExtractableRelation) {
-            FieldExtractableRelation<T, ?> fer = (FieldExtractableRelation<T, ?>) fe;
+        if (fe instanceof ValueExtractableRelation) {
+            ValueExtractableRelation<T, ?> fer = (ValueExtractableRelation<T, ?>) fe;
             if (isIndexCompatible(fer.getIndex(), fer.relation)) {
                 start = 1;
                 HgRelation hgRelation = (HgRelation) fer.relation;

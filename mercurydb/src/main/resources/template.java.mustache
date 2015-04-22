@@ -20,7 +20,7 @@ public class {{sourceClass}}{{tableSuffix}} {
 
     public static final Class<{{sourceClass}}> containedClass = {{sourceClass}}.class;
 
-    // Maps for indexed fields
+    // Maps for indexed values
     {{#values}}
     {{#hasIndex}}
     {{#isOrdered}}
@@ -78,7 +78,7 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/subClasses}}
     }
 
-    // Set methods - make sure you use these on indexed fields for consistency!
+    // Set methods - make sure you use these on indexed values for consistency!
     {{#values}}
     public static void removeStaleValue{{CCname}}({{sourceClass}} instance) {
         {{#hasIndex}}
@@ -104,12 +104,12 @@ public class {{sourceClass}}{{tableSuffix}} {
     {{/values}}
     
 
-    public static final class field {
+    public static final class value {
         {{#values}}
-        public static FieldExtractableSeed<{{sourceClass}}> {{name}}(TableID<{{sourceClass}}> id) {
-            return new FieldExtractableSeed<{{sourceClass}}>(id) {
+        public static ValueExtractableSeed<{{sourceClass}}> {{name}}(TableID<{{sourceClass}}> id) {
+            return new ValueExtractableSeed<{{sourceClass}}>(id) {
                 @Override
-                public Object extractField(Object instance) {
+                public Object extractValue(Object instance) {
                     return (({{sourceClass}})instance).{{hgValueMethod}};
                 }
 
@@ -149,10 +149,10 @@ public class {{sourceClass}}{{tableSuffix}} {
         {{/values}}
     }
 
-    public static FieldExtractableSeed<{{sourceClass}}> self(TableID<{{sourceClass}}> id) {
-        return new FieldExtractableSeed<{{sourceClass}}>(id) {
+    public static ValueExtractableSeed<{{sourceClass}}> self(TableID<{{sourceClass}}> id) {
+        return new ValueExtractableSeed<{{sourceClass}}>(id) {
             @Override
-            public Object extractField(Object instance) {
+            public Object extractValue(Object instance) {
                 return instance;
             }
 
@@ -178,107 +178,107 @@ public class {{sourceClass}}{{tableSuffix}} {
         };
     }
 
-    public static final JoinField on = new JoinField(ID);
+    public static final JoinValue on = new JoinValue(ID);
 
-    public static JoinAsField as(TableID<{{sourceClass}}> id) {
-        return new JoinAsField(id);
+    public static JoinAsValue as(TableID<{{sourceClass}}> id) {
+        return new JoinAsValue(id);
     }
 
-    public static class JoinAsField {
-        public final JoinField on;
+    public static class JoinAsValue {
+        public final JoinValue on;
 
-        public JoinAsField(TableID<{{sourceClass}}> aliasId) {
-            this.on = new JoinField(aliasId);
+        public JoinAsValue(TableID<{{sourceClass}}> aliasId) {
+            this.on = new JoinValue(aliasId);
         }
     }
 
-    public static class JoinField {
+    public static class JoinValue {
         private final TableID<{{sourceClass}}> id;
 
-        public JoinField(TableID<{{sourceClass}}> aliasId) {
+        public JoinValue(TableID<{{sourceClass}}> aliasId) {
             this.id = aliasId;
         }
 
         {{#values}}
         public HgTupleStream {{name}}() {
-            return stream().joinOn(field.{{name}}(id));
+            return stream().joinOn(value.{{name}}(id));
         }
         {{/values}}
     }
 
     public static class eq {
         {{#values}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.EQ, val);
+            return new ValueExtractableRelation<>(value.{{name}}(ID), HgRelation.EQ, val);
         }
         {{/values}}
     }
 
     public static class ne {
         {{#values}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.NE, val);
+            return new ValueExtractableRelation<>(value.{{name}}(ID), HgRelation.NE, val);
         }
         {{/values}}
     }
 
     public static class lt {
         {{#values}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.LT, val);
+            return new ValueExtractableRelation<>(value.{{name}}(ID), HgRelation.LT, val);
         }
         {{/values}}
     }
 
     public static class le {
         {{#values}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.LE, val);
+            return new ValueExtractableRelation<>(value.{{name}}(ID), HgRelation.LE, val);
         }
         {{/values}}
     }
 
     public static class gt {
         {{#values}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.GT, val);
+            return new ValueExtractableRelation<>(value.{{name}}(ID), HgRelation.GT, val);
         }
         {{/values}}
     }
 
     public static class ge {
         {{#values}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.GE, val);
+            return new ValueExtractableRelation<>(value.{{name}}(ID), HgRelation.GE, val);
         }
         {{/values}}
     }
 
     public static class in {
         {{#values}}
-        public static FieldExtractableRelation<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractableRelation<{{sourceClass}}, {{{type}}}>
         {{name}}({{{type}}} val) {
-            return new FieldExtractableRelation<>(field.{{name}}(ID), HgRelation.IN, val);
+            return new ValueExtractableRelation<>(value.{{name}}(ID), HgRelation.IN, val);
         }
         {{/values}}
     }
 
-    public static FieldExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
+    public static ValueExtractablePredicate<{{sourceClass}}, {{sourceClass}}>
     predicate (HgPredicate<{{sourceClass}}> predicate) {
-        return new FieldExtractablePredicate<>(self(ID), predicate);
+        return new ValueExtractablePredicate<>(self(ID), predicate);
     }
 
     public static class predicates {
         {{#values}}
-        public static FieldExtractablePredicate<{{sourceClass}}, {{{type}}}>
+        public static ValueExtractablePredicate<{{sourceClass}}, {{{type}}}>
         {{name}}(HgPredicate<{{{type}}}> predicate) {
-            return new FieldExtractablePredicate<>(field.{{name}}(ID), predicate);
+            return new ValueExtractablePredicate<>(value.{{name}}(ID), predicate);
         }
         {{/values}}
     }

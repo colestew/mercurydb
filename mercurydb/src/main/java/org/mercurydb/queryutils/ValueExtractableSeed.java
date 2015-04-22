@@ -6,10 +6,10 @@ package org.mercurydb.queryutils;
  * to get access to the stream from the table. For one table class this stream should
  * always be the same.
  */
-public abstract class FieldExtractableSeed<T> implements FieldExtractable {
+public abstract class ValueExtractableSeed<T> implements ValueExtractable {
     private final TableID<T> _id;
 
-    public FieldExtractableSeed(TableID<T> id) {
+    public ValueExtractableSeed(TableID<T> id) {
         this._id = id;
     }
 
