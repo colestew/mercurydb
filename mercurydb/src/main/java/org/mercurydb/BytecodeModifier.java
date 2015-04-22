@@ -28,8 +28,6 @@ public class BytecodeModifier {
         }
 
         insertMethodHooks();
-
-        // FIXME there might be a bug here with regard to the CLI options
         _srcCtClass.writeFile(_hooksBaseDir);
     }
 

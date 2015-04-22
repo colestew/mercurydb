@@ -30,7 +30,6 @@ task compileTables(type: JavaCompile) {
     destinationDir = sourceSets.main.output.classesDir 
 }
 
-
 task insertHooks(type: JavaExec) { 
     classpath = sourceSets.main.runtimeClasspath
     main = 'org.mercurydb.Main'
@@ -38,7 +37,7 @@ task insertHooks(type: JavaExec) {
         '-src', project.mercurySrc,
         '-db', project.mercuryOut,
         '-root', 'src/main/java',
-        '-ih', sourceSets.main.output
+        '-ih', sourceSets.main.output.classesDir
     ]
 }
 
