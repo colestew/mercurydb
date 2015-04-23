@@ -1,11 +1,38 @@
 Tried using LinkedList for table. about 3x slower than using hashset
 
-Clustrix says something like:
-If you plan to run ClustrixDB in production, make sure you have 3 hosts or more to build a cluster with at least:
-48 to 64 GiB of memory
-Dual 4 Core Xeon CPUs
-RHEL v6.4 to v6.6 or CentOS v6.4 to v6.6
 
-They offer a good testing framework for comparison
-http://docs.clustrix.com/display/CLXDOC/Evaluating+ClustrixDB+Performance
+Example to consider:
+    Find all the living (non-deceased) Grandparents for each person in a database, given:
+
+    Person (
+        mother : Person
+        father : Person
+    )
+
+    Is this done using joins? How?
+
+    Let's start with just living maternal grandmothers -- this is one such self-join.
+
+    To get all grandparents, do we do multiple joins to add mother and father to the resulting lists?
+
+
+
+
+Comparisons with other DB systems. Main memory preferred. Alternatively, locally run.
+We need to choose which systems to use to get the data for our analyses.
+
+    MongoDB (runs locally - not main memory, persistent to disk - is or was popular for small-scale and web-app development)
+
+
+Clustrix says something like:
+    If you plan to run ClustrixDB in production, make sure you have 3 hosts or more to build a cluster with at least:
+    48 to 64 GiB of memory
+    Dual 4 Core Xeon CPUs
+    RHEL v6.4 to v6.6 or CentOS v6.4 to v6.6
+
+    They offer a good testing framework for comparison
+    http://docs.clustrix.com/display/CLXDOC/Evaluating+ClustrixDB+Performance
+
+
+
 
