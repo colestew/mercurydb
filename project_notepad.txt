@@ -1,3 +1,11 @@
 Tried using LinkedList for table. about 3x slower than using hashset
 
-Using Collections.newSetFromMap on a WeakHashMap yields failed unit tests.
+Clustrix says something like:
+If you plan to run ClustrixDB in production, make sure you have 3 hosts or more to build a cluster with at least:
+48 to 64 GiB of memory
+Dual 4 Core Xeon CPUs
+RHEL v6.4 to v6.6 or CentOS v6.4 to v6.6
+
+They offer a good testing framework for comparison
+http://docs.clustrix.com/display/CLXDOC/Evaluating+ClustrixDB+Performance
+
