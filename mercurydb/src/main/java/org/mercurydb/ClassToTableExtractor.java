@@ -144,7 +144,7 @@ public class ClassToTableExtractor {
                 case "double":
                     return Double.class.getName();
                 default:
-                    return rawType;
+                    return rawType.replaceAll("\\$", ".");
             }
         }
 

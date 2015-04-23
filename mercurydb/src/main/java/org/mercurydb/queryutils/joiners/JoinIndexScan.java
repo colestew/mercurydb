@@ -38,6 +38,8 @@ public class JoinIndexScan extends HgPolyTupleStream {
         ap = _predicate.streamA;
         bp = _predicate.streamB;
         relation = (HgRelation)_predicate.relation;
+
+        setup();
     }
 
     private void setup() {
