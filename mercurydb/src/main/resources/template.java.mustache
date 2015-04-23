@@ -91,7 +91,7 @@ public class {{sourceClass}}{{tableSuffix}} {
     
     public static void updateNewValue{{CCname}}({{sourceClass}} instance) {
         {{#hasIndex}}
-        {{{rawType}}} key = instance.{{hgValueMethod}};
+        {{{type}}} key = instance.{{hgValueMethod}};
         Set<{{sourceClass}}> values = {{name}}Index.get(key);
         if (values == null) {
             values = new HashSet<>();
